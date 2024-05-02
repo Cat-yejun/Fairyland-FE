@@ -22,46 +22,22 @@ public class ImageSwitcher : MonoBehaviour
         }
     }
 
-    void Update()
+    // Function to switch to the next image
+    public void NextImage()
     {
-        // Check if no image is currently active
-        bool noImageActive = true;
-        for (int i = 0; i < panel.childCount; i++)
-        {
-            if (panel.GetChild(i).gameObject.activeSelf)
-            {
-                noImageActive = false;
-                break;
-            }
-        }
+        // Deactivate the current image
+        panel.GetChild(currentIndex).gameObject.SetActive(false);
 
-        // If no image is active, activate the first image
-        if (noImageActive)
+        // Increment the index
+        currentIndex++;
+
+        // If we have reached the last image, reset to the first image
+        if (currentIndex >= panel.childCount)
         {
-            panel.GetChild(0).gameObject.SetActive(true);
             currentIndex = 0;
-            return;
         }
 
-        // Check for screen touch or mouse click
-        if (Input.GetButtonDown("Fire1")) // Change "Fire1" to your desired input axis
-        {
-            // Deactivate the current image
-            panel.GetChild(currentIndex).gameObject.SetActive(false);
-
-            // Increment the index
-            currentIndex++;
-
-            // If we have reached the last image, exit the function
-            if (currentIndex >= panel.childCount)
-            {
-                // You can add any additional logic here if needed
-                Debug.Log("Reached the end of images.");
-                return;
-            }
-
-            // Activate the next image
-            panel.GetChild(currentIndex).gameObject.SetActive(true);
-        }
+        // Activate the next image
+        panel.GetChild(currentIndex).gameObject.SetActive(true);
     }
 }
