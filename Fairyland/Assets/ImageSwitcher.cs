@@ -40,4 +40,23 @@ public class ImageSwitcher : MonoBehaviour
         // Activate the next image
         panel.GetChild(currentIndex).gameObject.SetActive(true);
     }
+
+    // Function to switch to the previous image
+    public void PreviousImage()
+    {
+        // Deactivate the current image
+        panel.GetChild(currentIndex).gameObject.SetActive(false);
+
+        // Decrement the index
+        currentIndex--;
+
+        // If we have reached the first image, loop back to the last image
+        if (currentIndex < 0)
+        {
+            currentIndex = panel.childCount - 1;
+        }
+
+        // Activate the previous image
+        panel.GetChild(currentIndex).gameObject.SetActive(true);
+    }
 }
