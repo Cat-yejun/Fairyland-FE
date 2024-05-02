@@ -14,7 +14,7 @@ public class ButtonController : MonoBehaviour
         float oscillation = Mathf.Sin(Time.time * _oscillationSpeed);
 
         // 회전 적용
-        transform.rotation = Quaternion.Euler(0, 0, oscillation*4);
+        transform.rotation = Quaternion.Euler(0, 0, oscillation*3);
     }
 
     void resetAnim()
