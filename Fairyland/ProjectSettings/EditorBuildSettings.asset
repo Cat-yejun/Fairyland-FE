@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Book_manu.unity
     guid: 16eb096e37b3b41f1872ebf51e7959e3
+  - enabled: 1
+    path: Assets/InBookScene.unity
+    guid: 7d5f65133e52a42bda4c8ffda8e43bde
   m_configObjects: {}
