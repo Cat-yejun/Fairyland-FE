@@ -24,6 +24,25 @@ public class ImageSwitcher : MonoBehaviour
 
     void Update()
     {
+        // Check if no image is currently active
+        bool noImageActive = true;
+        for (int i = 0; i < panel.childCount; i++)
+        {
+            if (panel.GetChild(i).gameObject.activeSelf)
+            {
+                noImageActive = false;
+                break;
+            }
+        }
+
+        // If no image is active, activate the first image
+        if (noImageActive)
+        {
+            panel.GetChild(0).gameObject.SetActive(true);
+            currentIndex = 0;
+            return;
+        }
+
         // Check for screen touch or mouse click
         if (Input.GetButtonDown("Fire1")) // Change "Fire1" to your desired input axis
         {
