@@ -5,8 +5,12 @@ using UnityEngine;
 public class angry_button : MonoBehaviour
 {
     public GameObject menuCanvas;
+    public GameObject angryCanvas;
+    public GameObject happyCanvas;
+    public GameObject surpriseCanvas;
     public Animator whaleAnimator;
     public Material[] expressions;
+
 
     public void selectButton(int expression)
     {
@@ -16,7 +20,7 @@ public class angry_button : MonoBehaviour
         SkinnedMeshRenderer renderer = GetComponent<SkinnedMeshRenderer>();
         if (renderer != null)
         {
-            renderer.material = expressions[expression];
+            renderer.material = expressions[expression-1];
         }
         else
         {
