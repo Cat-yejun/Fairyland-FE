@@ -14,9 +14,12 @@ public class whale_seq : MonoBehaviour
     public GameObject happyCanvas;
     public GameObject surpriseCanvas;
     public GameObject backgroundPlane;
+    public GameObject correctCanvas;
+    public GameObject failCanvas;
+    public GameObject menuText;
+
     public Transform newWhale;
     public GameObject newWhaleObject;
-
 
     public float moveDuration = 1.0f;
     public float scaleDuration = 1.0f;
@@ -33,6 +36,9 @@ public class whale_seq : MonoBehaviour
         surpriseCanvas.SetActive(false);
         menuCanvus.SetActive(false);
         newWhaleObject.SetActive(false);
+        correctCanvas.SetActive(false);
+        failCanvas.SetActive(false);
+        menuText.SetActive(false);
         //backgroundPlane.SetActive(false);
     }
 
@@ -52,7 +58,7 @@ public class whale_seq : MonoBehaviour
 
         float elapsedTime = 0;
 
-        while (Vector3.Distance(whale.position, targetPosition) > 5.0f || Vector3.Distance(whale.localScale, targetScale) > 5.0f)
+        while (Vector3.Distance(whale.position, targetPosition) > 3.0f || Vector3.Distance(whale.localScale, targetScale) > 3.0f)
         {
             whale.position = Vector3.SmoothDamp(whale.position, targetPosition, ref velocity, moveDuration, Mathf.Infinity, Time.deltaTime);
             whale.localScale = Vector3.SmoothDamp(whale.localScale, targetScale, ref scaleVelocity, scaleDuration, Mathf.Infinity, Time.deltaTime);
@@ -67,6 +73,7 @@ public class whale_seq : MonoBehaviour
         whale.rotation = targetRotation;
 
         menuCanvus.SetActive(true);
+        menuText.SetActive(true);
 
     }
 }
