@@ -3215,6 +3215,7 @@ GameObject:
   - component: {fileID: 463724769}
   - component: {fileID: 463724768}
   - component: {fileID: 463724767}
+  - component: {fileID: 463724771}
   - component: {fileID: 463724770}
   m_Layer: 5
   m_Name: Button_Next
@@ -3286,9 +3287,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 463724770}
-        m_TargetAssemblyTypeName: ImageSwitcher, Assembly-CSharp
-        m_MethodName: NextImage
+      - m_Target: {fileID: 463724771}
+        m_TargetAssemblyTypeName: RightButton, Assembly-CSharp
+        m_MethodName: OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3349,6 +3350,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1225573630}
+--- !u!114 &463724771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 463724765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 510d9e02cc7954ab0b0fe5154c583016, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  imageSwitcher: {fileID: 480984394}
 --- !u!1 &470662925
 GameObject:
   m_ObjectHideFlags: 0
@@ -6632,6 +6646,7 @@ GameObject:
   - component: {fileID: 1302219277}
   - component: {fileID: 1302219276}
   - component: {fileID: 1302219275}
+  - component: {fileID: 1302219279}
   - component: {fileID: 1302219278}
   m_Layer: 5
   m_Name: Button_Prev
@@ -6703,9 +6718,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1302219278}
-        m_TargetAssemblyTypeName: ImageSwitcher, Assembly-CSharp
-        m_MethodName: PreviousImage
+      - m_Target: {fileID: 1302219279}
+        m_TargetAssemblyTypeName: LeftButton, Assembly-CSharp
+        m_MethodName: OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6766,6 +6781,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1225573630}
+--- !u!114 &1302219279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302219273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2a286a0bef3b45d4bc16594198e2fd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  imageSwitcher: {fileID: 480984394}
 --- !u!1 &1302548107
 GameObject:
   m_ObjectHideFlags: 0
