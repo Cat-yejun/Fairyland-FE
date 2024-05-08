@@ -4,8 +4,11 @@
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using TMPro;
+using System.IO;
 public enum FlipMode
 {
     RightToLeft,
@@ -18,11 +21,11 @@ public class Book : MonoBehaviour {
     RectTransform BookPanel;
     public Sprite background;
     public Sprite[] bookPages;
+    public Sprite[] bookBigPages;
     public bool interactable=true;
     public bool enableShadowEffect=true;
     //represent the index of the sprite shown in the right page
     public int currentPage = 0;
-    public Sprite fullImage;
 
     public int TotalPageCount
     {
@@ -69,11 +72,28 @@ public class Book : MonoBehaviour {
     //current flip mode
     FlipMode mode;
 
+    //public Transform[] pagePositions; // 페이지 위치를 정의하는 트랜스폼 배열
+    //public TMP_FontAsset fontAsset; // 원하는 글꼴
+    //public GameObject[] textGameObjects; // 각 페이지의 텍스트를 담는 GameObject 배열
+
 
     void Start()
     {
         if (!canvas) canvas=GetComponentInParent<Canvas>();
         if (!canvas) Debug.LogError("Book should be a child to canvas");
+
+        // Call SplitImage to divide the image and set up pages
+        if (bookBigPages != null)
+        {
+            InitializeBookPages();
+        }
+        else
+        {
+            Debug.LogError("fullImageSprite not set");
+        }
+
+        //LoadTextsToPages();
+        //UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
 
         Left.gameObject.SetActive(false);
         Right.gameObject.SetActive(false);
@@ -97,16 +117,81 @@ public class Book : MonoBehaviour {
         ShadowLTR.rectTransform.sizeDelta = new Vector2(pageWidth, shadowPageHeight);
         ShadowLTR.rectTransform.pivot = new Vector2(0, (pageWidth / 2) / shadowPageHeight);
 
-        // Call SplitImage to divide the image and set up pages
-        if (fullImage != null)
+    }
+    /*
+    void UpdateTextVisibility()
+    {
+        // 모든 텍스트를 숨기고 현재 페이지에 맞는 텍스트만 표시
+        foreach (GameObject textGO in textGameObjects)
         {
-            SplitSprite(fullImage);
+            textGO.SetActive(false);
         }
-        else
+        if (currentPage < textGameObjects.Length)
         {
-            Debug.LogError("fullImageSprite not set");
+            textGameObjects[currentPage].SetActive(true);
         }
+    }*/
+    /*
+    void LoadTextsToPages()
+    {
+        string[] filePaths = Directory.GetFiles(Path.Combine(Application.dataPath, "ResourceTexts"), "*.txt");
+        Debug.Log("Total files found: " + filePaths.Length); // 파일 수 확인
 
+        int pageIndex = 0;
+
+        // 이제 기존에 존재하는 textGameObjects 배열을 활용
+        foreach (string filePath in filePaths)
+        {
+            Debug.Log("Loading text from: " + filePath); // 파일 경로 출력
+
+            if (pageIndex >= textGameObjects.Length)
+            {
+                Debug.LogError("Index exceeds textGameObjects array length");
+                break;
+            }
+
+            string textContent = File.ReadAllText(filePath);
+            if (textGameObjects[pageIndex] == null)
+            {
+                Debug.LogError("textGameObjects[" + pageIndex + "] is not assigned!");
+                continue;
+            }
+            TextMeshProUGUI tmp = textGameObjects[pageIndex].GetComponent<TextMeshProUGUI>();
+            if (tmp == null)
+            {
+                Debug.LogError("TextMeshProUGUI component not found on textGameObjects[" + pageIndex + "]");
+                continue;
+            }
+
+            tmp.text = textContent;
+            tmp.font = fontAsset; // 글꼴 설정
+
+            // 위치 조정 (왼쪽아래, 오른쪽아래 번갈아가며 설정)
+            tmp.alignment = pageIndex % 2 == 0 ? TextAlignmentOptions.BottomLeft : TextAlignmentOptions.BottomRight;
+
+            pageIndex++;
+        }
+    }*/
+
+
+    void InitializeBookPages()
+    {
+        // Assume each big page contains exactly two pages
+        bookPages = new Sprite[(bookBigPages.Length + 1) * 2];
+
+        for (int i = 0, j = 0; i < bookBigPages.Length; i++, j += 2)
+        {
+            Texture2D originalTexture = bookBigPages[i].texture;
+            Rect originalRect = bookBigPages[i].rect;
+
+            // Left page
+            Rect leftRect = new Rect(originalRect.x, originalRect.y, originalRect.width / 2, originalRect.height);
+            bookPages[j + 1] = Sprite.Create(originalTexture, leftRect, new Vector2(0.5f, 0.5f), bookBigPages[i].pixelsPerUnit);
+
+            // Right page
+            Rect rightRect = new Rect(originalRect.x + originalRect.width / 2, originalRect.y, originalRect.width / 2, originalRect.height);
+            bookPages[j + 2] = Sprite.Create(originalTexture, rightRect, new Vector2(0.5f, 0.5f), bookBigPages[i].pixelsPerUnit);
+        }
     }
 
     void SplitSprite(Sprite originalSprite)
@@ -417,6 +502,8 @@ public class Book : MonoBehaviour {
             currentPage += 2;
         else
             currentPage -= 2;
+        //currentPage = Mathf.Clamp(currentPage, 0, bookPages.Length - 1); // 페이지 범위 제한
+        
         LeftNext.transform.SetParent(BookPanel.transform, true);
         Left.transform.SetParent(BookPanel.transform, true);
         LeftNext.transform.SetParent(BookPanel.transform, true);
@@ -425,6 +512,9 @@ public class Book : MonoBehaviour {
         Right.transform.SetParent(BookPanel.transform, true);
         RightNext.transform.SetParent(BookPanel.transform, true);
         UpdateSprites();
+
+        //UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
+
         Shadow.gameObject.SetActive(false);
         ShadowLTR.gameObject.SetActive(false);
         if (OnFlip != null)
