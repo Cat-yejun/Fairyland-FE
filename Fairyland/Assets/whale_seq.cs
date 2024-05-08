@@ -9,6 +9,8 @@ using UnityEngine;
 public class whale_seq : MonoBehaviour
 {
     public Transform whale;
+    public GameObject whaleObject;
+
     public GameObject menuCanvus;
     public GameObject angryCanvas;
     public GameObject happyCanvas;
@@ -31,24 +33,51 @@ public class whale_seq : MonoBehaviour
 
     void Start()
     {
+        if (whale == null)
+        {
+            Debug.LogError("Whale transform is not assigned.");
+        }
+        if (newWhale == null)
+        {
+            Debug.LogError("New Whale transform is not assigned.");
+        }
+
         angryCanvas.SetActive(false);
         happyCanvas.SetActive(false);
         surpriseCanvas.SetActive(false);
         menuCanvus.SetActive(false);
-        newWhaleObject.SetActive(false);
+        //newWhaleObject.SetActive(false);
         correctCanvas.SetActive(false);
         failCanvas.SetActive(false);
         menuText.SetActive(false);
+        Debug.Log("set all canvas to false");
+
         //backgroundPlane.SetActive(false);
     }
 
     public void StartSequence()
     {
+
+        if (newWhale == null)
+        {
+            Debug.LogError("Attempted to start sequence but New Whale Transform is not assigned.");
+            return;
+        }
+        else
+        {
+            Debug.Log("newWhale is not null!");
+        }
         StartCoroutine(Sequence());
     }
 
     IEnumerator Sequence()
     {
+        if (whale == null || newWhale == null || newWhaleObject == null)
+        {
+            Debug.LogError("One or more required objects are null.");
+            yield break;
+        }
+
         backgroundPlane.SetActive(false);
 
         Vector3 targetPosition = new Vector3(newWhale.position.x, newWhale.position.y, newWhale.position.z);

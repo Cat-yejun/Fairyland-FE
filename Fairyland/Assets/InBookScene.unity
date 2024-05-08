@@ -222,7 +222,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 9253533}
+      - m_Target: {fileID: 725998537}
         m_TargetAssemblyTypeName: whale_seq, Assembly-CSharp
         m_MethodName: StartSequence
         m_Mode: 1
@@ -309,6 +309,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whale: {fileID: 1672231529}
+  whaleObject: {fileID: 1004659115}
   menuCanvus: {fileID: 669414718}
   angryCanvas: {fileID: 1734704919}
   happyCanvas: {fileID: 1767240260}
@@ -4643,6 +4644,38 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &725998534 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1732195785828844, guid: 94c60322659a75c489677560265c672a, type: 3}
+  m_PrefabInstance: {fileID: 1772316255}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &725998537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725998534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4870a02e8758af947bbb7fddd5cfcc73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  whale: {fileID: 1672231529}
+  whaleObject: {fileID: 1004659115}
+  menuCanvus: {fileID: 669414718}
+  angryCanvas: {fileID: 1734704919}
+  happyCanvas: {fileID: 1767240260}
+  surpriseCanvas: {fileID: 509384805}
+  backgroundPlane: {fileID: 1802804021}
+  correctCanvas: {fileID: 28166007}
+  failCanvas: {fileID: 1226644036}
+  menuText: {fileID: 1608765063}
+  newWhale: {fileID: 480378965}
+  newWhaleObject: {fileID: 480378964}
+  moveDuration: 1
+  scaleDuration: 1
+  rotationDuration: 1
 --- !u!1 &828710298
 GameObject:
   m_ObjectHideFlags: 0
@@ -8594,12 +8627,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1955433734}
-  - {fileID: 1373845200}
-  - {fileID: 1193015745}
-  - {fileID: 1672231529}
-  - {fileID: 480378965}
   - {fileID: 1802804023}
+  - {fileID: 480378965}
+  - {fileID: 1672231529}
+  - {fileID: 1193015745}
+  - {fileID: 1373845200}
+  - {fileID: 1955433734}
   m_Father: {fileID: 520956754}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -9722,7 +9755,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1904210629174728, guid: 94c60322659a75c489677560265c672a, type: 3}
       propertyPath: m_Name
-      value: Whale01 (1)
+      value: WhaleTransform
       objectReference: {fileID: 0}
     - target: {fileID: 1904210629174728, guid: 94c60322659a75c489677560265c672a, type: 3}
       propertyPath: m_TagString
@@ -9750,7 +9783,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4011471541751912, guid: 94c60322659a75c489677560265c672a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -500
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4011471541751912, guid: 94c60322659a75c489677560265c672a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9787,7 +9820,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1732195785828844, guid: 94c60322659a75c489677560265c672a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 725998537}
   m_SourcePrefab: {fileID: 100100000, guid: 94c60322659a75c489677560265c672a, type: 3}
 --- !u!1 &1802804021
 GameObject:
