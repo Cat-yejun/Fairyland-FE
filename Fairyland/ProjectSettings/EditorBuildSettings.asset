@@ -20,7 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/InBookScene.unity
     guid: 7d5f65133e52a42bda4c8ffda8e43bde
-  - enabled: 1
+  - enabled: 0
     path: Assets/role_playing_scene.unity
     guid: 22fbc526bfbafac4e917a0ead52ffb82
   m_configObjects: {}
