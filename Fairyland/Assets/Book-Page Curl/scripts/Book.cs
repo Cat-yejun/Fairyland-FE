@@ -76,6 +76,8 @@ public class Book : MonoBehaviour {
     //public TMP_FontAsset fontAsset; // 원하는 글꼴
     //public GameObject[] textGameObjects; // 각 페이지의 텍스트를 담는 GameObject 배열
 
+    public TMP_FontAsset fontAsset; // 원하는 글꼴
+    public GameObject[] textGameObjects; // 각 페이지의 텍스트를 담는 GameObject 배열
 
     void Start()
     {
@@ -92,8 +94,8 @@ public class Book : MonoBehaviour {
             Debug.LogError("fullImageSprite not set");
         }
 
-        //LoadTextsToPages();
-        //UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
+        LoadTextsToPages();
+        UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
 
         Left.gameObject.SetActive(false);
         Right.gameObject.SetActive(false);
@@ -118,7 +120,8 @@ public class Book : MonoBehaviour {
         ShadowLTR.rectTransform.pivot = new Vector2(0, (pageWidth / 2) / shadowPageHeight);
 
     }
-    /*
+
+
     void UpdateTextVisibility()
     {
         // 모든 텍스트를 숨기고 현재 페이지에 맞는 텍스트만 표시
@@ -126,12 +129,13 @@ public class Book : MonoBehaviour {
         {
             textGO.SetActive(false);
         }
-        if (currentPage < textGameObjects.Length)
+        if (currentPage / 2 < textGameObjects.Length)
         {
-            textGameObjects[currentPage].SetActive(true);
+            textGameObjects[currentPage / 2].SetActive(true);
         }
-    }*/
-    /*
+    }
+
+
     void LoadTextsToPages()
     {
         string[] filePaths = Directory.GetFiles(Path.Combine(Application.dataPath, "ResourceTexts"), "*.txt");
@@ -139,13 +143,13 @@ public class Book : MonoBehaviour {
 
         int pageIndex = 0;
 
-        // 이제 기존에 존재하는 textGameObjects 배열을 활용
         foreach (string filePath in filePaths)
         {
             Debug.Log("Loading text from: " + filePath); // 파일 경로 출력
 
             if (pageIndex >= textGameObjects.Length)
             {
+                Debug.Log(pageIndex + ", " + textGameObjects.Length);
                 Debug.LogError("Index exceeds textGameObjects array length");
                 break;
             }
@@ -156,6 +160,7 @@ public class Book : MonoBehaviour {
                 Debug.LogError("textGameObjects[" + pageIndex + "] is not assigned!");
                 continue;
             }
+
             TextMeshProUGUI tmp = textGameObjects[pageIndex].GetComponent<TextMeshProUGUI>();
             if (tmp == null)
             {
@@ -171,7 +176,7 @@ public class Book : MonoBehaviour {
 
             pageIndex++;
         }
-    }*/
+    }
 
 
     void InitializeBookPages()
@@ -513,7 +518,7 @@ public class Book : MonoBehaviour {
         RightNext.transform.SetParent(BookPanel.transform, true);
         UpdateSprites();
 
-        //UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
+        UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
 
         Shadow.gameObject.SetActive(false);
         ShadowLTR.gameObject.SetActive(false);
