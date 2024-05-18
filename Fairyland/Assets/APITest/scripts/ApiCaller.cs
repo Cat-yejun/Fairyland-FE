@@ -3,7 +3,6 @@ using UnityEngine.Networking;
 using TMPro; // TextMeshPro를 사용하기 위해 추가합니다.
 using System.Collections;
 
-
 public class ApiCaller : MonoBehaviour
 {
     public TextMeshProUGUI responseText; // API 응답을 표시할 텍스트 필드
@@ -11,14 +10,19 @@ public class ApiCaller : MonoBehaviour
     // 시작할 때 호출됩니다.
     void Start()
     {
-        StartCoroutine(GetRequest("http://127.0.0.1:5000/api")); // Flask 서버의 주소로 변경해주세요.
+        StartCoroutine(PostRequest("http://43.201.252.166:8000/doyouworking")); // Flask 서버의 주소로 변경해주세요.
     }
 
-    // GET 요청을 보내고 응답을 받는 메소드
-    IEnumerator GetRequest(string uri)
+    // POST 요청을 보내고 응답을 받는 메소드
+    IEnumerator PostRequest(string uri)
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        using (UnityWebRequest webRequest = new UnityWebRequest(uri, "POST"))
         {
+            // 빈 데이터를 바디로 설정합니다.
+            webRequest.uploadHandler = new UploadHandlerRaw(new byte[0]);
+            webRequest.downloadHandler = new DownloadHandlerBuffer();
+            webRequest.SetRequestHeader("Content-Type", "application/json");
+
             // 요청을 보냅니다.
             yield return webRequest.SendWebRequest();
 
