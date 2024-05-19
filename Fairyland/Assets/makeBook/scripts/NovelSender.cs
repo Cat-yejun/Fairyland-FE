@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System;
+using Newtonsoft.Json.Linq;
 
 public class NovelSender : MonoBehaviour
 {
@@ -14,7 +15,16 @@ public class NovelSender : MonoBehaviour
     {
         string novel = userInputField.text;
         string url = "http://43.201.252.166:8000/make-novel";
-        string jsonData = "{\"source\": \"" + novel + "\", \"split\": 16, \"length_limit\": 70}";
+
+        // Create JSON object
+        var json = new JObject
+        {
+            { "source", novel },
+            { "split", 16 },
+            { "length_limit", 70 }
+        };
+
+        string jsonData = json.ToString();
 
         Debug.Log("Data sent to server: " + jsonData); // Logging the data sent to the server
 
@@ -26,9 +36,16 @@ public class NovelSender : MonoBehaviour
             try
             {
                 HttpResponseMessage response = await client.PostAsync(url, content);
-                response.EnsureSuccessStatusCode();
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-                Debug.Log("Response from server: " + jsonResponse);
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    Debug.Log("Response from server: " + jsonResponse);
+                }
+                else
+                {
+                    string errorResponse = await response.Content.ReadAsStringAsync();
+                    Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                }
             }
             catch (HttpRequestException e)
             {
@@ -37,6 +54,10 @@ public class NovelSender : MonoBehaviour
             catch (TaskCanceledException e)
             {
                 Debug.LogError("Request timeout: " + e.Message);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Unexpected error: " + e.Message);
             }
         }
     }
