@@ -101,4 +101,59 @@ public class NovelSender : MonoBehaviour
         File.WriteAllText(path + FILE_NAME, json);
         Debug.Log("JSON response saved to: " + path + FILE_NAME);
     }
+
+    public async void SendImageRequestToServer()
+    {
+        string novel = userInputField.text;
+        string url = "http://43.201.252.166:8000/make-image";
+
+        var requestData = new
+        {
+            source = novel,
+            split = 16,
+            scene = 1,
+            image_try = 3,
+            history_prompt = "",
+            age_prompt = "",
+            char_des_dict = new Dictionary<string, string>()
+        };
+
+        string jsonData = JsonConvert.SerializeObject(requestData);
+
+        Debug.Log("Data sent to server: " + jsonData);
+
+        using (HttpClient client = new HttpClient())
+        {
+            client.Timeout = TimeSpan.FromSeconds(100);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            try
+            {
+                HttpResponseMessage response = await client.PostAsync(url, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    Debug.Log("Response from server: " + jsonResponse);
+                }
+                else
+                {
+                    string errorResponse = await response.Content.ReadAsStringAsync();
+                    Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Debug.LogError("Request error: " + e.Message);
+            }
+            catch (TaskCanceledException e)
+            {
+                Debug.LogError("Request timeout: " + e.Message);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Unexpected error: " + e.Message);
+            }
+        }
+    }
+
 }
