@@ -1,17 +1,9 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Fairyland/Assets/flat-design-underwater-landscape_23-2149268504.jpg.meta
-guid: 3b3eca003fa18489793d00b61f7c33e8
-TextureImporter:
-  internalIDToNameTable: []
-  externalObjects: {}
-  serializedVersion: 13
-========
-guid: bd6a584664d99904ca913b8235e0735d
+guid: a57787e0fee2c8d419de9a2d1f0ab5a2
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 12
->>>>>>>> 2dd3ca897a27609f1c00f463318abc6f7f380678:Fairyland/Assets/SimpleSpinner/Spinners/1.png.meta
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -28,15 +20,10 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-<<<<<<<< HEAD:Fairyland/Assets/flat-design-underwater-landscape_23-2149268504.jpg.meta
-  ignoreMipmapLimit: 0
-========
->>>>>>>> 2dd3ca897a27609f1c00f463318abc6f7f380678:Fairyland/Assets/SimpleSpinner/Spinners/1.png.meta
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -75,10 +62,6 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
-<<<<<<<< HEAD:Fairyland/Assets/flat-design-underwater-landscape_23-2149268504.jpg.meta
-  swizzle: 50462976
-========
->>>>>>>> 2dd3ca897a27609f1c00f463318abc6f7f380678:Fairyland/Assets/SimpleSpinner/Spinners/1.png.meta
   cookieLightType: 0
   platformSettings:
   - serializedVersion: 3
@@ -91,7 +74,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -104,7 +86,18 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -117,9 +110,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-<<<<<<<< HEAD:Fairyland/Assets/flat-design-underwater-landscape_23-2149268504.jpg.meta
-    ignorePlatformSupport: 0
-========
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -144,7 +134,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
->>>>>>>> 2dd3ca897a27609f1c00f463318abc6f7f380678:Fairyland/Assets/SimpleSpinner/Spinners/1.png.meta
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -160,9 +149,9 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
-  mipmapLimitGroupName: 
+  spritePackingTag: 
   pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
