@@ -318,6 +318,7 @@ MonoBehaviour:
   correctCanvas: {fileID: 28166007}
   failCanvas: {fileID: 1226644036}
   menuText: {fileID: 1608765063}
+  lineButton: {fileID: 0}
   moveDuration: 2
   scaleDuration: 2
   rotationDuration: 2
@@ -10906,6 +10907,7 @@ MonoBehaviour:
   correctCanvas: {fileID: 28166007}
   failCanvas: {fileID: 1226644036}
   menuText: {fileID: 1608765063}
+  lineButton: {fileID: 9253528}
   moveDuration: 1
   scaleDuration: 1
   rotationDuration: 1

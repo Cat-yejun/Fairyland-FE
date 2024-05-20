@@ -9,6 +9,8 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using TMPro;
 using System.IO;
+using static UnityEngine.Rendering.DebugUI;
+
 public enum FlipMode
 {
     RightToLeft,
@@ -139,22 +141,32 @@ public class Book : MonoBehaviour {
     void LoadTextsToPages()
     {
         string[] filePaths = Directory.GetFiles(Path.Combine(Application.dataPath, "ResourceTexts"), "*.txt");
-        Debug.Log("Total files found: " + filePaths.Length); // 파일 수 확인
+        Debug.Log("Total files found: " + filePaths.Length);
 
-        int pageIndex = 0;
+        int fileLength = filePaths.Length;
 
-        foreach (string filePath in filePaths)
+        if (fileLength > textGameObjects.Length)
         {
-            Debug.Log("Loading text from: " + filePath); // 파일 경로 출력
+            Debug.Log("page index : " + filePaths.Length);
+            Debug.Log("textGameObjects Length : " + textGameObjects.Length);
+            Debug.LogError("Number of text files exceeds the length of textGameObjects array.");
+            return;
+        }
+
+        for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
+        {
+            Debug.Log("Loading text from: " + filePaths[pageIndex]);
 
             if (pageIndex >= textGameObjects.Length)
             {
-                Debug.Log(pageIndex + ", " + textGameObjects.Length);
-                Debug.LogError("Index exceeds textGameObjects array length");
+                Debug.LogError("Index exceeds textGameObjects array length at pageIndex: " + pageIndex);
                 break;
             }
 
-            string textContent = File.ReadAllText(filePath);
+           
+
+            string textContent = File.ReadAllText(filePaths[pageIndex]);
+            Debug.Log(textContent);
             if (textGameObjects[pageIndex] == null)
             {
                 Debug.LogError("textGameObjects[" + pageIndex + "] is not assigned!");
@@ -169,12 +181,9 @@ public class Book : MonoBehaviour {
             }
 
             tmp.text = textContent;
-            tmp.font = fontAsset; // 글꼴 설정
+            tmp.font = fontAsset;
 
-            // 위치 조정 (왼쪽아래, 오른쪽아래 번갈아가며 설정)
             tmp.alignment = pageIndex % 2 == 0 ? TextAlignmentOptions.BottomLeft : TextAlignmentOptions.BottomRight;
-
-            pageIndex++;
         }
     }
 

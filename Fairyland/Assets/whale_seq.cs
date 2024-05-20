@@ -1,10 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.UI;
 
 public class whale_seq : MonoBehaviour
 {
@@ -19,6 +16,7 @@ public class whale_seq : MonoBehaviour
     public GameObject correctCanvas;
     public GameObject failCanvas;
     public GameObject menuText;
+    public Button lineButton;
 
     //public Transform newWhale;
     //public GameObject newWhaleObject;
@@ -67,6 +65,7 @@ public class whale_seq : MonoBehaviour
         //{
         //    Debug.Log("newWhale is not null!");
         //}
+        lineButton.interactable = false;
         StartCoroutine(Sequence());
     }
 
@@ -79,6 +78,8 @@ public class whale_seq : MonoBehaviour
         //}
 
         backgroundPlane.SetActive(false);
+
+        Debug.Log(whale.position);
 
         Vector3 targetPosition = new Vector3(0.0f, -1.5f, 0.0f);
         Vector3 targetScale = new Vector3(438.0f, 438.0f, 438.0f);
