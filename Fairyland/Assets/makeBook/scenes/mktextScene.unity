@@ -770,6 +770,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
+--- !u!1 &570076996
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 570076998}
+  - component: {fileID: 570076997}
+  m_Layer: 0
+  m_Name: Click
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &570076997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570076996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4378d743b034ece82d002633e55993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &570076998
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570076996}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.17461142, y: 0.66064304, z: 4.739972}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &926948785
 GameObject:
   m_ObjectHideFlags: 0
@@ -1705,6 +1749,7 @@ GameObject:
   - component: {fileID: 1259215173}
   - component: {fileID: 1259215177}
   - component: {fileID: 1259215178}
+  - component: {fileID: 1259215179}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -1756,9 +1801,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1259215177}
-        m_TargetAssemblyTypeName: InputFieldExample, Assembly-CSharp
-        m_MethodName: Submit
+      - m_Target: {fileID: 1259215178}
+        m_TargetAssemblyTypeName: NovelSender, Assembly-CSharp
+        m_MethodName: SendNovelToServer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1768,9 +1813,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1259215178}
-        m_TargetAssemblyTypeName: NovelSender, Assembly-CSharp
-        m_MethodName: SendNovelToServer
+      - m_Target: {fileID: 1259215179}
+        m_TargetAssemblyTypeName: ChangeScene, Assembly-CSharp
+        m_MethodName: SceneChange
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1864,6 +1909,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   userInputField: {fileID: 1073645198}
+--- !u!114 &1259215179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259215172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4378d743b034ece82d002633e55993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1449463191
 GameObject:
   m_ObjectHideFlags: 0
@@ -3094,3 +3151,4 @@ SceneRoots:
   - {fileID: 1697812633}
   - {fileID: 37464748}
   - {fileID: 1228582867}
+  - {fileID: 570076998}
