@@ -1,10 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.UI;
 
 public class whale_seq : MonoBehaviour
 {
@@ -19,9 +16,10 @@ public class whale_seq : MonoBehaviour
     public GameObject correctCanvas;
     public GameObject failCanvas;
     public GameObject menuText;
+    public Button lineButton;
 
-    public Transform newWhale;
-    public GameObject newWhaleObject;
+    //public Transform newWhale;
+    //public GameObject newWhaleObject;
 
     public float moveDuration = 1.0f;
     public float scaleDuration = 1.0f;
@@ -37,10 +35,10 @@ public class whale_seq : MonoBehaviour
         {
             Debug.LogError("Whale transform is not assigned.");
         }
-        if (newWhale == null)
-        {
-            Debug.LogError("New Whale transform is not assigned.");
-        }
+        //if (newWhale == null)
+        //{
+        //    Debug.LogError("New Whale transform is not assigned.");
+        //}
 
         angryCanvas.SetActive(false);
         happyCanvas.SetActive(false);
@@ -58,30 +56,33 @@ public class whale_seq : MonoBehaviour
     public void StartSequence()
     {
 
-        if (newWhale == null)
-        {
-            Debug.LogError("Attempted to start sequence but New Whale Transform is not assigned.");
-            return;
-        }
-        else
-        {
-            Debug.Log("newWhale is not null!");
-        }
+        //if (newWhale == null)
+        //{
+        //    Debug.LogError("Attempted to start sequence but New Whale Transform is not assigned.");
+        //    return;
+        //}
+        //else
+        //{
+        //    Debug.Log("newWhale is not null!");
+        //}
+        lineButton.interactable = false;
         StartCoroutine(Sequence());
     }
 
     IEnumerator Sequence()
     {
-        if (whale == null || newWhale == null || newWhaleObject == null)
-        {
-            Debug.LogError("One or more required objects are null.");
-            yield break;
-        }
+        //if (whale == null || newWhale == null || newWhaleObject == null)
+        //{
+        //    Debug.LogError("One or more required objects are null.");
+        //    yield break;
+        //}
 
         backgroundPlane.SetActive(false);
 
-        Vector3 targetPosition = new Vector3(newWhale.position.x, newWhale.position.y, newWhale.position.z);
-        Vector3 targetScale = newWhale.localScale;
+        Debug.Log(whale.position);
+
+        Vector3 targetPosition = new Vector3(0.0f, -1.5f, 0.0f);
+        Vector3 targetScale = new Vector3(438.0f, 438.0f, 438.0f);
         Quaternion originalRotation = whale.rotation;
         Quaternion targetRotation = Quaternion.Euler(0, 180, 0);
 

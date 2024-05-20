@@ -9,6 +9,8 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using TMPro;
 using System.IO;
+using static UnityEngine.Rendering.DebugUI;
+
 public enum FlipMode
 {
     RightToLeft,
@@ -76,6 +78,8 @@ public class Book : MonoBehaviour {
     //public TMP_FontAsset fontAsset; // 원하는 글꼴
     //public GameObject[] textGameObjects; // 각 페이지의 텍스트를 담는 GameObject 배열
 
+    public TMP_FontAsset fontAsset; // 원하는 글꼴
+    public GameObject[] textGameObjects; // 각 페이지의 텍스트를 담는 GameObject 배열
 
     void Start()
     {
@@ -92,8 +96,8 @@ public class Book : MonoBehaviour {
             Debug.LogError("fullImageSprite not set");
         }
 
-        //LoadTextsToPages();
-        //UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
+        LoadTextsToPages();
+        UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
 
         Left.gameObject.SetActive(false);
         Right.gameObject.SetActive(false);
@@ -118,7 +122,8 @@ public class Book : MonoBehaviour {
         ShadowLTR.rectTransform.pivot = new Vector2(0, (pageWidth / 2) / shadowPageHeight);
 
     }
-    /*
+
+
     void UpdateTextVisibility()
     {
         // 모든 텍스트를 숨기고 현재 페이지에 맞는 텍스트만 표시
@@ -126,36 +131,48 @@ public class Book : MonoBehaviour {
         {
             textGO.SetActive(false);
         }
-        if (currentPage < textGameObjects.Length)
+        if (currentPage / 2 < textGameObjects.Length)
         {
-            textGameObjects[currentPage].SetActive(true);
+            textGameObjects[currentPage / 2].SetActive(true);
         }
-    }*/
-    /*
+    }
+
+
     void LoadTextsToPages()
     {
         string[] filePaths = Directory.GetFiles(Path.Combine(Application.dataPath, "ResourceTexts"), "*.txt");
-        Debug.Log("Total files found: " + filePaths.Length); // 파일 수 확인
+        Debug.Log("Total files found: " + filePaths.Length);
 
-        int pageIndex = 0;
+        int fileLength = filePaths.Length;
 
-        // 이제 기존에 존재하는 textGameObjects 배열을 활용
-        foreach (string filePath in filePaths)
+        if (fileLength > textGameObjects.Length)
         {
-            Debug.Log("Loading text from: " + filePath); // 파일 경로 출력
+            Debug.Log("page index : " + filePaths.Length);
+            Debug.Log("textGameObjects Length : " + textGameObjects.Length);
+            Debug.LogError("Number of text files exceeds the length of textGameObjects array.");
+            return;
+        }
+
+        for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
+        {
+            Debug.Log("Loading text from: " + filePaths[pageIndex]);
 
             if (pageIndex >= textGameObjects.Length)
             {
-                Debug.LogError("Index exceeds textGameObjects array length");
+                Debug.LogError("Index exceeds textGameObjects array length at pageIndex: " + pageIndex);
                 break;
             }
 
-            string textContent = File.ReadAllText(filePath);
+           
+
+            string textContent = File.ReadAllText(filePaths[pageIndex]);
+            Debug.Log(textContent);
             if (textGameObjects[pageIndex] == null)
             {
                 Debug.LogError("textGameObjects[" + pageIndex + "] is not assigned!");
                 continue;
             }
+
             TextMeshProUGUI tmp = textGameObjects[pageIndex].GetComponent<TextMeshProUGUI>();
             if (tmp == null)
             {
@@ -164,14 +181,11 @@ public class Book : MonoBehaviour {
             }
 
             tmp.text = textContent;
-            tmp.font = fontAsset; // 글꼴 설정
+            tmp.font = fontAsset;
 
-            // 위치 조정 (왼쪽아래, 오른쪽아래 번갈아가며 설정)
             tmp.alignment = pageIndex % 2 == 0 ? TextAlignmentOptions.BottomLeft : TextAlignmentOptions.BottomRight;
-
-            pageIndex++;
         }
-    }*/
+    }
 
 
     void InitializeBookPages()
@@ -513,7 +527,7 @@ public class Book : MonoBehaviour {
         RightNext.transform.SetParent(BookPanel.transform, true);
         UpdateSprites();
 
-        //UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
+        UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
 
         Shadow.gameObject.SetActive(false);
         ShadowLTR.gameObject.SetActive(false);

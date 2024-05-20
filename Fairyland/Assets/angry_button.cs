@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class angry_button : MonoBehaviour
 {
@@ -16,6 +18,7 @@ public class angry_button : MonoBehaviour
     public GameObject whaleObject;
     public GameObject backgroundPlane;
     public Transform whale;
+
     public int prevSelection = 0;
 
     private bool isDescriptionShown = false;
@@ -148,19 +151,22 @@ public class angry_button : MonoBehaviour
         correctCanvas.SetActive(false);
         failCanvas.SetActive(false);
         menuCanvas.SetActive(false);
-        whaleObject.SetActive(false);
+        //whaleObject.SetActive(false);
 
         isDescriptionShown = false;
 
         backgroundPlane.SetActive(true);
 
 
-        Vector3 targetPosition = new Vector3(705.0f, 170.0f, 0.0f);
-        Vector3 targetScale = whale.localScale;
+        Vector3 targetPosition = new Vector3(5.88f, 1.42f, 90.00f);
+        Vector3 targetScale = new Vector3(195.0f, 195.0f, 195.0f);
         Quaternion originalRotation = whale.rotation;
         Quaternion targetRotation = Quaternion.Euler(15, 200, 0);
 
         float elapsedTime = 0;
+
+        whaleAnimator.SetInteger("NextInt", 0);
+        changeExpression(0);
 
         while (Vector3.Distance(whale.position, targetPosition) > 3.0f || Vector3.Distance(whale.localScale, targetScale) > 3.0f)
         {
