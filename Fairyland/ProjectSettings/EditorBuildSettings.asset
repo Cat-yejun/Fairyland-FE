@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/makeBook/scenes/textlookScene.unity
+    guid: e2f40bc0a14334daa94fbd8089c2799a
+  - enabled: 1
+    path: Assets/makeBook/scenes/mktextScene.unity
+    guid: a49e70c46567348c5bee90517f91f8f4
   m_configObjects: {}
