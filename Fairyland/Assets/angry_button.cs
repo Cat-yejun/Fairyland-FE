@@ -19,6 +19,10 @@ public class angry_button : MonoBehaviour
     public GameObject backgroundPlane;
     public Transform whale;
 
+    public Button angryButton;
+    public Button happyButton;
+    public Button surpriseButton;
+
     public int prevSelection = 0;
 
     private bool isDescriptionShown = false;
@@ -39,6 +43,10 @@ public class angry_button : MonoBehaviour
 
     private IEnumerator selectionButton(int expression)
     {
+        angryButton.interactable = false;
+        happyButton.interactable = false;
+        surpriseButton.interactable = false;
+
         menuText.SetActive(false);
         whaleAnimator.SetInteger("NextInt", expression);
         changeExpression(expression);
@@ -67,6 +75,9 @@ public class angry_button : MonoBehaviour
             }
             isDescriptionShown = true;
             yield return new WaitForSeconds(1);
+            angryButton.interactable = true;
+            happyButton.interactable = true;
+            surpriseButton.interactable = true;
             whaleAnimator.SetInteger("NextInt", 0);
             changeExpression(0);
 
@@ -105,6 +116,9 @@ public class angry_button : MonoBehaviour
                 }
                 isDescriptionShown = true;
                 yield return new WaitForSeconds(1);
+                angryButton.interactable = true;
+                happyButton.interactable = true;
+                surpriseButton.interactable = true;
                 whaleAnimator.SetInteger("NextInt", 0);
                 changeExpression(0);
 
@@ -112,8 +126,6 @@ public class angry_button : MonoBehaviour
             }
         }
 
-
-        
     }
 
     public void changeExpression(int expression)
@@ -158,7 +170,8 @@ public class angry_button : MonoBehaviour
         backgroundPlane.SetActive(true);
 
 
-        Vector3 targetPosition = new Vector3(5.88f, 1.42f, 90.00f);
+        //Vector3 targetPosition = new Vector3(5.88f, 1.42f, 90.00f);
+        Vector3 targetPosition = new Vector3(5.46f, 1.35f, 89.99f);
         Vector3 targetScale = new Vector3(195.0f, 195.0f, 195.0f);
         Quaternion originalRotation = whale.rotation;
         Quaternion targetRotation = Quaternion.Euler(15, 200, 0);
