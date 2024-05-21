@@ -35,7 +35,7 @@ public class NovelSender : MonoBehaviour
 
         using (HttpClient client = new HttpClient())
         {
-            client.Timeout = TimeSpan.FromSeconds(100);
+            client.Timeout = TimeSpan.FromSeconds(1000);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             try
@@ -124,7 +124,7 @@ public class NovelSender : MonoBehaviour
 
         using (HttpClient client = new HttpClient())
         {
-            client.Timeout = TimeSpan.FromSeconds(100);
+            client.Timeout = TimeSpan.FromSeconds(1000);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             try
