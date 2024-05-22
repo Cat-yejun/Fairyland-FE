@@ -110,83 +110,101 @@ public class NovelSender : MonoBehaviour
         Debug.Log("JSON response saved to: " + path + title + ".json");
     }
 
-    public async void SendImageRequestToServer()
+    public async void SendImageRequestsToServer()
     {
         string novel = userInputField.text;
         string title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-image";
+        int initialSceneNum = 1;
+        int split = 16;
 
-        var requestData = new
+        string historyPrompt = "";
+        string agePrompt = "";
+
+        for (int i = 0; i < split; i++)
         {
-            source = novel,
-            split = 16,
-            scene = 1,
-            image_try = 3,
-            history_prompt = "",
-            age_prompt = "",
-            char_des_dict = new Dictionary<string, string>()
-        };
-
-        string jsonData = JsonConvert.SerializeObject(requestData);
-
-        Debug.Log("Data sent to server: " + jsonData);
-
-        using (HttpClient client = new HttpClient())
-        {
-            client.Timeout = TimeSpan.FromSeconds(1000);
-            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-
-            try
+            int currentSceneNum = initialSceneNum + i;
+            var requestData = new
             {
-                HttpResponseMessage response = await client.PostAsync(url, content);
-                if (response.IsSuccessStatusCode)
+                source = novel,
+                split = split,
+                scene = currentSceneNum,
+                image_try = 3,
+                history_prompt = historyPrompt,
+                age_prompt = agePrompt,
+                char_des_dict = new Dictionary<string, string>()
+            };
+
+            string jsonData = JsonConvert.SerializeObject(requestData);
+
+            Debug.Log("Data sent to server: " + jsonData);
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromSeconds(1000);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                try
                 {
-                    string jsonResponse = await response.Content.ReadAsStringAsync();
-                    Debug.Log("Response from server: " + jsonResponse);
-
-                    var responseData = JsonConvert.DeserializeObject<JObject>(jsonResponse);
-
-                    JArray sceneLinks = responseData["scene_link"] as JArray;
-                    if (sceneLinks != null)
+                    HttpResponseMessage response = await client.PostAsync(url, content);
+                    if (response.IsSuccessStatusCode)
                     {
-                        // Create directory if not exists
-                        string imgFolderPath = Application.dataPath + "/SaveFile/" + title + "/img/";
-                        if (!Directory.Exists(imgFolderPath))
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+                        Debug.Log("Response from server: " + jsonResponse);
+
+                        var responseData = JsonConvert.DeserializeObject<JObject>(jsonResponse);
+
+                        JArray sceneLinks = responseData["scene_link"] as JArray;
+                        historyPrompt = responseData["history_prompt"]?.ToString();
+                        agePrompt = responseData["age_prompt"]?.ToString();
+                        string charDesDict = responseData["char_des_dict"]?.ToString();
+
+                        if (sceneLinks != null)
                         {
-                            Directory.CreateDirectory(imgFolderPath);
+                            // Create directory if not exists
+                            string imgFolderPath = Application.dataPath + "/SaveFile/" + title + "/img/";
+                            if (!Directory.Exists(imgFolderPath))
+                            {
+                                Directory.CreateDirectory(imgFolderPath);
+                            }
+
+                            // Download and save images
+                            for (int j = 0; j < sceneLinks.Count; j++)
+                            {
+                                string imageUrl = sceneLinks[j].Value<string>();
+                                StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + currentSceneNum + "-" + j + ".png"));
+                            }
+                            imgSelectScreen.SetActive(true);
+                            textLookScreen.SetActive(false);
+                        }
+                        else
+                        {
+                            Debug.LogError("No scene links found in response.");
                         }
 
-                        // Download and save images
-                        for (int i = 0; i < sceneLinks.Count; i++)
-                        {
-                            string imageUrl = sceneLinks[i].Value<string>();
-                            StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + "image_" + i + ".png"));
-                        }
-                        imgSelectScreen.SetActive(true);
-                        textLookScreen.SetActive(false);
+                        // 각 변수 값 출력 (디버그용)
+                        Debug.Log("History Prompt: " + historyPrompt);
+                        Debug.Log("Age Prompt: " + agePrompt);
+                        Debug.Log("Character Description Dictionary: " + charDesDict);
                     }
                     else
                     {
-                        Debug.LogError("No scene links found in response.");
+                        string errorResponse = await response.Content.ReadAsStringAsync();
+                        Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
                     }
                 }
-                else
+                catch (HttpRequestException e)
                 {
-                    string errorResponse = await response.Content.ReadAsStringAsync();
-                    Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                    Debug.LogError("Request error: " + e.Message);
                 }
-            }
-            catch (HttpRequestException e)
-            {
-                Debug.LogError("Request error: " + e.Message);
-            }
-            catch (TaskCanceledException e)
-            {
-                Debug.LogError("Request timeout: " + e.Message);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Unexpected error: " + e.Message);
+                catch (TaskCanceledException e)
+                {
+                    Debug.LogError("Request timeout: " + e.Message);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Unexpected error: " + e.Message);
+                }
             }
         }
     }
