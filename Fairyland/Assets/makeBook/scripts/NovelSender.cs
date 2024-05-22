@@ -18,6 +18,9 @@ public class NovelSender : MonoBehaviour
     public TMP_InputField userInputField;
     public TMP_InputField titleInputField; // New TMP_InputField for title
     public GameObject loadingScreen; // Drag your loading panel here
+    public GameObject textLookScreen;
+    public GameObject imgSelectScreen;
+    public GameObject mainScreen;
 
     public async void SendNovelToServer()
     {
@@ -42,6 +45,7 @@ public class NovelSender : MonoBehaviour
 
             try
             {
+                mainScreen.SetActive(false);
                 // Activate loading screen
                 loadingScreen.SetActive(true);
 
@@ -64,6 +68,8 @@ public class NovelSender : MonoBehaviour
                     // Deactivate loading screen and load next scene
                     loadingScreen.SetActive(false);
                     //SceneManager.LoadScene("textlookScene"); // Replace with your scene name
+                    textLookScreen.SetActive(true);
+
                 }
                 else
                 {
@@ -156,6 +162,8 @@ public class NovelSender : MonoBehaviour
                             string imageUrl = sceneLinks[i].Value<string>();
                             StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + "image_" + i + ".png"));
                         }
+                        imgSelectScreen.SetActive(true);
+                        textLookScreen.SetActive(false);
                     }
                     else
                     {
