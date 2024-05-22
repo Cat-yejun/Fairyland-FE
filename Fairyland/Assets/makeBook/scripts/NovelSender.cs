@@ -9,18 +9,20 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class NovelSender : MonoBehaviour
 {
     public TMP_InputField userInputField;
+    public TMP_InputField titleInputField; // New TMP_InputField for title
     public GameObject loadingScreen; // Drag your loading panel here
-    private const string PATH = "/SaveFile/";
-    private const string FILE_NAME = "ServerResponse.json";
 
     public async void SendNovelToServer()
     {
         string novel = userInputField.text;
+        string title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-novel";
 
         var json = new JObject
@@ -35,7 +37,7 @@ public class NovelSender : MonoBehaviour
 
         using (HttpClient client = new HttpClient())
         {
-            client.Timeout = TimeSpan.FromSeconds(100);
+            client.Timeout = TimeSpan.FromSeconds(1000);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             try
@@ -57,11 +59,11 @@ public class NovelSender : MonoBehaviour
                         Debug.Log($"Key: {kvp.Key}, Value: {kvp.Value}");
                     }
 
-                    SaveJsonToFile(jsonResponse);
+                    SaveJsonToFile(jsonResponse, title);
 
                     // Deactivate loading screen and load next scene
                     loadingScreen.SetActive(false);
-                    SceneManager.LoadScene("textlookScene"); // Replace with your scene name
+                    //SceneManager.LoadScene("textlookScene"); // Replace with your scene name
                 }
                 else
                 {
@@ -89,22 +91,23 @@ public class NovelSender : MonoBehaviour
         }
     }
 
-    private void SaveJsonToFile(string json)
+    private void SaveJsonToFile(string json, string title)
     {
-        string path = Application.dataPath + PATH;
+        string path = Application.dataPath + "/SaveFile/" + title + "/";
 
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);
         }
 
-        File.WriteAllText(path + FILE_NAME, json);
-        Debug.Log("JSON response saved to: " + path + FILE_NAME);
+        File.WriteAllText(path + title + ".json", json);
+        Debug.Log("JSON response saved to: " + path + title + ".json");
     }
 
     public async void SendImageRequestToServer()
     {
         string novel = userInputField.text;
+        string title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-image";
 
         var requestData = new
@@ -124,7 +127,7 @@ public class NovelSender : MonoBehaviour
 
         using (HttpClient client = new HttpClient())
         {
-            client.Timeout = TimeSpan.FromSeconds(100);
+            client.Timeout = TimeSpan.FromSeconds(1000);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             try
@@ -134,6 +137,30 @@ public class NovelSender : MonoBehaviour
                 {
                     string jsonResponse = await response.Content.ReadAsStringAsync();
                     Debug.Log("Response from server: " + jsonResponse);
+
+                    var responseData = JsonConvert.DeserializeObject<JObject>(jsonResponse);
+
+                    JArray sceneLinks = responseData["scene_link"] as JArray;
+                    if (sceneLinks != null)
+                    {
+                        // Create directory if not exists
+                        string imgFolderPath = Application.dataPath + "/SaveFile/" + title + "/img/";
+                        if (!Directory.Exists(imgFolderPath))
+                        {
+                            Directory.CreateDirectory(imgFolderPath);
+                        }
+
+                        // Download and save images
+                        for (int i = 0; i < sceneLinks.Count; i++)
+                        {
+                            string imageUrl = sceneLinks[i].Value<string>();
+                            StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + "image_" + i + ".png"));
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("No scene links found in response.");
+                    }
                 }
                 else
                 {
@@ -156,4 +183,23 @@ public class NovelSender : MonoBehaviour
         }
     }
 
+    private IEnumerator DownloadAndSaveImage(string imageUrl, string imagePath)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(imageUrl))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.result == UnityWebRequest.Result.Success)
+            {
+                Texture2D texture = DownloadHandlerTexture.GetContent(webRequest);
+                byte[] bytes = texture.EncodeToPNG();
+                File.WriteAllBytes(imagePath, bytes);
+                Debug.Log("Image saved to: " + imagePath);
+            }
+            else
+            {
+                Debug.LogError("Failed to download image: " + webRequest.error);
+            }
+        }
+    }
 }
