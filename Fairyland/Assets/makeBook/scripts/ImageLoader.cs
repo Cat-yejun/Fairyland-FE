@@ -4,6 +4,9 @@ using TMPro;
 using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System;
+using System.Net.Http;
+using System.Text;
 
 public class ImageLoader : MonoBehaviour
 {
@@ -40,15 +43,16 @@ public class ImageLoader : MonoBehaviour
 
         // selectedImages 배열 초기화
         int maxScene = PlayerPrefs.GetInt("split", 1) - 1;
-        maxScene = 2; //TEST!!!!!!!
+        //maxScene = 2; //TEST!!!!!!!
         selectedImages = new string[maxScene + 1]; // 씬 번호는 1부터 시작하므로 +1
         goToCreateInteractionButton.gameObject.SetActive(false);
+        goToCreateInteractionButton.onClick.AddListener(SendInteractionRequest);
     }
 
     private void LoadImage(int buttonNumber)
     {
         string title = PlayerPrefs.GetString("title", "default_title");
-        title = "소나기123"; //TEST!!!!!!!
+        //title = "날고싶은펭귄1"; //TEST!!!!!!!
         current_img_num = buttonNumber - 1;
 
         string path = $"{Application.persistentDataPath}{PATH}{title}/img/{currentScene}-{buttonNumber - 1}.png";
@@ -69,9 +73,9 @@ public class ImageLoader : MonoBehaviour
 
     private void ChangeScene(int change)
     {
-        string title = "소나기123"; //TEST!!!!!!!
+       
         int maxScene = PlayerPrefs.GetInt("split", 1) - 1;
-        maxScene = 2; //TEST!!!!!!!
+        //maxScene = 2; //TEST!!!!!!!
         currentScene += change;
         if (currentScene < 1)
         {
@@ -81,11 +85,13 @@ public class ImageLoader : MonoBehaviour
         {
             currentScene = maxScene;
         }
+        Debug.Log("현재 title:" + PlayerPrefs.GetString("title", "default_title"));
 
         // 현재 씬에 해당하는 텍스트를 TMP_Text에 삽입
         if (splitedNovelDict.TryGetValue(currentScene.ToString(), out string sceneText))
         {
             tmpText.text = sceneText;
+            
         }
         else
         {
@@ -95,7 +101,8 @@ public class ImageLoader : MonoBehaviour
 
     private void LoadJson()
     {
-        string title = "소나기123"; //TEST!!!!!!!
+        string title = PlayerPrefs.GetString("title", "default_title");
+        //string title = "날고싶은펭귄1"; //TEST!!!!!!!
         string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
 
         if (File.Exists(jsonPath))
@@ -123,7 +130,7 @@ public class ImageLoader : MonoBehaviour
 
     private void SelectImage()
     {
-        string title = "소나기123"; //TEST!!!!!!!
+        
         string imageName = $"{currentScene}-{current_img_num}.png";
 
         if (selectedImages[currentScene] == imageName)
@@ -152,6 +159,102 @@ public class ImageLoader : MonoBehaviour
             }
         }
     }
+    private async void SendInteractionRequest()
+    {
+        //string title = "날고싶은펭귄1"; //TEST!!!!!!!
+        string title = PlayerPrefs.GetString("title", "default_title");
+        string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
+        Debug.Log("데이터를 보냅니..");
+
+        if (File.Exists(jsonPath))
+        {
+            string json = File.ReadAllText(jsonPath);
+
+            using (HttpClient client = new HttpClient())
+            {
+                string url = "http://43.201.252.166:8000/make-interaction";
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                try
+                {
+                    HttpResponseMessage response = await client.PostAsync(url, content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Debug.Log("보내는...");
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        Debug.Log("Response from server: " + jsonResponse);
+
+                        // 받아온 JSON 데이터를 파일로 저장
+                        SaveJsonToFile(jsonResponse, "interaction.json");
+                    }
+                    else
+                    {
+                        string errorResponse = await response.Content.ReadAsStringAsync();
+                        Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                    }
+                }
+                catch (HttpRequestException e)
+                {
+                    Debug.LogError("Request error: " + e.Message);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Unexpected error: " + e.Message);
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("JSON file not found: " + jsonPath);
+        }
+        DeleteNonSelectedImages();
+    }
 
    
+
+    private void SaveJsonToFile(string json, string fileName)
+    {
+        //string title = "날고싶은펭귄1";
+        string title = PlayerPrefs.GetString("title", "default_title");
+        string path = $"{Application.persistentDataPath}{PATH}{title}/{fileName}";
+
+        try
+        {
+            File.WriteAllText(path, json);
+            Debug.Log("JSON response saved to: " + path);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to save JSON file: " + e.Message);
+        }
+    }
+
+    private void DeleteNonSelectedImages()
+    {
+        string title = PlayerPrefs.GetString("title", "default_title");
+        string imgDirectoryPath = $"{Application.persistentDataPath}{PATH}{title}/img/";
+
+        try
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(imgDirectoryPath);
+            foreach (FileInfo file in directoryInfo.GetFiles())
+            {
+                string fileName = file.Name;
+                string sceneNumber = fileName.Split('-')[0];
+                int sceneIndex = int.Parse(sceneNumber);
+
+                if (selectedImages[sceneIndex] == null || selectedImages[sceneIndex] != fileName)
+                {
+                    // Delete the image file
+                    File.Delete(file.FullName);
+                    Debug.Log($"Deleted image: {file.Name}");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to delete non-selected images: " + e.Message);
+        }
+    }
 }
