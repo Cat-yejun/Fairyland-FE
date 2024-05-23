@@ -22,10 +22,13 @@ public class NovelSender : MonoBehaviour
     public GameObject imgSelectScreen;
     public GameObject mainScreen;
 
+    private string novel; // Class variable for novel
+    private string title; // Class variable for title
+
     public async void SendNovelToServer()
     {
-        string novel = userInputField.text;
-        string title = titleInputField.text;
+        novel = userInputField.text;
+        title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-novel";
 
         var json = new JObject
@@ -67,7 +70,6 @@ public class NovelSender : MonoBehaviour
 
                     // Deactivate loading screen and load next scene
                     loadingScreen.SetActive(false);
-                    //SceneManager.LoadScene("textlookScene"); // Replace with your scene name
                     textLookScreen.SetActive(true);
 
                 }
@@ -112,16 +114,15 @@ public class NovelSender : MonoBehaviour
 
     public async void SendImageRequestsToServer()
     {
-        string novel = userInputField.text;
-        string title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-image";
         int initialSceneNum = 1;
         int split = 16;
 
         string historyPrompt = "";
         string agePrompt = "";
+        Debug.Log("start to sending");
 
-        for (int i = 0; i < split; i++)
+        for (int i = 0; i < split-1; i++)
         {
             int currentSceneNum = initialSceneNum + i;
             var requestData = new
