@@ -18,6 +18,7 @@ public class EmotionSelectScript : MonoBehaviour
     public GameObject SurpriseCanvas;
     public GameObject SadCanvas;
     public GameObject FearCanvas;
+    public GameObject CalmCanvas;
 
     public Animator whaleAnimator;
     public Material[] expressions;
@@ -34,10 +35,13 @@ public class EmotionSelectScript : MonoBehaviour
     public Button SurpriseButton;
     public Button SadButton;
     public Button FearButton;
+    public Button CalmButton;
 
     public GameObject AskLineGuessCanvas;
     public GameObject SpeakStartCanvas;
     public GameObject SpeakStopCanvas;
+
+    public Button SpeakStartButton;
 
     private int prevSelection = 0;
     private bool isDescriptionShown = false;
@@ -53,6 +57,10 @@ public class EmotionSelectScript : MonoBehaviour
     public Vector3 originalPosition;
     public Quaternion originalRotation;
 
+    private Book BookClass;
+    private SpeakingScript speakScript;
+
+    private int answerEmotion = 6;
 
     void Start()
     {
@@ -61,6 +69,7 @@ public class EmotionSelectScript : MonoBehaviour
         SurpriseCanvas.SetActive(false);
         SadCanvas.SetActive(false);
         FearCanvas.SetActive(false);
+        CalmCanvas.SetActive(false);
         EmotionSelectCanvas.SetActive(false);
         //newWhaleObject.SetActive(false);
         CorrectCanvas.SetActive(false);
@@ -68,10 +77,15 @@ public class EmotionSelectScript : MonoBehaviour
         AskEmotionCanvas.SetActive(false);
         AskLineGuessCanvas.SetActive(false);
         GoToEmotionCanvas.SetActive(false);
+
+        BookClass = GetComponent<Book>();
+        speakScript = GetComponent<SpeakingScript>();
+
     }
 
     public void OnGotoEmotionButtonPress()
     {
+
         StartCoroutine(StartEmotionSequence());
     }
 
@@ -119,6 +133,12 @@ public class EmotionSelectScript : MonoBehaviour
 
         EmotionSelectCanvas.SetActive(true);
         AskEmotionCanvas.SetActive(true);
+        AngryButton.interactable = true;
+        HappyButton.interactable = true;
+        SurpriseButton.interactable = true;
+        SadButton.interactable = true;
+        FearButton.interactable = true;
+        CalmButton.interactable = true;
 
     }
 
@@ -129,6 +149,7 @@ public class EmotionSelectScript : MonoBehaviour
         SurpriseButton.interactable = false;
         SadButton.interactable = false;
         FearButton.interactable = false;
+        CalmButton.interactable = false;
 
         AskEmotionCanvas.SetActive(false);
         whaleAnimator.SetInteger("NextInt", expression);
@@ -142,6 +163,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SurpriseCanvas.SetActive(false);
                 SadCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
+                CalmCanvas.SetActive(false);
                 prevSelection = 1;
             }
             else if (expression == 2) // angry
@@ -151,6 +173,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SurpriseCanvas.SetActive(false);
                 SadCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
+                CalmCanvas.SetActive(false);
                 prevSelection = 2;
             }
             else if (expression == 3) // surprised
@@ -160,6 +183,7 @@ public class EmotionSelectScript : MonoBehaviour
                 AngryCanvas.SetActive(false);
                 SadCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
+                CalmCanvas.SetActive(false);
                 prevSelection = 3;
             }
             else if (expression == 4) // Sad
@@ -169,6 +193,7 @@ public class EmotionSelectScript : MonoBehaviour
                 AngryCanvas.SetActive(false);
                 SurpriseCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
+                CalmCanvas.SetActive(false);
                 prevSelection = 4;
 
             }
@@ -179,7 +204,18 @@ public class EmotionSelectScript : MonoBehaviour
                 AngryCanvas.SetActive(false);
                 SurpriseCanvas.SetActive(false);
                 SadCanvas.SetActive(false);
+                CalmCanvas.SetActive(false);
                 prevSelection = 5;
+            }
+            else if (expression == 6) // Calm
+            {
+                FearCanvas.SetActive(true);
+                HappyCanvas.SetActive(false);
+                AngryCanvas.SetActive(false);
+                SurpriseCanvas.SetActive(false);
+                SadCanvas.SetActive(false);
+                CalmCanvas.SetActive(true);
+                prevSelection = 6;
             }
 
             isDescriptionShown = true;
@@ -189,6 +225,7 @@ public class EmotionSelectScript : MonoBehaviour
             SurpriseButton.interactable = true;
             SadButton.interactable = true;
             FearButton.interactable = true;
+            CalmButton.interactable = true;
             whaleAnimator.SetInteger("NextInt", 0);
             changeExpression(0);
 
@@ -211,6 +248,8 @@ public class EmotionSelectScript : MonoBehaviour
                     SurpriseCanvas.SetActive(false);
                     SadCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
+                    CalmCanvas.SetActive(false);
+
                     prevSelection = 1;
                 }
                 else if (expression == 2)
@@ -220,6 +259,8 @@ public class EmotionSelectScript : MonoBehaviour
                     SurpriseCanvas.SetActive(false);
                     SadCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
+                    CalmCanvas.SetActive(false);
+
                     prevSelection = 2;
                 }
                 else if (expression == 3) // Surprised
@@ -229,6 +270,8 @@ public class EmotionSelectScript : MonoBehaviour
                     AngryCanvas.SetActive(false);
                     SadCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
+                    CalmCanvas.SetActive(false);
+
                     prevSelection = 3;
                 }
                 else if (expression == 4) // Sad
@@ -238,6 +281,8 @@ public class EmotionSelectScript : MonoBehaviour
                     AngryCanvas.SetActive(false);
                     SurpriseCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
+                    CalmCanvas.SetActive(false);
+
                     prevSelection = 4;
 
                 }
@@ -248,7 +293,20 @@ public class EmotionSelectScript : MonoBehaviour
                     AngryCanvas.SetActive(false);
                     SurpriseCanvas.SetActive(false);
                     SadCanvas.SetActive(false);
+                    CalmCanvas.SetActive(false);
+
                     prevSelection = 5;
+                }
+                else if (expression == 6) // Calm
+                {
+                    FearCanvas.SetActive(false);
+                    HappyCanvas.SetActive(false);
+                    AngryCanvas.SetActive(false);
+                    SurpriseCanvas.SetActive(false);
+                    SadCanvas.SetActive(false);
+                    CalmCanvas.SetActive(true);
+
+                    prevSelection = 6;
                 }
 
                 isDescriptionShown = true;
@@ -258,6 +316,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SurpriseButton.interactable = true;
                 SadButton.interactable = true;
                 FearButton.interactable = true;
+                CalmButton.interactable = true;
                 whaleAnimator.SetInteger("NextInt", 0);
                 changeExpression(0);
 
@@ -281,13 +340,14 @@ public class EmotionSelectScript : MonoBehaviour
 
     private IEnumerator ShowFeedbackAndHide()
     {
-        if (prevSelection == 1)
+        if (prevSelection == answerEmotion)
         {
             HappyCanvas.SetActive(false);
             AngryCanvas.SetActive(false);
             SurpriseCanvas.SetActive(false);
             SadCanvas.SetActive(false);
             FearCanvas.SetActive(false);
+            CalmCanvas.SetActive(false);
             CorrectCanvas.SetActive(true);
         }
         else
@@ -297,6 +357,7 @@ public class EmotionSelectScript : MonoBehaviour
             SurpriseCanvas.SetActive(false);
             SadCanvas.SetActive(false);
             FearCanvas.SetActive(false);
+            CalmCanvas.SetActive(false);
             WrongCanvas.SetActive(true);
         }
 
@@ -339,5 +400,12 @@ public class EmotionSelectScript : MonoBehaviour
         whale.position = targetPosition;
         whale.localScale = targetScale;
         whale.rotation = targetRotation;
+
+        SpeakStartCanvas.SetActive(true);
+        SpeakStartButton.interactable = true;
+
+        BookClass.WhaleSpeak();
+
+        //BookClass.StartGotoOriginalPos();
     }
 }

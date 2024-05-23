@@ -534,7 +534,7 @@ AnimatorStateMachine:
     m_Position: {x: -60, y: 130, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -3741793308262201190}
-    m_Position: {x: 240, y: 30, z: 0}
+    m_Position: {x: 150, y: 20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2553528586653810516}
     m_Position: {x: 280, y: -190, z: 0}
@@ -946,6 +946,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: NextInt
     m_EventTreshold: 5
+  - m_ConditionMode: 6
+    m_ConditionEvent: NextInt
+    m_EventTreshold: 6
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2723943936555817936}
   m_Solo: 0

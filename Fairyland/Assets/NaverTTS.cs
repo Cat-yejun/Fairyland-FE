@@ -12,6 +12,7 @@ public class NaverTTSManager : MonoBehaviour
 
     private string clientId = "t053d93bde";
     private string clientSecret = "Os71Z2Xm9LPAjAu5PbbHHQCeHqEk7Hzl8OsCLFpw";
+    private string WhaleTalking = "페니는 하늘을 날고 싶은 꿈을 포기하지 않고 계속해서 노력하고 있어요. 페니가 어떤 마음가짐을 가지고 있는지 생각하면서, 그가 이 상황에서 할 법한 말은 무엇일까요? 말해보세요.";
 
     void Start()
     {
@@ -20,7 +21,8 @@ public class NaverTTSManager : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
-        GetAndPlaySpeech("빈칸에 들어갈 대사는 무엇일까?");
+        //GetAndPlaySpeech("빈칸에 들어갈 대사는 무엇일까?");
+        GetAndPlaySpeech(WhaleTalking);
     }
 
     public void GetAndPlaySpeech(string text)

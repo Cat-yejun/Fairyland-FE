@@ -33,11 +33,14 @@ namespace UploadWavFile
                     // Check the response
                     if (response.IsSuccessStatusCode)
                     {
+                        UnityEngine.Debug.Log("response get!");
                         string responseData = await response.Content.ReadAsStringAsync();
                         Console.WriteLine($"Response: {responseData}");
+                        UnityEngine.Debug.Log(responseData);
                     }
                     else
                     {
+                        UnityEngine.Debug.Log("response didn't get!");
                         Console.WriteLine($"Error: {response.StatusCode}");
                     }
                 }
