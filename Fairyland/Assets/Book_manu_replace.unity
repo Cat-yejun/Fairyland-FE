@@ -1182,6 +1182,7 @@ GameObject:
   - component: {fileID: 605465813}
   - component: {fileID: 605465816}
   - component: {fileID: 605465815}
+  - component: {fileID: 605465817}
   - component: {fileID: 605465814}
   m_Layer: 5
   m_Name: Button_Price_Coin
@@ -1254,9 +1255,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GoToRainBook, Assembly-CSharp
-        m_MethodName: Update
+      - m_Target: {fileID: 605465817}
+        m_TargetAssemblyTypeName: GoToNewBook, Assembly-CSharp
+        m_MethodName: SaveTitle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1266,6 +1267,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
+      - m_Target: {fileID: 605465817}
+        m_TargetAssemblyTypeName: GoToNewBook, Assembly-CSharp
+        m_MethodName: SceneChange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &605465815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1304,6 +1317,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 605465812}
   m_CullTransparentMesh: 0
+--- !u!114 &605465817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 605465812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4635b862d2ab34976978c840ba316d7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 2144345469}
 --- !u!1 &694908386
 GameObject:
   m_ObjectHideFlags: 0
@@ -2216,6 +2242,7 @@ GameObject:
   - component: {fileID: 1274148628}
   - component: {fileID: 1274148631}
   - component: {fileID: 1274148630}
+  - component: {fileID: 1274148632}
   - component: {fileID: 1274148629}
   m_Layer: 5
   m_Name: Button_Price_Coin
@@ -2288,9 +2315,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GoToRainBook, Assembly-CSharp
-        m_MethodName: Update
+      - m_Target: {fileID: 1274148632}
+        m_TargetAssemblyTypeName: GoToNewBook, Assembly-CSharp
+        m_MethodName: SaveTitle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2300,6 +2327,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
+      - m_Target: {fileID: 1274148632}
+        m_TargetAssemblyTypeName: GoToNewBook, Assembly-CSharp
+        m_MethodName: SceneChange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1274148630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2338,6 +2377,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1274148627}
   m_CullTransparentMesh: 0
+--- !u!114 &1274148632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1274148627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4635b862d2ab34976978c840ba316d7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 2041281261}
 --- !u!1 &1413002513
 GameObject:
   m_ObjectHideFlags: 0
@@ -3137,7 +3189,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC18C\uB098\uAE30 "
+  m_text: "\uC18C\uB098\uAE30"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6843efbbfbfc947e6ae80da961efb918, type: 2}
   m_sharedMaterial: {fileID: 5468906123389740140, guid: 6843efbbfbfc947e6ae80da961efb918, type: 2}
@@ -3271,7 +3323,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB0A0\uACE0\uC2F6\uC740 \uD398\uB2C8 "
+  m_text: "\uB0A0\uACE0\uC2F6\uC740 \uD398\uB2C8"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6843efbbfbfc947e6ae80da961efb918, type: 2}
   m_sharedMaterial: {fileID: 5468906123389740140, guid: 6843efbbfbfc947e6ae80da961efb918, type: 2}

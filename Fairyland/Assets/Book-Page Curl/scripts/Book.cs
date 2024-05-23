@@ -139,6 +139,13 @@ public class Book : MonoBehaviour {
 
     private EmotionSelectScript emotionSelection;
 
+
+    public string title;
+    public string imgPath;
+    public string textPath;
+
+
+
     public void SwitchScene()
     {
         SaveCurrentSceneData();
@@ -166,6 +173,13 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
+        title = PlayerPrefs.GetString("title", "defaultTitle");
+        Debug.Log("book's title is : " + title);
+
+        imgPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, "img");
+        textPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, title + ".json");
+        Debug.Log(imgPath);
+        Debug.Log(textPath);
         LoadCurrentSceneData();
 
         emotionSelection = GetComponent<EmotionSelectScript>();
@@ -232,7 +246,8 @@ public class Book : MonoBehaviour {
 
     IEnumerator LoadImages()
     {
-        string folderPath = Path.Combine(Application.persistentDataPath, "SaveFile/img");
+        //string folderPath = Path.Combine(Application.persistentDataPath, "SaveFile/img");
+        string folderPath = imgPath;
 
         if (!Directory.Exists(folderPath))
         {
@@ -579,7 +594,8 @@ public class Book : MonoBehaviour {
 
     IEnumerator LoadTexts()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "SaveFile", "소나기123.json");
+        //string filePath = Path.Combine(Application.persistentDataPath, "SaveFile", "소나기123.json");
+        string filePath = textPath;
 
         if (File.Exists(filePath))
         {

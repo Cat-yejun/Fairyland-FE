@@ -41,6 +41,8 @@ public class EmotionSelectScript : MonoBehaviour
     public GameObject SpeakStartCanvas;
     public GameObject SpeakStopCanvas;
 
+    public Button SpeakStartButton;
+
     private int prevSelection = 0;
     private bool isDescriptionShown = false;
 
@@ -400,6 +402,7 @@ public class EmotionSelectScript : MonoBehaviour
         whale.rotation = targetRotation;
 
         SpeakStartCanvas.SetActive(true);
+        SpeakStartButton.interactable = true;
 
         BookClass.WhaleSpeak();
 
