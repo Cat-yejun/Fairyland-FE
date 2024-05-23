@@ -14,8 +14,11 @@ public class DisplayData : MonoBehaviour
     {
         Dictionary<string, object> data = null; // Initialize data to null
 
-        string title = titleInputField.text;
-        string path = Application.persistentDataPath + PATH + title + "/" + title + ".json";
+        //string title = titleInputField.text;
+        string title = PlayerPrefs.GetString("title", "default_title");
+        //string path = Application.persistentDataPath + PATH + title + "/" + title + ".json";
+
+        string path = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
 
         if (File.Exists(path))
         {
@@ -25,18 +28,30 @@ public class DisplayData : MonoBehaviour
         else
         {
             Debug.LogError("File not found: " + path);
+            displayText.text = "File not found.";
+            return;
         }
 
-        if (data != null)
+        if (data != null && data.TryGetValue("novel_num_dict", out var novelNumDictObj))
         {
-            foreach (var kvp in data)
+            var novelNumDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(novelNumDictObj.ToString());
+            if (novelNumDict != null)
             {
-                displayText.text += $"Key: {kvp.Key}, Value: {kvp.Value}\n";
+                List<string> sentences = new List<string>();
+                foreach (var kvp in novelNumDict)
+                {
+                    sentences.Add(kvp.Value);
+                }
+                displayText.text = string.Join(" ", sentences);
+            }
+            else
+            {
+                displayText.text = "Failed to parse novel_num_dict.";
             }
         }
         else
         {
-            displayText.text = "Failed to load data.";
+            displayText.text = "Data or novel_num_dict not found.";
         }
     }
 }
