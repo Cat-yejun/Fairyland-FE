@@ -13,6 +13,7 @@ public class ImageLoader : MonoBehaviour
     public Button leftButton;
     public Button rightButton;
     public Button selectButton; // 추가된 버튼
+    public Button goToCreateInteractionButton; // Added button
     public RawImage rawImage;
     public TMP_Text tmpText;
     private const string PATH = "/SaveFile/";
@@ -41,6 +42,7 @@ public class ImageLoader : MonoBehaviour
         int maxScene = PlayerPrefs.GetInt("split", 1) - 1;
         maxScene = 2; //TEST!!!!!!!
         selectedImages = new string[maxScene + 1]; // 씬 번호는 1부터 시작하므로 +1
+        goToCreateInteractionButton.gameObject.SetActive(false);
     }
 
     private void LoadImage(int buttonNumber)
@@ -132,6 +134,22 @@ public class ImageLoader : MonoBehaviour
         {
             selectedImages[currentScene] = imageName;
             Debug.Log($"Image {imageName} selected for scene {currentScene}.");
+            // Check if the array is full
+            bool arrayIsFull = true;
+            for (int i = 1; i < selectedImages.Length; i++)
+            {
+                if (string.IsNullOrEmpty(selectedImages[i]))
+                {
+                    arrayIsFull = false;
+                    break;
+                }
+            }
+
+            // Activate "Go to Create Interaction" button if the array is full
+            if (arrayIsFull)
+            {
+                goToCreateInteractionButton.gameObject.SetActive(true);
+            }
         }
     }
 
