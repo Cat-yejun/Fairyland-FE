@@ -101,7 +101,7 @@ public class NovelSender : MonoBehaviour
 
     private void SaveJsonToFile(string json, string title)
     {
-        string path = Application.dataPath + "/SaveFile/" + title + "/";
+        string path = Application.persistentDataPath + "/SaveFile/" + title + "/";
 
         if (!Directory.Exists(path))
         {
@@ -163,7 +163,7 @@ public class NovelSender : MonoBehaviour
                         if (sceneLinks != null)
                         {
                             // Create directory if not exists
-                            string imgFolderPath = Application.dataPath + "/SaveFile/" + title + "/img/";
+                            string imgFolderPath = Application.persistentDataPath + "/SaveFile/" + title + "/img/";
                             if (!Directory.Exists(imgFolderPath))
                             {
                                 Directory.CreateDirectory(imgFolderPath);
