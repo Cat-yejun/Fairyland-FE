@@ -10,6 +10,10 @@ using UnityEngine.Events;
 using TMPro;
 using System.IO;
 using static UnityEngine.Rendering.DebugUI;
+using UnityEngine.Networking;
+using System.Linq;
+using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 public enum FlipMode
 {
@@ -23,7 +27,8 @@ public class Book : MonoBehaviour {
     RectTransform BookPanel;
     public Sprite background;
     public Sprite[] bookPages;
-    public Sprite[] bookBigPages;
+    //public Sprite[] bookBigPages;
+    public List<Sprite> bookBigPages = new List<Sprite>();
     public bool interactable=true;
     public bool enableShadowEffect=true;
     //represent the index of the sprite shown in the right page
@@ -99,9 +104,14 @@ public class Book : MonoBehaviour {
     private bool pressAllowed = true;
     private bool SpeakStartStopButton = true;
 
+    public GameObject SpeakStartButton;
+    public GameObject SpeakStopButton;
+    public GameObject AskLineGuessCanvas;
+
     private int LineGuessingPage = 2;
 
 
+    private AudioSource audioSource;
 
 
     void Start()
@@ -110,16 +120,35 @@ public class Book : MonoBehaviour {
         if (!canvas) Debug.LogError("Book should be a child to canvas");
 
         // Call SplitImage to divide the image and set up pages
-        if (bookBigPages != null)
+        //if (bookBigPages != null)
+        //{
+        //    InitializeBookPages();
+        //}
+        //else
+        //{
+        //    Debug.LogError("fullImageSprite not set");
+        //}
+
+        bookBigPages = new List<Sprite>();
+
+        StartCoroutine(LoadImages());
+        StartCoroutine(LoadTexts());
+
+
+        SpeakStartButton.SetActive(false);
+        SpeakStopButton.SetActive(false);
+
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
         {
-            InitializeBookPages();
-        }
-        else
-        {
-            Debug.LogError("fullImageSprite not set");
+            audioSource = gameObject.AddComponent<AudioSource>();
+            Debug.Log("AudioSource component was missing and has been added.");
         }
 
-        LoadTextsToPages();
+
+        //LoadTextsToPages();
+
         UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
 
         Left.gameObject.SetActive(false);
@@ -146,6 +175,56 @@ public class Book : MonoBehaviour {
 
     }
 
+    IEnumerator LoadImages()
+    {
+        string folderPath = Path.Combine(Application.persistentDataPath, "SaveFile/img");
+
+        if (!Directory.Exists(folderPath))
+        {
+            Debug.LogError("Directory not found: " + folderPath);
+            yield break;
+        }
+
+        // 파일 이름을 기준으로 정렬
+        string[] filePaths = Directory.GetFiles(folderPath, "*.png").OrderBy(f => f).ToArray();
+        foreach (string filePath in filePaths)
+        {
+            yield return StartCoroutine(LoadImage(filePath));
+        }
+
+        InitializeBookPages();
+        UpdateSprites();
+    }
+
+    IEnumerator LoadImage(string filePath)
+    {
+        string fileUrl = "file://" + filePath;
+
+        using (WWW www = new WWW(fileUrl))
+        {
+            yield return www;
+
+            if (string.IsNullOrEmpty(www.error))
+            {
+                Texture2D texture = www.texture;
+                Sprite sprite = TextureToSprite(texture);
+                bookBigPages.Add(sprite);
+                Debug.Log("Loaded image: " + filePath);
+            }
+            else
+            {
+                Debug.LogError("Error loading image: " + www.error);
+            }
+        }
+    }
+
+    Sprite TextureToSprite(Texture2D texture)
+    {
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+    }
+
+
+
     public void OnPressLineGuessing()
     {
         if (!firstButtonPress)
@@ -170,7 +249,7 @@ public class Book : MonoBehaviour {
 
         Vector2 originalPosition = LineGuessing.anchoredPosition;
         Vector2 originalButtonPosition = buttonRectTransform.anchoredPosition;
-        Vector2 targetPosition = Vector2.zero;
+        Vector2 targetPosition = new Vector2(0.0f, -100.0f);
 
         float originalFontSize = LineGuessingText.fontSize;
         float enlargedFontSize = (float)(originalFontSize * 1.5);
@@ -204,6 +283,41 @@ public class Book : MonoBehaviour {
         LineGuessingText.fontSize = (int)enlargedFontSize;
         buttonRectTransform.anchoredPosition = targetPosition;
         buttonRectTransform.sizeDelta = enlargedButtonSize;
+
+        yield return new WaitForSeconds(2.0f);
+
+        SpeakStartButton.SetActive(true);
+        AskLineGuessCanvas.SetActive(true);
+
+        string filePath = Path.Combine(Application.persistentDataPath, "tts.mp3");
+
+        PlaySpeech(filePath);
+
+    }
+
+    public void PlaySpeech(string path)
+    {
+        StartCoroutine(LoadAndPlayAudio(path));
+
+    }
+
+    public IEnumerator LoadAndPlayAudio(string path)
+    {
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError(www.error);
+            }
+            else
+            {
+                AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
+                audioSource.clip = audioClip;
+                audioSource.Play();
+            }
+        }
     }
 
 
@@ -299,9 +413,9 @@ public class Book : MonoBehaviour {
     void InitializeBookPages()
     {
         // Assume each big page contains exactly two pages
-        bookPages = new Sprite[(bookBigPages.Length + 1) * 2];
+        bookPages = new Sprite[(bookBigPages.Count + 1) * 2];
 
-        for (int i = 0, j = 0; i < bookBigPages.Length; i++, j += 2)
+        for (int i = 0, j = 0; i < bookBigPages.Count; i++, j += 2)
         {
             Texture2D originalTexture = bookBigPages[i].texture;
             Rect originalRect = bookBigPages[i].rect;
@@ -314,6 +428,62 @@ public class Book : MonoBehaviour {
             Rect rightRect = new Rect(originalRect.x + originalRect.width / 2, originalRect.y, originalRect.width / 2, originalRect.height);
             bookPages[j + 2] = Sprite.Create(originalTexture, rightRect, new Vector2(0.5f, 0.5f), bookBigPages[i].pixelsPerUnit);
         }
+
+        Debug.Log("Initialized book pages.");
+    }
+
+
+
+    IEnumerator LoadTexts()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "SaveFile", "소나기123.json");
+
+        if (File.Exists(filePath))
+        {
+            string jsonContent = File.ReadAllText(filePath);
+            var jsonData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(jsonContent);
+
+            if (jsonData.ContainsKey("splited_novel_dict"))
+            {
+                var splitedNovelDict = jsonData["splited_novel_dict"];
+                texts = new string[splitedNovelDict.Count];
+
+                int index = 0;
+                foreach (var entry in splitedNovelDict)
+                {
+                    string formattedText = FormatText(entry.Value);
+                    texts[index] = formattedText;
+                    index++;
+                }
+
+                Debug.Log("Texts loaded successfully.");
+                Debug.Log("TextFile Length : " + texts.Length);
+            }
+            else
+            {
+                Debug.LogError("splited_novel_dict not found in JSON.");
+            }
+        }
+        else
+        {
+            Debug.LogError("File not found: " + filePath);
+        }
+
+        yield return null;
+    }
+
+    string FormatText(string input)
+    {
+        // 마침표 뒤에 줄바꿈을 추가합니다.
+        string formattedText = Regex.Replace(input, @"(?<=\.)", "\n");
+
+        // 닫는 큰따옴표 직후에 줄바꿈을 추가합니다.
+        formattedText = Regex.Replace(formattedText, "(?=\")", "\n");
+
+        // 불필요한 연속 줄바꿈을 제거합니다.
+        formattedText = Regex.Replace(formattedText, "\n+", "\n");
+
+        return formattedText;
     }
 
     void SplitSprite(Sprite originalSprite)
