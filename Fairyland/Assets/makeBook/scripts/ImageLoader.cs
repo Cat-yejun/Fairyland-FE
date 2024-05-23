@@ -12,12 +12,15 @@ public class ImageLoader : MonoBehaviour
     public Button button3;
     public Button leftButton;
     public Button rightButton;
+    public Button selectButton; // 추가된 버튼
     public RawImage rawImage;
     public TMP_Text tmpText;
     private const string PATH = "/SaveFile/";
     private int currentScene = 1; // 현재 씬 번호
     private Dictionary<string, string> novelNumDict = new Dictionary<string, string>();
     private Dictionary<string, string> splitedNovelDict = new Dictionary<string, string>();
+    private string[] selectedImages; // 씬마다의 이미지를 저장하는 배열
+    private int current_img_num;
 
     void Start()
     {
@@ -26,18 +29,25 @@ public class ImageLoader : MonoBehaviour
         button3.onClick.AddListener(() => LoadImage(3));
         leftButton.onClick.AddListener(() => ChangeScene(-1));
         rightButton.onClick.AddListener(() => ChangeScene(1));
+        selectButton.onClick.AddListener(SelectImage); // '선택하기' 버튼 클릭 이벤트 추가
 
         // JSON 파일 읽기 및 딕셔너리 변환
         LoadJson();
 
         // 씬이 변경될 때마다 텍스트 업데이트
         ChangeScene(0);
+
+        // selectedImages 배열 초기화
+        int maxScene = PlayerPrefs.GetInt("split", 1) - 1;
+        maxScene = 2; //TEST!!!!!!!
+        selectedImages = new string[maxScene + 1]; // 씬 번호는 1부터 시작하므로 +1
     }
 
     private void LoadImage(int buttonNumber)
     {
         string title = PlayerPrefs.GetString("title", "default_title");
         title = "소나기123"; //TEST!!!!!!!
+        current_img_num = buttonNumber - 1;
 
         string path = $"{Application.persistentDataPath}{PATH}{title}/img/{currentScene}-{buttonNumber - 1}.png";
 
@@ -108,4 +118,22 @@ public class ImageLoader : MonoBehaviour
             Debug.LogError("JSON file not found: " + jsonPath);
         }
     }
+
+    private void SelectImage()
+    {
+        string title = "소나기123"; //TEST!!!!!!!
+        string imageName = $"{currentScene}-{current_img_num}.png";
+
+        if (selectedImages[currentScene] == imageName)
+        {
+            Debug.Log($"Image {imageName} is already selected for scene {currentScene}.");
+        }
+        else
+        {
+            selectedImages[currentScene] = imageName;
+            Debug.Log($"Image {imageName} selected for scene {currentScene}.");
+        }
+    }
+
+   
 }
