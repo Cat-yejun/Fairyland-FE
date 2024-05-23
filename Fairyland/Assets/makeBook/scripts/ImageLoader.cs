@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Text;
+using UnityEngine.SceneManagement;
 
 public class ImageLoader : MonoBehaviour
 {
@@ -19,12 +20,14 @@ public class ImageLoader : MonoBehaviour
     public Button goToCreateInteractionButton; // Added button
     public RawImage rawImage;
     public TMP_Text tmpText;
+    public GameObject loadingScreen;
     private const string PATH = "/SaveFile/";
     private int currentScene = 1; // 현재 씬 번호
     private Dictionary<string, string> novelNumDict = new Dictionary<string, string>();
     private Dictionary<string, string> splitedNovelDict = new Dictionary<string, string>();
     private string[] selectedImages; // 씬마다의 이미지를 저장하는 배열
     private int current_img_num;
+
 
     void Start()
     {
@@ -34,6 +37,7 @@ public class ImageLoader : MonoBehaviour
         leftButton.onClick.AddListener(() => ChangeScene(-1));
         rightButton.onClick.AddListener(() => ChangeScene(1));
         selectButton.onClick.AddListener(SelectImage); // '선택하기' 버튼 클릭 이벤트 추가
+        
 
         // JSON 파일 읽기 및 딕셔너리 변환
         LoadJson();
@@ -47,6 +51,7 @@ public class ImageLoader : MonoBehaviour
         selectedImages = new string[maxScene + 1]; // 씬 번호는 1부터 시작하므로 +1
         goToCreateInteractionButton.gameObject.SetActive(false);
         goToCreateInteractionButton.onClick.AddListener(SendInteractionRequest);
+
     }
 
     private void LoadImage(int buttonNumber)
@@ -165,6 +170,7 @@ public class ImageLoader : MonoBehaviour
         string title = PlayerPrefs.GetString("title", "default_title");
         string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
         Debug.Log("데이터를 보냅니..");
+        loadingScreen.SetActive(true);
 
         if (File.Exists(jsonPath))
         {
@@ -208,7 +214,9 @@ public class ImageLoader : MonoBehaviour
         {
             Debug.LogError("JSON file not found: " + jsonPath);
         }
+
         DeleteNonSelectedImages();
+        SceneManager.LoadScene("Book_manu_replace");
     }
 
    

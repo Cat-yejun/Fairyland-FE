@@ -13,11 +13,13 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
+
 public class NovelSender : MonoBehaviour
 {
     public TMP_InputField userInputField;
     public TMP_InputField titleInputField;
     public GameObject loadingScreen;
+    public GameObject loadingScreen2;
     public GameObject textLookScreen;
     public GameObject imgSelectScreen;
     public GameObject mainScreen;
@@ -195,7 +197,7 @@ public class NovelSender : MonoBehaviour
             string jsonData = JsonConvert.SerializeObject(requestData);
 
             Debug.Log("Data sent to server: " + jsonData);
-            loadingScreen.SetActive(true);
+            loadingScreen2.SetActive(true);
 
             using (HttpClient client = new HttpClient())
             {
@@ -234,7 +236,7 @@ public class NovelSender : MonoBehaviour
                                 string imageUrl = sceneLinks[j].Value<string>();
                                 StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + currentSceneNum + "-" + j + ".png"));
                             }
-                            loadingScreen.SetActive(false);
+                            loadingScreen2.SetActive(false);
                             imgSelectScreen.SetActive(true);
                             textLookScreen.SetActive(false);
 
@@ -293,8 +295,7 @@ public class NovelSender : MonoBehaviour
                 string jsonData = JsonConvert.SerializeObject(requestData);
 
                 Debug.Log("Data sent to server: " + jsonData);
-                loadingScreen.SetActive(true);
-
+                
                 using (HttpClient client = new HttpClient())
                 {
                     client.Timeout = TimeSpan.FromSeconds(1000);
@@ -330,7 +331,7 @@ public class NovelSender : MonoBehaviour
                                     string imageUrl = sceneLinks[j].Value<string>();
                                     StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + currentSceneNum + "-" + j + ".png"));
                                 }
-                                loadingScreen.SetActive(false);
+                                
                                 imgSelectScreen.SetActive(true);
                                 textLookScreen.SetActive(false);
 

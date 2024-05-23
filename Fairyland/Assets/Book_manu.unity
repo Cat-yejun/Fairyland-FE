@@ -1078,7 +1078,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 549038993}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e405f240053bc481f8ec3f9762ee6079, type: 3}
+  m_Script: {fileID: 11500000, guid: b7985a7d53ff541a89fb56512b9ede9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &567671226
@@ -2197,7 +2197,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 549038995}
-        m_TargetAssemblyTypeName: MKChange, Assembly-CSharp
+        m_TargetAssemblyTypeName: GoToCreate, Assembly-CSharp
         m_MethodName: SceneChange
         m_Mode: 1
         m_Arguments:
