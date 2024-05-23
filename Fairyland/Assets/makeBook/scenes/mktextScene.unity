@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &37464748
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1107,7 +1107,7 @@ GameObject:
   - component: {fileID: 632744266}
   - component: {fileID: 632744265}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: NovelText (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1161,8 +1161,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4281874488
+  m_fontColor: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1924,7 +1924,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &826426574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2037,9 +2037,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde02bd51c224443297e39043eeadd5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  button1: {fileID: 801916014}
+  button2: {fileID: 954618143}
+  button3: {fileID: 1252505178}
   leftButton: {fileID: 1409924810}
   rightButton: {fileID: 909247448}
   rawImage: {fileID: 1189326568}
+  tmpText: {fileID: 632744265}
 --- !u!4 &836244369
 Transform:
   m_ObjectHideFlags: 0
@@ -4260,7 +4264,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1396357684
 MonoBehaviour:
   m_ObjectHideFlags: 0
