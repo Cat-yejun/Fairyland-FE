@@ -15,7 +15,7 @@ public class DisplayData : MonoBehaviour
         Dictionary<string, object> data = null; // Initialize data to null
 
         string title = titleInputField.text;
-        string path = Application.dataPath + PATH + title + "/" + title + ".json";
+        string path = Application.persistentDataPath + PATH + title + "/" + title + ".json";
 
         if (File.Exists(path))
         {
