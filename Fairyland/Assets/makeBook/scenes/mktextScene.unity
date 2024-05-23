@@ -821,7 +821,7 @@ GameObject:
   - component: {fileID: 377932030}
   - component: {fileID: 377932029}
   m_Layer: 5
-  m_Name: Button
+  m_Name: TodButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -890,7 +890,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 377932030}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1103358463}
+        m_TargetAssemblyTypeName: NovelSender, Assembly-CSharp
+        m_MethodName: OnToddlerButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &377932030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1912,7 +1924,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &826426574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2025,9 +2037,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde02bd51c224443297e39043eeadd5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button1: {fileID: 801916014}
-  button2: {fileID: 954618143}
-  button3: {fileID: 1252505178}
+  leftButton: {fileID: 1409924810}
+  rightButton: {fileID: 909247448}
   rawImage: {fileID: 1189326568}
 --- !u!4 &836244369
 Transform:
@@ -2232,7 +2243,7 @@ GameObject:
   - component: {fileID: 909247449}
   - component: {fileID: 909247448}
   m_Layer: 0
-  m_Name: Button
+  m_Name: NextButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2827,6 +2838,11 @@ MonoBehaviour:
   textLookScreen: {fileID: 436109105}
   imgSelectScreen: {fileID: 1396357683}
   mainScreen: {fileID: 37464747}
+  elementaryButton: {fileID: 1449463193}
+  toddlerButton: {fileID: 377932029}
+  customButton: {fileID: 1126993489}
+  splitInputField: {fileID: 1700714665}
+  lengthLimitInputField: {fileID: 1974579101}
 --- !u!4 &1103358464
 Transform:
   m_ObjectHideFlags: 0
@@ -2868,7 +2884,7 @@ GameObject:
   - component: {fileID: 1126993490}
   - component: {fileID: 1126993489}
   m_Layer: 5
-  m_Name: Button
+  m_Name: CustomButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2937,7 +2953,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1126993490}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1103358463}
+        m_TargetAssemblyTypeName: NovelSender, Assembly-CSharp
+        m_MethodName: OnCustomButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1126993490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4329,7 +4357,7 @@ GameObject:
   - component: {fileID: 1409924811}
   - component: {fileID: 1409924810}
   m_Layer: 0
-  m_Name: Button
+  m_Name: PrevButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4450,7 +4478,7 @@ GameObject:
   - component: {fileID: 1449463194}
   - component: {fileID: 1449463193}
   m_Layer: 5
-  m_Name: Button
+  m_Name: EleButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4519,7 +4547,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1449463194}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1103358463}
+        m_TargetAssemblyTypeName: NovelSender, Assembly-CSharp
+        m_MethodName: OnElementaryButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1449463194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4797,7 +4837,7 @@ GameObject:
   - component: {fileID: 1700714666}
   - component: {fileID: 1700714665}
   m_Layer: 5
-  m_Name: ' (TMP)'
+  m_Name: Split(TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6022,7 +6062,7 @@ GameObject:
   - component: {fileID: 1974579102}
   - component: {fileID: 1974579101}
   m_Layer: 5
-  m_Name: InputField (TMP)
+  m_Name: Length(TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

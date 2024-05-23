@@ -16,26 +16,81 @@ using System.Collections;
 public class NovelSender : MonoBehaviour
 {
     public TMP_InputField userInputField;
-    public TMP_InputField titleInputField; // New TMP_InputField for title
-    public GameObject loadingScreen; // Drag your loading panel here
+    public TMP_InputField titleInputField;
+    public GameObject loadingScreen;
     public GameObject textLookScreen;
     public GameObject imgSelectScreen;
     public GameObject mainScreen;
+    public Button elementaryButton; // New button for elementary
+    public Button toddlerButton; // New button for toddler
+    public Button customButton; // New button for custom settings
+    public TMP_InputField splitInputField; // New TMP_InputField for custom split
+    public TMP_InputField lengthLimitInputField; // New TMP_InputField for custom length limit
 
-    private string novel; // Class variable for novel
-    private string title; // Class variable for title
+    private string novel;
+    private string title;
+
+    private void Start()
+    {
+        // Add click listeners to the buttons
+        elementaryButton.onClick.AddListener(OnElementaryButtonClick);
+        toddlerButton.onClick.AddListener(OnToddlerButtonClick);
+        customButton.onClick.AddListener(OnCustomButtonClick);
+    }
+
+    // Elementary button click event handler
+    public void OnElementaryButtonClick()
+    {
+        int split = 36;
+        int lengthLimit = 130;
+        PlayerPrefs.SetInt("split", split);
+        PlayerPrefs.SetInt("lengthLimit", lengthLimit);
+
+        PlayerPrefs.Save();
+        Debug.Log("split, lengthLmit saved: " + split + "-" + lengthLimit);
+        //SendNovelToServer(36, 130);
+    }
+
+    // Toddler button click event handler
+    public void OnToddlerButtonClick()
+    {
+        int split = 16;
+        int lengthLimit = 70;
+        PlayerPrefs.SetInt("split", split);
+        PlayerPrefs.SetInt("lengthLimit", lengthLimit);
+
+        PlayerPrefs.Save();
+        Debug.Log("split, lengthLmit saved: " + split + "-" + lengthLimit);
+        //SendNovelToServer(16, 70);
+    }
+
+    // Custom button click event handler
+    public void OnCustomButtonClick()
+    {
+        int split = int.Parse(splitInputField.text);
+        int lengthLimit = int.Parse(lengthLimitInputField.text);
+        PlayerPrefs.SetInt("split", split);
+        PlayerPrefs.SetInt("lengthLimit", lengthLimit);
+
+        PlayerPrefs.Save();
+        Debug.Log("split, lengthLmit saved: " + split + "-" + lengthLimit);
+        //SendNovelToServer(split, lengthLimit);
+    }
 
     public async void SendNovelToServer()
     {
         novel = userInputField.text;
         title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-novel";
+        int split = PlayerPrefs.GetInt("split", 1);
+        int lengthLimit = PlayerPrefs.GetInt("lengthLimit", 1);
+
 
         var json = new JObject
         {
             { "source", novel },
-            { "split", 16 },
-            { "length_limit", 70 }
+            { "split", split }, // Use split parameter
+            { "length_limit", lengthLimit } // Use lengthLimit parameter
         };
 
         string jsonData = json.ToString();
@@ -49,7 +104,6 @@ public class NovelSender : MonoBehaviour
             try
             {
                 mainScreen.SetActive(false);
-                // Activate loading screen
                 loadingScreen.SetActive(true);
 
                 HttpResponseMessage response = await client.PostAsync(url, content);
@@ -68,7 +122,6 @@ public class NovelSender : MonoBehaviour
 
                     SaveJsonToFile(jsonResponse, title);
 
-                    // Deactivate loading screen and load next scene
                     loadingScreen.SetActive(false);
                     textLookScreen.SetActive(true);
 
@@ -93,7 +146,6 @@ public class NovelSender : MonoBehaviour
             }
             finally
             {
-                // Deactivate loading screen in case of error or completion
                 loadingScreen.SetActive(false);
             }
         }
@@ -112,11 +164,13 @@ public class NovelSender : MonoBehaviour
         Debug.Log("JSON response saved to: " + path + title + ".json");
     }
 
+
     public async void SendImageRequestsToServer()
     {
         string url = "http://43.201.252.166:8000/make-image";
         int initialSceneNum = 1;
-        int split = 16;
+        int split = PlayerPrefs.GetInt("split", 1);
+        
 
         string historyPrompt = "";
         string agePrompt = "";
@@ -139,6 +193,7 @@ public class NovelSender : MonoBehaviour
             string jsonData = JsonConvert.SerializeObject(requestData);
 
             Debug.Log("Data sent to server: " + jsonData);
+            loadingScreen.SetActive(true);
 
             using (HttpClient client = new HttpClient())
             {
@@ -175,8 +230,10 @@ public class NovelSender : MonoBehaviour
                                 string imageUrl = sceneLinks[j].Value<string>();
                                 StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + currentSceneNum + "-" + j + ".png"));
                             }
+                            loadingScreen.SetActive(false);
                             imgSelectScreen.SetActive(true);
                             textLookScreen.SetActive(false);
+                            
                         }
                         else
                         {
