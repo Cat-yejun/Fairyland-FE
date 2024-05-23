@@ -16,23 +16,83 @@ using System.Collections;
 public class NovelSender : MonoBehaviour
 {
     public TMP_InputField userInputField;
-    public TMP_InputField titleInputField; // New TMP_InputField for title
-    public GameObject loadingScreen; // Drag your loading panel here
+    public TMP_InputField titleInputField;
+    public GameObject loadingScreen;
     public GameObject textLookScreen;
     public GameObject imgSelectScreen;
     public GameObject mainScreen;
+    public Button elementaryButton; // New button for elementary
+    public Button toddlerButton; // New button for toddler
+    public Button customButton; // New button for custom settings
+    
+    public TMP_InputField splitInputField; // New TMP_InputField for custom split
+    public TMP_InputField lengthLimitInputField; // New TMP_InputField for custom length limit
+
+    private string novel;
+    private string title;
+
+    private void Start()
+    {
+        // Add click listeners to the buttons
+        elementaryButton.onClick.AddListener(OnElementaryButtonClick);
+        toddlerButton.onClick.AddListener(OnToddlerButtonClick);
+        customButton.onClick.AddListener(OnCustomButtonClick);
+    }
+
+    // Elementary button click event handler
+    public void OnElementaryButtonClick()
+    {
+        int split = 36;
+        int lengthLimit = 130;
+        PlayerPrefs.SetInt("split", split);
+        PlayerPrefs.SetInt("lengthLimit", lengthLimit);
+
+        PlayerPrefs.Save();
+        Debug.Log("split, lengthLmit saved: " + split + "-" + lengthLimit);
+        //SendNovelToServer(36, 130);
+    }
+
+    // Toddler button click event handler
+    public void OnToddlerButtonClick()
+    {
+        int split = 16;
+        int lengthLimit = 70;
+        PlayerPrefs.SetInt("split", split);
+        PlayerPrefs.SetInt("lengthLimit", lengthLimit);
+
+        PlayerPrefs.Save();
+        Debug.Log("split, lengthLmit saved: " + split + "-" + lengthLimit);
+        //SendNovelToServer(16, 70);
+    }
+
+    // Custom button click event handler
+    public void OnCustomButtonClick()
+    {
+        int split = int.Parse(splitInputField.text);
+        int lengthLimit = int.Parse(lengthLimitInputField.text);
+        PlayerPrefs.SetInt("split", split);
+        PlayerPrefs.SetInt("lengthLimit", lengthLimit);
+
+        PlayerPrefs.Save();
+        Debug.Log("split, lengthLmit saved: " + split + "-" + lengthLimit);
+        //SendNovelToServer(split, lengthLimit);
+    }
 
     public async void SendNovelToServer()
     {
-        string novel = userInputField.text;
-        string title = titleInputField.text;
+        novel = userInputField.text;
+        title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-novel";
+        int split = PlayerPrefs.GetInt("split", 1);
+        int lengthLimit = PlayerPrefs.GetInt("lengthLimit", 1);
+        
+
 
         var json = new JObject
         {
             { "source", novel },
-            { "split", 16 },
-            { "length_limit", 70 }
+            { "split", split }, // Use split parameter
+            { "length_limit", lengthLimit } // Use lengthLimit parameter
         };
 
         string jsonData = json.ToString();
@@ -46,7 +106,6 @@ public class NovelSender : MonoBehaviour
             try
             {
                 mainScreen.SetActive(false);
-                // Activate loading screen
                 loadingScreen.SetActive(true);
 
                 HttpResponseMessage response = await client.PostAsync(url, content);
@@ -65,9 +124,7 @@ public class NovelSender : MonoBehaviour
 
                     SaveJsonToFile(jsonResponse, title);
 
-                    // Deactivate loading screen and load next scene
                     loadingScreen.SetActive(false);
-                    //SceneManager.LoadScene("textlookScene"); // Replace with your scene name
                     textLookScreen.SetActive(true);
 
                 }
@@ -91,7 +148,6 @@ public class NovelSender : MonoBehaviour
             }
             finally
             {
-                // Deactivate loading screen in case of error or completion
                 loadingScreen.SetActive(false);
             }
         }
@@ -99,7 +155,7 @@ public class NovelSender : MonoBehaviour
 
     private void SaveJsonToFile(string json, string title)
     {
-        string path = Application.dataPath + "/SaveFile/" + title + "/";
+        string path = Application.persistentDataPath + "/SaveFile/" + title + "/";
 
         if (!Directory.Exists(path))
         {
@@ -110,20 +166,21 @@ public class NovelSender : MonoBehaviour
         Debug.Log("JSON response saved to: " + path + title + ".json");
     }
 
+
     public async void SendImageRequestsToServer()
     {
-        string novel = userInputField.text;
-        string title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-image";
         int initialSceneNum = 1;
-        int split = 16;
-
+        int split = PlayerPrefs.GetInt("split", 1);
+        
+   
         string historyPrompt = "";
         string agePrompt = "";
-
-        for (int i = 0; i < split; i++)
+        Debug.Log("start to sending");
+        Dictionary<string, string> characterDescriptionDict = new Dictionary<string, string>();
+        //////
         {
-            int currentSceneNum = initialSceneNum + i;
+            int currentSceneNum = initialSceneNum;
             var requestData = new
             {
                 source = novel,
@@ -138,6 +195,7 @@ public class NovelSender : MonoBehaviour
             string jsonData = JsonConvert.SerializeObject(requestData);
 
             Debug.Log("Data sent to server: " + jsonData);
+            loadingScreen.SetActive(true);
 
             using (HttpClient client = new HttpClient())
             {
@@ -158,11 +216,13 @@ public class NovelSender : MonoBehaviour
                         historyPrompt = responseData["history_prompt"]?.ToString();
                         agePrompt = responseData["age_prompt"]?.ToString();
                         string charDesDict = responseData["char_des_dict"]?.ToString();
+                        characterDescriptionDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(charDesDict);
+                        Debug.Log("딕셔너리 잘 만들어");
 
                         if (sceneLinks != null)
                         {
                             // Create directory if not exists
-                            string imgFolderPath = Application.dataPath + "/SaveFile/" + title + "/img/";
+                            string imgFolderPath = Application.persistentDataPath + "/SaveFile/" + title + "/img/";
                             if (!Directory.Exists(imgFolderPath))
                             {
                                 Directory.CreateDirectory(imgFolderPath);
@@ -174,8 +234,10 @@ public class NovelSender : MonoBehaviour
                                 string imageUrl = sceneLinks[j].Value<string>();
                                 StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + currentSceneNum + "-" + j + ".png"));
                             }
+                            loadingScreen.SetActive(false);
                             imgSelectScreen.SetActive(true);
                             textLookScreen.SetActive(false);
+
                         }
                         else
                         {
@@ -207,6 +269,103 @@ public class NovelSender : MonoBehaviour
                 }
             }
         }
+
+
+
+
+
+     
+            for (int i = 1; i < split - 1; i++)
+            {
+                int currentSceneNum = initialSceneNum + i;
+                Debug.Log("두번째 보내는 historyPrompt: " +historyPrompt);
+                var requestData = new
+                {
+                    source = novel,
+                    split = split,
+                    scene = currentSceneNum,
+                    image_try = 3,
+                    history_prompt = historyPrompt,
+                    age_prompt = agePrompt,
+                    char_des_dict = characterDescriptionDict
+                };
+
+                string jsonData = JsonConvert.SerializeObject(requestData);
+
+                Debug.Log("Data sent to server: " + jsonData);
+                loadingScreen.SetActive(true);
+
+                using (HttpClient client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(1000);
+                    var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                    try
+                    {
+                        HttpResponseMessage response = await client.PostAsync(url, content);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string jsonResponse = await response.Content.ReadAsStringAsync();
+                            Debug.Log("Response from server: " + jsonResponse);
+
+                            var responseData = JsonConvert.DeserializeObject<JObject>(jsonResponse);
+
+                            JArray sceneLinks = responseData["scene_link"] as JArray;
+                            historyPrompt = responseData["history_prompt"]?.ToString();
+                            agePrompt = responseData["age_prompt"]?.ToString();
+                            string charDesDict = responseData["char_des_dict"]?.ToString();
+
+                            if (sceneLinks != null)
+                            {
+                                // Create directory if not exists
+                                string imgFolderPath = Application.persistentDataPath + "/SaveFile/" + title + "/img/";
+                                if (!Directory.Exists(imgFolderPath))
+                                {
+                                    Directory.CreateDirectory(imgFolderPath);
+                                }
+
+                                // Download and save images
+                                for (int j = 0; j < sceneLinks.Count; j++)
+                                {
+                                    string imageUrl = sceneLinks[j].Value<string>();
+                                    StartCoroutine(DownloadAndSaveImage(imageUrl, imgFolderPath + currentSceneNum + "-" + j + ".png"));
+                                }
+                                loadingScreen.SetActive(false);
+                                imgSelectScreen.SetActive(true);
+                                textLookScreen.SetActive(false);
+
+                            }
+                            else
+                            {
+                                Debug.LogError("No scene links found in response.");
+                            }
+
+                            // 각 변수 값 출력 (디버그용)
+                            Debug.Log("History Prompt: " + historyPrompt);
+                            Debug.Log("Age Prompt: " + agePrompt);
+                            Debug.Log("Character Description Dictionary: " + charDesDict);
+                        }
+                        else
+                        {
+                            string errorResponse = await response.Content.ReadAsStringAsync();
+                            Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        Debug.LogError("Request error: " + e.Message);
+                    }
+                    catch (TaskCanceledException e)
+                    {
+                        Debug.LogError("Request timeout: " + e.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("Unexpected error: " + e.Message);
+                    }
+                }
+            }
+        
     }
 
     private IEnumerator DownloadAndSaveImage(string imageUrl, string imagePath)
