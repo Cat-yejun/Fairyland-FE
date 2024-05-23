@@ -5,7 +5,25 @@ using UnityEngine.UI;
 using System;
 using System.IO;
 using UnityEngine.Networking;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Globalization;
+using Newtonsoft.Json.Linq;
+using UnityEngine.Windows;
 
+[Serializable]
+public class TranscriptData
+{
+    public string transcript;
+    public float similarity;
+}
+
+[Serializable]
+public class EmotionData
+{
+    public string emotion;
+}
 
 
 public class SpeakingScript : MonoBehaviour
@@ -14,6 +32,7 @@ public class SpeakingScript : MonoBehaviour
     public GameObject SpeakStartCanvas;
     public GameObject SpeakStopCanvas;
     public GameObject NextButtonCanvas;
+    public GameObject AskLineGuessCanvas;
     public Button speakStopButton; // speakStop 버튼
     public Button speakStartButton; // speakStart 버튼
     private float initialDelay = 2f; // 초기 지연 시간
@@ -22,7 +41,108 @@ public class SpeakingScript : MonoBehaviour
     private AudioSource audioSource;
     private bool isRecording = false;
 
-    public string serverUrl = "http://a249-125-132-126-243.ngrok-free.app/predict-emotion/"; // Replace with your FastAPI server URL
+    public GameObject CorrectCanvas;
+    public GameObject WrongCanvas;
+
+    private string[] EmotionAnswer = { "calm", "neutral"};
+    private float AccuracyPass = 0.5f;
+    private float currentAccuracy = 1.0f;
+    private string currentEmotion = "";
+
+    private readonly string serverUrlEmotion = "http://a249-125-132-126-243.ngrok-free.app/predict-emotion/";
+    private readonly string serverUrlSimilarity = "http://a249-125-132-126-243.ngrok-free.app/asr-similarity/";
+    private readonly string groundTruth = "추우니까 이것 좀 입어.";
+
+    private Book BookClass;
+
+
+    public void StartUpload()
+    {
+        StartCoroutine(UploadAudioAndAnalyze());
+    }
+
+    private IEnumerator UploadAudioAndAnalyze()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "MyRecording.wav");
+
+        if (System.IO.File.Exists(filePath))
+        {
+            Debug.Log("File exists, starting upload...");
+            yield return StartCoroutine(UploadFile(filePath));
+        }
+        else
+        {
+            Debug.LogError("File not found: " + filePath);
+        }
+    }
+
+    private IEnumerator UploadFile(string filePath)
+    {
+        // Emotion Recognition
+        byte[] fileContent = System.IO.File.ReadAllBytes(filePath);
+        WWWForm form = new WWWForm();
+        form.AddBinaryData("audiofile", fileContent, Path.GetFileName(filePath), "audio/wav");
+
+        using (UnityWebRequest www = UnityWebRequest.Post(serverUrlEmotion, form))
+        {
+            Debug.Log("http 직전 - Emotion");
+            yield return www.SendWebRequest();
+            Debug.Log("http 직후 - Emotion");
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"Emotion Error: {www.error}");
+            }
+            else
+            {
+                Debug.Log($"Emotion Response: {www.downloadHandler.text}");
+                string inputEmotion = www.downloadHandler.text;
+                EmotionData emotionData = JsonUtility.FromJson<EmotionData>(inputEmotion);
+                currentEmotion = emotionData.emotion;
+                Debug.Log("Converted similarity value: " + currentEmotion);
+            }
+        }
+
+        // Similarity Comparison
+        form = new WWWForm();
+        form.AddBinaryData("audio_file", fileContent, Path.GetFileName(filePath), "audio/wav");
+        form.AddField("groundtruth", groundTruth);
+
+        using (UnityWebRequest www = UnityWebRequest.Post(serverUrlSimilarity, form))
+        {
+            Debug.Log("http 직전 - Similarity");
+            yield return www.SendWebRequest();
+            Debug.Log("http 직후 - Similarity");
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"Similarity Error: {www.error}");
+            }
+            else
+            {
+                string accuracy = www.downloadHandler.text;
+                Debug.Log($"Similarity Response: {www.downloadHandler.text}");
+                currentAccuracy = ConvertStringToFloat(accuracy);
+                Debug.Log(currentAccuracy);
+            }
+        }
+    }
+
+    float ConvertStringToFloat(string input)
+    {
+        try
+        {
+            TranscriptData data = JsonUtility.FromJson<TranscriptData>(input);
+            float similarityValue = data.similarity;
+            Debug.Log("Converted similarity value: " + similarityValue);
+            return similarityValue;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to parse JSON and convert similarity value: " + e.Message);
+            return 0.0f;
+        }
+    }
 
 
     // Start is called before the first frame update
@@ -31,6 +151,10 @@ public class SpeakingScript : MonoBehaviour
         SpeakStartCanvas.SetActive(false);
         SpeakStopCanvas.SetActive(false);
         NextButtonCanvas.SetActive(false);
+        CorrectCanvas.SetActive(false);
+        WrongCanvas.SetActive(false);
+
+        BookClass = GetComponent<Book>();
 
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
@@ -48,7 +172,8 @@ public class SpeakingScript : MonoBehaviour
         SpeakStartCanvas.SetActive(false);
 
         StartRecording();
-
+        //currentAccuracy = 0.9f;
+        //currentEmotion = "calm";
         // 음성을 받아오는 로직 추가
     }
 
@@ -58,55 +183,68 @@ public class SpeakingScript : MonoBehaviour
         SpeakStartCanvas.SetActive(true);
         speakStartButton.interactable = false;
 
-        StopRecording();
-        SaveRecording();
+        
+        //string filePath = Path.Combine(Application.persistentDataPath, "MyRecording.wav");
 
-        string filePath = Path.Combine(Application.persistentDataPath, "MyRecording.wav");
+        //if (File.Exists(filePath))
+        //{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+        //    StartUpload();
+        //}
+        //else
+        //{
+        //    Debug.LogError("File not found: " + filePath);
+        //}
 
-        if (File.Exists(filePath))
-        {
-            StartCoroutine(UploadAudio(filePath));
-        }
-        else
-        {
-            Debug.LogError("File not found: " + filePath);
-        }
 
-        NextButtonCanvas.SetActive(true);
-
-        //StartCoroutine(SpeakStopSequence());
+        StartCoroutine(SpeakStopSequence());
     }
 
-    IEnumerator UploadAudio(string filePath)
-    {
-        byte[] fileData = File.ReadAllBytes(filePath);
-
-        WWWForm form = new WWWForm();
-        form.AddBinaryData("file", fileData, "MyRecording.wav", "audio/wav");
-
-        using (UnityWebRequest www = UnityWebRequest.Post(serverUrl, form))
-        {
-            yield return www.SendWebRequest();
-
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError("Error uploading file: " + www.error);
-            }
-            else
-            {
-                Debug.Log("File uploaded successfully.");
-            }
-        }
-    }
 
     IEnumerator SpeakStopSequence()
     {
 
-        yield return new WaitForSeconds(3f);
-        // 음성 처리 시간 / 음성 처리 로직 추가
+        StopRecording();
+        SaveRecording();
+        StartUpload();
+
+        yield return new WaitForSeconds(2.0f);
+
+        bool exists = Array.Exists(EmotionAnswer, element => element == currentEmotion);
+
+        Debug.Log("emotion : " + currentEmotion + ", accuracy : " + currentAccuracy);
+
+        if (currentAccuracy > AccuracyPass)
+        {
+            if(exists)
+            {
+                CorrectCanvas.SetActive(true);
+                WrongCanvas.SetActive(false);
+            }
+            else
+            {
+                WrongCanvas.SetActive(true);
+                CorrectCanvas.SetActive(false);
+            }
+        }
+        else
+        {
+            WrongCanvas.SetActive(true);
+        }
+
+        yield return new WaitForSeconds(3.0f);
+
+        CorrectCanvas.SetActive(false);
+        WrongCanvas.SetActive(false);
+        SpeakStartCanvas.SetActive(false);
+        SpeakStopCanvas.SetActive(false);
+        NextButtonCanvas.SetActive(false);
+        AskLineGuessCanvas.SetActive(false);
 
         //StartCoroutine(Sequence());
-        NextButtonCanvas.SetActive(true);
+        //NextButtonCanvas.SetActive(true);
+        BookClass.StartGotoOriginalPos();
+        BookClass.firstButtonPress = false;
+
     }
 
     void StartRecording()
@@ -179,7 +317,7 @@ public static class WAVUtility
 
         Debug.Log("Saving file to: " + filepath);
 
-        Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+        System.IO.Directory.CreateDirectory(Path.GetDirectoryName(filepath));
 
         using (var fileStream = CreateEmpty(filepath))
         {

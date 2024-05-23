@@ -14,13 +14,21 @@ using UnityEngine.Networking;
 using System.Linq;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using UnityEngine.SceneManagement;
 
 public enum FlipMode
 {
     RightToLeft,
     LeftToRight
 }
+
 [ExecuteInEditMode]
+
+public static class GlobalSceneData
+{
+    public static Dictionary<string, object> Data = new Dictionary<string, object>();
+}
+
 public class Book : MonoBehaviour {
     public Canvas canvas;
     [SerializeField]
@@ -93,6 +101,8 @@ public class Book : MonoBehaviour {
     public GameObject StoryCanvasLeft;
     public GameObject StoryCanvasRight;
     public GameObject LineButtonCanvas;
+    public GameObject GotoInteractionCanvas;
+    public GameObject GotoEmotionCanvas;
 
     public RectTransform LeftTextbox;
     public RectTransform RightTextbox;
@@ -100,7 +110,7 @@ public class Book : MonoBehaviour {
     public RectTransform buttonRectTransform;
 
     public UnityEngine.UI.Button lineButton;
-    private bool firstButtonPress = false;
+    public bool firstButtonPress = false;
     private bool pressAllowed = true;
     private bool SpeakStartStopButton = true;
 
@@ -108,14 +118,58 @@ public class Book : MonoBehaviour {
     public GameObject SpeakStopButton;
     public GameObject AskLineGuessCanvas;
 
-    private int LineGuessingPage = 2;
+    private int LineGuessingPage = 1;
+    private int InteractionPage = 2;
+
+
+    private Vector2 originalSize;
+    private Vector2 originalPosition;
+    private float originalFontSize;
+    private Vector2 originalTextboxSize;
+    private Vector2 originalButtonSize;
+    private Vector2 originalButtonPosition;
 
 
     private AudioSource audioSource;
 
+    public UnityEngine.UI.Button yourButton; // 버튼 참조
+    public string sceneToLoad = "Role_Playing_3d"; // 이동할 씬의 이름
+    public string sceneToUnload = "newBook"; // 현재 씬의 이름
+
+
+    private EmotionSelectScript emotionSelection;
+
+    public void SwitchScene()
+    {
+        SaveCurrentSceneData();
+        SceneManager.LoadScene(sceneToLoad);
+    }
+
+    void SaveCurrentSceneData()
+    {
+        // 예제 데이터 저장
+        GlobalSceneData.Data["currentPage"] = currentPage;
+        // 필요한 다른 데이터도 저장합니다.
+    }
+
+    void LoadCurrentSceneData()
+    {
+        if (GlobalSceneData.Data.ContainsKey("currentPage"))
+        {
+            object exampleValue = GlobalSceneData.Data["currentPage"];
+            // 저장된 데이터를 복원합니다.
+            currentPage = (int)exampleValue;
+            Debug.Log("Restored value: " + exampleValue);
+        }
+    }
+
 
     void Start()
     {
+        LoadCurrentSceneData();
+
+        emotionSelection = GetComponent<EmotionSelectScript>();
+
         if (!canvas) canvas=GetComponentInParent<Canvas>();
         if (!canvas) Debug.LogError("Book should be a child to canvas");
 
@@ -134,7 +188,8 @@ public class Book : MonoBehaviour {
         StartCoroutine(LoadImages());
         StartCoroutine(LoadTexts());
 
-
+        GotoEmotionCanvas.SetActive(false);
+        GotoInteractionCanvas.SetActive(false);
         SpeakStartButton.SetActive(false);
         SpeakStopButton.SetActive(false);
 
@@ -224,7 +279,6 @@ public class Book : MonoBehaviour {
     }
 
 
-
     public void OnPressLineGuessing()
     {
         if (!firstButtonPress)
@@ -234,6 +288,7 @@ public class Book : MonoBehaviour {
                 firstButtonPress = true;
                 pressAllowed = false;
                 StartCoroutine(EnlargeAndCenterImage());
+                emotionSelection.OnGotoEmotionButtonPress();
                 //StartCoroutine(InitialSequence());
                 pressAllowed = true;
             }
@@ -241,23 +296,84 @@ public class Book : MonoBehaviour {
         }
     }
 
+    public void StartGotoOriginalPos()
+    {
+        StartCoroutine(GotoOriginalPosition());
+    }
+
+    private IEnumerator GotoOriginalPosition()
+    {
+        Vector2 currentSize = LineGuessing.sizeDelta;
+        Vector2 currentPosition = LineGuessing.anchoredPosition;
+        Vector2 currentButtonPosition = buttonRectTransform.anchoredPosition;
+
+        Vector2 targetPosition = originalPosition;
+        Vector2 targetButtonPosition = originalButtonPosition;
+        Vector2 targetSize = originalSize;
+
+        float currentFontSize = LineGuessingText.fontSize;
+        float targetFontSize = originalFontSize;
+
+        Vector2 currentTextboxSize = LineGuessingText.rectTransform.sizeDelta;
+        Vector2 targetTextboxSize = originalTextboxSize;
+
+        Vector2 currentButtonSize = buttonRectTransform.sizeDelta;
+        Vector2 targetButtonSize = originalButtonSize;
+
+        float duration = 0.5f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
+
+            LineGuessing.sizeDelta = Vector2.Lerp(currentSize, targetSize, t);
+            LineGuessing.anchoredPosition = Vector2.Lerp(currentPosition, targetPosition, t);
+            LineGuessingText.fontSize = (int)Mathf.Lerp(currentFontSize, targetFontSize, t);
+            LineGuessingText.rectTransform.sizeDelta = Vector2.Lerp(currentTextboxSize, targetTextboxSize, t);
+            buttonRectTransform.anchoredPosition = Vector2.Lerp(currentButtonPosition, targetButtonPosition, t);
+            buttonRectTransform.sizeDelta = Vector2.Lerp(currentButtonSize, targetButtonSize, t);
+
+            yield return null;
+        }
+
+        LineGuessing.sizeDelta = targetSize;
+        LineGuessing.anchoredPosition = targetPosition;
+        LineGuessingText.fontSize = (int)targetFontSize;
+        buttonRectTransform.anchoredPosition = targetButtonPosition;
+        buttonRectTransform.sizeDelta = targetButtonSize;
+    
+    }
+
+    public void WhaleSpeak()
+    {
+        SpeakStartButton.SetActive(true);
+        AskLineGuessCanvas.SetActive(true);
+
+        string filePath = Path.Combine(Application.persistentDataPath, "tts.mp3");
+
+        PlaySpeech(filePath);
+    }
+
+
     IEnumerator EnlargeAndCenterImage()
     {
-        Vector2 originalSize = LineGuessing.sizeDelta;
+        originalSize = LineGuessing.sizeDelta;
         Vector2 enlargedSize = new Vector2((float)(LineGuessing.sizeDelta.x * 1.5), (float)(LineGuessing.sizeDelta.y * 2.0));
 
 
-        Vector2 originalPosition = LineGuessing.anchoredPosition;
-        Vector2 originalButtonPosition = buttonRectTransform.anchoredPosition;
+        originalPosition = LineGuessing.anchoredPosition;
+        originalButtonPosition = buttonRectTransform.anchoredPosition;
         Vector2 targetPosition = new Vector2(0.0f, -100.0f);
 
-        float originalFontSize = LineGuessingText.fontSize;
+        originalFontSize = LineGuessingText.fontSize;
         float enlargedFontSize = (float)(originalFontSize * 1.5);
 
-        Vector2 originalTextboxSize = LineGuessingText.rectTransform.sizeDelta;
+        originalTextboxSize = LineGuessingText.rectTransform.sizeDelta;
         Vector2 enlargedTextboxSize = new Vector2((float)(originalTextboxSize.x * 1.5), (float)(originalTextboxSize.y * 3.0));
 
-        Vector2 originalButtonSize = buttonRectTransform.sizeDelta;
+        originalButtonSize = buttonRectTransform.sizeDelta;
         Vector2 enlargedButtonSize = new Vector2((float)(buttonRectTransform.sizeDelta.x * 1.8), (float)(buttonRectTransform.sizeDelta.y * 1.4));
 
         float duration = 0.5f;
@@ -286,19 +402,18 @@ public class Book : MonoBehaviour {
 
         yield return new WaitForSeconds(2.0f);
 
-        SpeakStartButton.SetActive(true);
-        AskLineGuessCanvas.SetActive(true);
+        //SpeakStartButton.SetActive(true);
+        //AskLineGuessCanvas.SetActive(true);
 
-        string filePath = Path.Combine(Application.persistentDataPath, "tts.mp3");
+        //string filePath = Path.Combine(Application.persistentDataPath, "tts.mp3");
 
-        PlaySpeech(filePath);
+        //PlaySpeech(filePath);
 
     }
 
     public void PlaySpeech(string path)
     {
         StartCoroutine(LoadAndPlayAudio(path));
-
     }
 
     public IEnumerator LoadAndPlayAudio(string path)
@@ -325,6 +440,15 @@ public class Book : MonoBehaviour {
     {
         Debug.Log("current Page is : " + currentPage);
 
+        GotoEmotionCanvas.SetActive(false);
+        GotoInteractionCanvas.SetActive(false);
+        SpeakStartButton.SetActive(false);
+        SpeakStopButton.SetActive(false);
+        LineButtonCanvas.SetActive(false);
+        StoryCanvasLeft.SetActive(false);
+        StoryCanvasRight.SetActive(false);
+
+
         if (currentPage == 0 || currentPage / 2 > texts.Length)
         {
             StoryCanvasLeft.SetActive(false);
@@ -339,7 +463,7 @@ public class Book : MonoBehaviour {
                 if ((currentPage / 2) % 2 == 0)
                 {
                     StoryCanvasLeft.SetActive(true);
-                    StoryCanvasRight.SetActive(false);
+                    //StoryCanvasRight.SetActive(false);
 
                     textObjectLeft.text = texts[currentPage / 2 - 1];
                     textObjectLeft.font = fontAsset;
@@ -353,12 +477,22 @@ public class Book : MonoBehaviour {
                     }
                     else
                     {
+                        GotoEmotionCanvas.SetActive(false);
+                        GotoInteractionCanvas.SetActive(false);
+                        SpeakStartButton.SetActive(false);
+                        SpeakStopButton.SetActive(false);
                         LineButtonCanvas.SetActive(false);
                     }
+
+                    if (currentPage / 2 == InteractionPage)
+                    {
+                        GotoInteractionCanvas.SetActive(true);
+                    }
+                    
                 }
                 else
                 {
-                    StoryCanvasLeft.SetActive(false);
+                    //StoryCanvasLeft.SetActive(false);
                     StoryCanvasRight.SetActive(true);
 
                     textObjectRight.text = texts[currentPage / 2 - 1];
@@ -373,7 +507,16 @@ public class Book : MonoBehaviour {
                     }
                     else
                     {
+                        GotoEmotionCanvas.SetActive(false);
+                        GotoInteractionCanvas.SetActive(false);
+                        SpeakStartButton.SetActive(false);
+                        SpeakStopButton.SetActive(false);
                         LineButtonCanvas.SetActive(false);
+                    }
+
+                    if (currentPage / 2 == InteractionPage)
+                    {
+                        GotoInteractionCanvas.SetActive(true);
                     }
                 }
 
@@ -474,11 +617,27 @@ public class Book : MonoBehaviour {
 
     string FormatText(string input)
     {
-        // 마침표 뒤에 줄바꿈을 추가합니다.
-        string formattedText = Regex.Replace(input, @"(?<=\.)", "\n");
+        // 온점과 온점 뒤의 띄어쓰기를 고려하여 줄바꿈을 추가합니다.
+        string formattedText = Regex.Replace(input, @"(?<=\.\s)", "\n");
 
-        // 닫는 큰따옴표 직후에 줄바꿈을 추가합니다.
-        formattedText = Regex.Replace(formattedText, "(?=\")", "\n");
+        // 큰따옴표의 위치를 찾습니다.
+        var matches = Regex.Matches(formattedText, "\"");
+
+        // 큰따옴표의 위치를 역순으로 처리하여 인덱스가 바뀌지 않도록 합니다.
+        for (int i = matches.Count - 1; i >= 0; i--)
+        {
+            if ((i + 1) % 2 == 0) // 짝수번째 큰따옴표 뒤에 줄바꿈 추가
+            {
+                formattedText = formattedText.Insert(matches[i].Index + 1, "\n");
+            }
+            else // 홀수번째 큰따옴표 앞에 온점이 없으면 줄바꿈 추가
+            {
+                if (matches[i].Index > 0 && formattedText[matches[i].Index - 1] != '.')
+                {
+                    formattedText = formattedText.Insert(matches[i].Index, "\n");
+                }
+            }
+        }
 
         // 불필요한 연속 줄바꿈을 제거합니다.
         formattedText = Regex.Replace(formattedText, "\n+", "\n");

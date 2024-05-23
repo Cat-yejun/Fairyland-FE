@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -15,6 +16,17 @@ public class RolePlayingScript : MonoBehaviour
     public Button speakStartButton; // speakStart 버튼
     public float initialDelay = 2f; // 초기 지연 시간
     public float displayDuration = 3f; // 텍스트와 버튼 표시 시간
+
+
+    //public Button yourButton; // 버튼 참조
+    public string sceneToLoad = "newBook"; // 이동할 씬의 이름
+    public string sceneToUnload = "Role_Playing_3d"; // 현재 씬의 이름
+
+    public void SwitchScene()
+    {
+        SceneManager.LoadScene(sceneToLoad);
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -94,6 +106,8 @@ public class RolePlayingScript : MonoBehaviour
         //// speakStart 버튼을 클릭 가능하도록 설정
         //speakStartButton.interactable = true;
         yield return new WaitForSeconds(3f);
+
+        SwitchScene();
 
     }
 
