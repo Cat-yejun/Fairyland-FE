@@ -79,7 +79,30 @@ public class Book : MonoBehaviour {
     //public GameObject[] textGameObjects; // 각 페이지의 텍스트를 담는 GameObject 배열
 
     public TMP_FontAsset fontAsset; // 원하는 글꼴
-    public GameObject[] textGameObjects; // 각 페이지의 텍스트를 담는 GameObject 배열
+    private string[] texts;
+
+    public TextMeshProUGUI textObjectLeft;
+    public TextMeshProUGUI textObjectRight;
+    public TextMeshProUGUI LineGuessingText;
+
+    public GameObject StoryCanvasLeft;
+    public GameObject StoryCanvasRight;
+    public GameObject LineButtonCanvas;
+
+    public RectTransform LeftTextbox;
+    public RectTransform RightTextbox;
+    public RectTransform LineGuessing;
+    public RectTransform buttonRectTransform;
+
+    public UnityEngine.UI.Button lineButton;
+    private bool firstButtonPress = false;
+    private bool pressAllowed = true;
+    private bool SpeakStartStopButton = true;
+
+    private int LineGuessingPage = 2;
+
+
+
 
     void Start()
     {
@@ -123,18 +146,132 @@ public class Book : MonoBehaviour {
 
     }
 
+    public void OnPressLineGuessing()
+    {
+        if (!firstButtonPress)
+        {
+            if (pressAllowed == true && SpeakStartStopButton == true)
+            {
+                firstButtonPress = true;
+                pressAllowed = false;
+                StartCoroutine(EnlargeAndCenterImage());
+                //StartCoroutine(InitialSequence());
+                pressAllowed = true;
+            }
+
+        }
+    }
+
+    IEnumerator EnlargeAndCenterImage()
+    {
+        Vector2 originalSize = LineGuessing.sizeDelta;
+        Vector2 enlargedSize = new Vector2((float)(LineGuessing.sizeDelta.x * 1.5), (float)(LineGuessing.sizeDelta.y * 2.0));
+
+
+        Vector2 originalPosition = LineGuessing.anchoredPosition;
+        Vector2 originalButtonPosition = buttonRectTransform.anchoredPosition;
+        Vector2 targetPosition = Vector2.zero;
+
+        float originalFontSize = LineGuessingText.fontSize;
+        float enlargedFontSize = (float)(originalFontSize * 1.5);
+
+        Vector2 originalTextboxSize = LineGuessingText.rectTransform.sizeDelta;
+        Vector2 enlargedTextboxSize = new Vector2((float)(originalTextboxSize.x * 1.5), (float)(originalTextboxSize.y * 3.0));
+
+        Vector2 originalButtonSize = buttonRectTransform.sizeDelta;
+        Vector2 enlargedButtonSize = new Vector2((float)(buttonRectTransform.sizeDelta.x * 1.8), (float)(buttonRectTransform.sizeDelta.y * 1.4));
+
+        float duration = 0.5f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
+
+            LineGuessing.sizeDelta = Vector2.Lerp(originalSize, enlargedSize, t);
+            LineGuessing.anchoredPosition = Vector2.Lerp(originalPosition, targetPosition, t);
+            LineGuessingText.fontSize = (int)Mathf.Lerp(originalFontSize, enlargedFontSize, t);
+            LineGuessingText.rectTransform.sizeDelta = Vector2.Lerp(originalTextboxSize, enlargedTextboxSize, t);
+            buttonRectTransform.anchoredPosition = Vector2.Lerp(originalButtonPosition, targetPosition, t);
+            buttonRectTransform.sizeDelta = Vector2.Lerp(originalButtonSize, enlargedButtonSize, t);
+
+            yield return null;
+        }
+
+        LineGuessing.sizeDelta = enlargedSize;
+        LineGuessing.anchoredPosition = targetPosition;
+        LineGuessingText.fontSize = (int)enlargedFontSize;
+        buttonRectTransform.anchoredPosition = targetPosition;
+        buttonRectTransform.sizeDelta = enlargedButtonSize;
+    }
+
 
     void UpdateTextVisibility()
     {
-        // 모든 텍스트를 숨기고 현재 페이지에 맞는 텍스트만 표시
-        foreach (GameObject textGO in textGameObjects)
+        Debug.Log("current Page is : " + currentPage);
+
+        if (currentPage == 0 || currentPage / 2 > texts.Length)
         {
-            textGO.SetActive(false);
+            StoryCanvasLeft.SetActive(false);
+            StoryCanvasRight.SetActive(false);
+            LineButtonCanvas.SetActive(false);
         }
-        if (currentPage / 2 < textGameObjects.Length)
+        else
         {
-            textGameObjects[currentPage / 2].SetActive(true);
+
+            if (currentPage / 2 <= texts.Length)
+            {
+                if ((currentPage / 2) % 2 == 0)
+                {
+                    StoryCanvasLeft.SetActive(true);
+                    StoryCanvasRight.SetActive(false);
+
+                    textObjectLeft.text = texts[currentPage / 2 - 1];
+                    textObjectLeft.font = fontAsset;
+                    textObjectLeft.alignment = currentPage % 2 == 0 ? TextAlignmentOptions.Center : TextAlignmentOptions.Center;
+
+                    if (currentPage / 2 == LineGuessingPage)
+                    {
+                        LineButtonCanvas.SetActive(true);
+                        LineGuessing = LeftTextbox;
+                        LineGuessingText = textObjectLeft;
+                    }
+                    else
+                    {
+                        LineButtonCanvas.SetActive(false);
+                    }
+                }
+                else
+                {
+                    StoryCanvasLeft.SetActive(false);
+                    StoryCanvasRight.SetActive(true);
+
+                    textObjectRight.text = texts[currentPage / 2 - 1];
+                    textObjectRight.font = fontAsset;
+                    textObjectRight.alignment = currentPage % 2 == 0 ? TextAlignmentOptions.Center : TextAlignmentOptions.Center;
+
+                    if (currentPage / 2 == LineGuessingPage)
+                    {
+                        LineButtonCanvas.SetActive(true);
+                        LineGuessing = RightTextbox;
+                        LineGuessingText = textObjectRight;
+                    }
+                    else
+                    {
+                        LineButtonCanvas.SetActive(false);
+                    }
+                }
+
+            }
+            else
+            {
+                textObjectLeft.text = "";
+                textObjectRight.text = "";
+            }
         }
+
+        
     }
 
 
@@ -145,46 +282,17 @@ public class Book : MonoBehaviour {
 
         int fileLength = filePaths.Length;
 
-        if (fileLength > textGameObjects.Length)
-        {
-            Debug.Log("page index : " + filePaths.Length);
-            Debug.Log("textGameObjects Length : " + textGameObjects.Length);
-            Debug.LogError("Number of text files exceeds the length of textGameObjects array.");
-            return;
-        }
+        texts = new string[fileLength];
 
         for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
         {
             Debug.Log("Loading text from: " + filePaths[pageIndex]);
 
-            if (pageIndex >= textGameObjects.Length)
-            {
-                Debug.LogError("Index exceeds textGameObjects array length at pageIndex: " + pageIndex);
-                break;
-            }
-
-           
-
             string textContent = File.ReadAllText(filePaths[pageIndex]);
-            Debug.Log(textContent);
-            if (textGameObjects[pageIndex] == null)
-            {
-                Debug.LogError("textGameObjects[" + pageIndex + "] is not assigned!");
-                continue;
-            }
-
-            TextMeshProUGUI tmp = textGameObjects[pageIndex].GetComponent<TextMeshProUGUI>();
-            if (tmp == null)
-            {
-                Debug.LogError("TextMeshProUGUI component not found on textGameObjects[" + pageIndex + "]");
-                continue;
-            }
-
-            tmp.text = textContent;
-            tmp.font = fontAsset;
-
-            tmp.alignment = pageIndex % 2 == 0 ? TextAlignmentOptions.BottomLeft : TextAlignmentOptions.BottomRight;
+            texts[pageIndex] = textContent;
         }
+
+        Debug.Log("texts Length : " + texts.Length);
     }
 
 
