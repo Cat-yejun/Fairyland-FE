@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class ImageSlideshow : MonoBehaviour
 {
-    public string imagesFolderPath = "Assets/savefile"; // Path to the folder containing images
+    public string imagesFolderPath = "Assets/savefile/소나기/img"; // Path to the folder containing images
     public RawImage displayImage; // UI RawImage to display the images
     public float interval = 5.0f; // Interval between images
 
