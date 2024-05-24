@@ -118,7 +118,7 @@ public class Book : MonoBehaviour {
     public GameObject SpeakStopButton;
     public GameObject AskLineGuessCanvas;
 
-    private int LineGuessingPage = 1;
+    private int LineGuessingPage = 8;
     private int InteractionPage = 2;
 
 
@@ -256,7 +256,10 @@ public class Book : MonoBehaviour {
         }
 
         // 파일 이름을 기준으로 정렬
-        string[] filePaths = Directory.GetFiles(folderPath, "*.png").OrderBy(f => f).ToArray();
+        string[] filePaths = Directory.GetFiles(folderPath, "*.png")
+                    .OrderBy(f => ExtractNumber(Path.GetFileNameWithoutExtension(f)))
+                    .ToArray();
+
         foreach (string filePath in filePaths)
         {
             yield return StartCoroutine(LoadImage(filePath));
@@ -265,6 +268,18 @@ public class Book : MonoBehaviour {
         InitializeBookPages();
         UpdateSprites();
     }
+
+    int ExtractNumber(string fileName)
+    {
+        // 파일 이름에서 _ 앞의 숫자를 추출
+        string[] parts = fileName.Split('_');
+        if (parts.Length > 0 && int.TryParse(parts[0], out int number))
+        {
+            return number;
+        }
+        return int.MaxValue; // 숫자를 추출할 수 없는 경우 매우 큰 값을 반환하여 정렬에서 뒤로 가게 함
+    }
+
 
     IEnumerator LoadImage(string filePath)
     {

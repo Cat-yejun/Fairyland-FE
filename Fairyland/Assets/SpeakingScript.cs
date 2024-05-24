@@ -51,7 +51,7 @@ public class SpeakingScript : MonoBehaviour
 
     private readonly string serverUrlEmotion = "http://a249-125-132-126-243.ngrok-free.app/predict-emotion/";
     private readonly string serverUrlSimilarity = "http://a249-125-132-126-243.ngrok-free.app/asr-similarity/";
-    private readonly string groundTruth = "추우니까 이것 좀 입어.";
+    private readonly string groundTruth = "이게 등꽃이야.";
 
     private Book BookClass;
 
