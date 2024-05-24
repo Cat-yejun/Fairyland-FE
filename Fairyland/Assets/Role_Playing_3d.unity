@@ -1809,14 +1809,17 @@ MonoBehaviour:
   whaleAnimator: {fileID: 1532525045}
   whaleExpressions:
   - {fileID: 2100000, guid: 6bf6bcb5b571eab409e14ed221459b06, type: 2}
-  - {fileID: 2100000, guid: 25b952bd8556a411abd1d089ecc6d41f, type: 2}
+  - {fileID: 2100000, guid: ff50331699e50b14eb6540821c935bc8, type: 2}
+  - {fileID: 2100000, guid: 5ca7171b3110c32489fd07d92d7e632a, type: 2}
   canvasLine1: {fileID: 223994088}
+  LineText: {fileID: 1641795642}
   speakStopButton: {fileID: 88242423}
   speakStartButton: {fileID: 51527312}
   initialDelay: 2
   displayDuration: 3
   sceneToLoad: newBook
   sceneToUnload: Role_Playing_3d
+  title: 
 --- !u!1 &1890308266
 GameObject:
   m_ObjectHideFlags: 0

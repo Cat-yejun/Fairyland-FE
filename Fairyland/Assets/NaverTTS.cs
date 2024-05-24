@@ -12,26 +12,62 @@ public class NaverTTSManager : MonoBehaviour
 
     private string clientId = "t053d93bde";
     private string clientSecret = "Os71Z2Xm9LPAjAu5PbbHHQCeHqEk7Hzl8OsCLFpw";
-    private string WhaleTalking = "페니는 하늘을 날고 싶은 꿈을 포기하지 않고 계속해서 노력하고 있어요. 페니가 어떤 마음가짐을 가지고 있는지 생각하면서, 그가 이 상황에서 할 법한 말은 무엇일까요? 말해보세요.";
+    private string WhaleTalking = "빈칸에 들어갈 주인공의 대사는 무엇일까?";
+
+    private string[] texts;
+    private string title;
+
+    void LoadTextsToPages()
+    {
+        string[] filePaths = Directory.GetFiles(Path.Combine(Application.persistentDataPath, "SaveFile", title, "interaction"), "*.txt");
+        Debug.Log("Total files found: " + filePaths.Length);
+
+        int fileLength = filePaths.Length;
+
+        texts = new string[fileLength];
+
+        for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
+        {
+            Debug.Log("Loading text from: " + filePaths[pageIndex]);
+
+            string textContent = File.ReadAllText(filePaths[pageIndex]);
+            texts[pageIndex] = textContent;
+        }
+
+        Debug.Log("texts Length : " + texts.Length);
+    }
+
+
 
     void Start()
     {
+        title = PlayerPrefs.GetString("title", "defaultTitle");
+
+        LoadTextsToPages();
+
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
         //GetAndPlaySpeech("빈칸에 들어갈 대사는 무엇일까?");
-        GetAndPlaySpeech(WhaleTalking);
+        GetAndPlaySpeech(WhaleTalking, "tts");
+
+        Debug.Log(texts[0]);
+        Debug.Log(texts[1]);
+        GetAndPlaySpeech(texts[0], "firstLine");
+        GetAndPlaySpeech(texts[1], "secondLine");
+
+
     }
 
-    public void GetAndPlaySpeech(string text)
+    public void GetAndPlaySpeech(string text, string filename)
     {
-        GetSpeech(text);
+        GetSpeech(text, filename);
     }
 
 
-    private void GetSpeech(string text)
+    private void GetSpeech(string text, string filename)
     {
         string url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts";
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -51,7 +87,7 @@ public class NaverTTSManager : MonoBehaviour
         {
             string status = response.StatusCode.ToString();
             Debug.Log("status=" + status);
-            string filePath = Path.Combine(Application.persistentDataPath, "tts.mp3");
+            string filePath = Path.Combine(Application.persistentDataPath, filename+".mp3");
             using (Stream output = File.OpenWrite(filePath))
             using (Stream input = response.GetResponseStream())
             {
