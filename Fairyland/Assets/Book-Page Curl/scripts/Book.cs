@@ -119,7 +119,7 @@ public class Book : MonoBehaviour {
     public GameObject AskLineGuessCanvas;
 
     private int LineGuessingPage = 8;
-    private int InteractionPage = 2;
+    private int InteractionPage = 11;
 
 
     private Vector2 originalSize;

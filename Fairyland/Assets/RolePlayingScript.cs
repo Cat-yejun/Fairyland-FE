@@ -187,6 +187,7 @@ public class RolePlayingScript : MonoBehaviour
         yield return new WaitForSeconds(3f); // 음성 처리 시간
 
         changeExpression(2);
+        whaleAnimator.SetInteger("NextInt", 4);
         //canvasLine1.SetActive(false);
         ////canvasLine2.SetActive(true);
         LineText.text = texts[1];
@@ -200,6 +201,7 @@ public class RolePlayingScript : MonoBehaviour
 
         yield return new WaitForSeconds(displayDuration);
 
+        whaleAnimator.SetInteger("NextInt", 4);
         whaleAnimator.SetInteger("NextInt", 0);
 
         //yield return new WaitForSeconds(displayDuration); // 고래가 말하는 시간
