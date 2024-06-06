@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/Book_manu.unity
     guid: 16eb096e37b3b41f1872ebf51e7959e3
   - enabled: 1
-    path: Assets/Book_manu_replace.unity
+    path: Assets/new_Book_manu.unity
     guid: a966cc33578854772ba26eda2964a348
   - enabled: 1
     path: Assets/newBook.unity
