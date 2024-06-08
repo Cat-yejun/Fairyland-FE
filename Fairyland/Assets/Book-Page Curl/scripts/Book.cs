@@ -22,6 +22,26 @@ public enum FlipMode
     LeftToRight
 }
 
+
+[System.Serializable]
+public class NovelSceneData
+{
+    public int Id;
+    public string Text;
+    public List<string> Emotions = new List<string>();
+    public List<string> Guides = new List<string>();
+    public List<string> Interactions = new List<string>();
+}
+
+[System.Serializable]
+public class InteractionData
+{
+    public List<List<string>> emotion;
+    public List<List<string>> guide;
+    public List<List<string>> interaction;
+}
+
+
 [ExecuteInEditMode]
 
 public static class GlobalSceneData
@@ -143,7 +163,12 @@ public class Book : MonoBehaviour {
     public string title;
     public string imgPath;
     public string textPath;
+    public string interactionPath;
+    public List<NovelSceneData> scenes = new List<NovelSceneData>();
+    public Dictionary<int, int> novelDictNumberToSceneIndex = new Dictionary<int, int>();
 
+    private List<int> interactionPages;
+    private List<int> emotionChoicePages;
 
 
     public void SwitchScene()
@@ -178,8 +203,12 @@ public class Book : MonoBehaviour {
 
         imgPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, "img");
         textPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, title + ".json");
+        interactionPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, "interaction.json");
+
         Debug.Log(imgPath);
         Debug.Log(textPath);
+        Debug.Log(interactionPath);
+
         LoadCurrentSceneData();
 
         emotionSelection = GetComponent<EmotionSelectScript>();
@@ -201,6 +230,10 @@ public class Book : MonoBehaviour {
 
         StartCoroutine(LoadImages());
         StartCoroutine(LoadTexts());
+        StartCoroutine(LoadInteractions());
+
+        interactionPages = GetPagesWithInteractions();
+        emotionChoicePages = GetPagesWithEmotionChoices();
 
         GotoEmotionCanvas.SetActive(false);
         GotoInteractionCanvas.SetActive(false);
@@ -214,6 +247,9 @@ public class Book : MonoBehaviour {
             audioSource = gameObject.AddComponent<AudioSource>();
             Debug.Log("AudioSource component was missing and has been added.");
         }
+
+        EnsureSingleAudioListener();
+
 
 
         //LoadTextsToPages();
@@ -244,6 +280,134 @@ public class Book : MonoBehaviour {
 
     }
 
+    public List<int> GetPagesWithInteractions()
+    {
+        List<int> pages = new List<int>();
+        for (int i = 0; i < scenes.Count; i++)
+        {
+            if (scenes[i].Interactions != null && scenes[i].Interactions.Count > 0)
+            {
+                pages.Add(i + 1); // 페이지 번호는 1부터 시작
+            }
+        }
+        return pages;
+    }
+
+
+    public List<int> GetPagesWithEmotionChoices()
+    {
+        List<int> pages = new List<int>();
+        for (int i = 0; i < scenes.Count; i++)
+        {
+            if (scenes[i].Emotions != null && scenes[i].Emotions.Count > 0)
+            {
+                pages.Add(i + 1); // 페이지 번호는 1부터 시작
+            }
+        }
+        return pages;
+    }
+
+
+    IEnumerator LoadInteractions()
+    {
+        string filePath = interactionPath;
+
+        if (File.Exists(filePath))
+        {
+            string jsonContent = File.ReadAllText(filePath);
+            var jsonData = JsonConvert.DeserializeObject<InteractionData>(jsonContent);
+
+            for(int i = 0; i < jsonData.emotion.Count; i++)
+            {
+                var interactionEmotion = jsonData.emotion[i];
+                var interactionGuide = jsonData.guide[i];
+                var interactionText = jsonData.interaction[i];
+
+                foreach (string emotion in interactionEmotion)
+                {
+                    int novelDictNumber;
+                    if (int.TryParse(emotion.Trim(), out novelDictNumber))
+                    {
+                        if (novelDictNumberToSceneIndex.ContainsKey(novelDictNumber))
+                        {
+                            int sceneIndex = novelDictNumberToSceneIndex[novelDictNumber];
+                            scenes[sceneIndex].Emotions.Add(emotion);
+                            scenes[sceneIndex].Guides.AddRange(interactionGuide);
+                            scenes[sceneIndex].Interactions.AddRange(interactionText);
+                        }
+                    }
+                }
+
+            }
+
+            Debug.Log("Interactions loaded successfully.");
+            Debug.Log("Pages with Interactions: " + string.Join(", ", GetPagesWithInteractions()));
+            Debug.Log("Pages with Emotion Choices: " + string.Join(", ", GetPagesWithEmotionChoices()));
+        }
+        else
+        {
+            Debug.LogError("File not found: " + filePath);
+        }
+
+        yield return null;
+    }
+
+
+    int ExtractNovelDictNumber(string text)
+    {
+        const string marker = "novel_dict_number: ";
+        int startIndex = text.IndexOf(marker);
+        if (startIndex == -1)
+        {
+            // Marker not found
+            Debug.LogWarning("novel_dict_number marker not found in text: " + text);
+            return -1; // Return an invalid number to indicate failure
+        }
+
+        startIndex += marker.Length;
+        int endIndex = text.IndexOf(")", startIndex);
+        if (endIndex == -1)
+        {
+            // Closing parenthesis not found
+            Debug.LogWarning("Closing parenthesis not found after novel_dict_number marker in text: " + text);
+            return -1; // Return an invalid number to indicate failure
+        }
+
+        string numberString = text.Substring(startIndex, endIndex - startIndex).Trim();
+        if (int.TryParse(numberString, out int novelDictNumber))
+        {
+            return novelDictNumber;
+        }
+        else
+        {
+            // Parsing failed
+            Debug.LogWarning("Failed to parse novel_dict_number: " + numberString);
+            return -1; // Return an invalid number to indicate failure
+        }
+    }
+
+
+    void EnsureSingleAudioListener()
+    {
+        AudioListener[] audioListeners = FindObjectsOfType<AudioListener>();
+
+        // If there is more than one AudioListener, disable the extras
+        if (audioListeners.Length > 1)
+        {
+            for (int i = 1; i < audioListeners.Length; i++)
+            {
+                audioListeners[i].enabled = false;
+            }
+            Debug.LogWarning("Multiple AudioListeners found. Disabled extra AudioListeners to ensure there is only one.");
+        }
+        else if (audioListeners.Length == 0)
+        {
+            // If no AudioListener is found, add one to the main camera
+            Camera.main.gameObject.AddComponent<AudioListener>();
+            Debug.LogWarning("No AudioListener found. Added an AudioListener to the main camera.");
+        }
+    }
+
     IEnumerator LoadImages()
     {
         //string folderPath = Path.Combine(Application.persistentDataPath, "SaveFile/img");
@@ -260,6 +424,8 @@ public class Book : MonoBehaviour {
                     .OrderBy(f => ExtractNumber(Path.GetFileNameWithoutExtension(f)))
                     .ToArray();
 
+        Debug.Log(filePaths);
+
         foreach (string filePath in filePaths)
         {
             yield return StartCoroutine(LoadImage(filePath));
@@ -271,13 +437,15 @@ public class Book : MonoBehaviour {
 
     int ExtractNumber(string fileName)
     {
-        // 파일 이름에서 _ 앞의 숫자를 추출
-        string[] parts = fileName.Split('_');
-        if (parts.Length > 0 && int.TryParse(parts[0], out int number))
+        // 숫자를 추출하여 정렬에 사용할 수 있도록 처리
+        // 예: "1-0"에서 "1"을 추출
+        string numberPart = fileName.Split('-')[0];
+        int number;
+        if (int.TryParse(numberPart, out number))
         {
             return number;
         }
-        return int.MaxValue; // 숫자를 추출할 수 없는 경우 매우 큰 값을 반환하여 정렬에서 뒤로 가게 함
+        return int.MaxValue; // 숫자가 없으면 큰 값을 반환하여 뒤로 가도록 함
     }
 
 
@@ -311,10 +479,15 @@ public class Book : MonoBehaviour {
 
     public void OnPressLineGuessing()
     {
+        Debug.Log("line button is pressed1");
+
         if (!firstButtonPress)
         {
+            Debug.Log("line button is pressed2");
+
             if (pressAllowed == true && SpeakStartStopButton == true)
             {
+                Debug.Log("line button is pressed3");
                 firstButtonPress = true;
                 pressAllowed = false;
                 StartCoroutine(EnlargeAndCenterImage());
@@ -490,35 +663,48 @@ public class Book : MonoBehaviour {
 
             if (currentPage / 2 <= texts.Length)
             {
-                if ((currentPage / 2) % 2 == 0)
+                bool isLeftPage = (currentPage / 2) % 2 == 0;
+                int pageIndex = currentPage / 2 - 1;
+                if (isLeftPage)
                 {
                     StoryCanvasLeft.SetActive(true);
                     //StoryCanvasRight.SetActive(false);
 
-                    textObjectLeft.text = texts[currentPage / 2 - 1];
+                    textObjectLeft.text = texts[pageIndex];
                     textObjectLeft.font = fontAsset;
-                    textObjectLeft.alignment = currentPage % 2 == 0 ? TextAlignmentOptions.Center : TextAlignmentOptions.Center;
+                    textObjectLeft.alignment = TextAlignmentOptions.Center;
 
-                    if (currentPage / 2 == LineGuessingPage)
+
+                    // If Scene is interaction scene
+
+                    if (interactionPages.Contains(currentPage / 2))
                     {
+                        GotoInteractionCanvas.SetActive(true);
+                        Debug.Log("This is interaction page");
+                    }
+                    else
+                    {
+                        GotoInteractionCanvas.SetActive(false);
+                    }
+
+                    // If Scene is emotion selection scene
+
+                    if (emotionChoicePages.Contains(currentPage / 2))
+                    {
+                        Debug.Log("This is emotion selection page");
                         LineButtonCanvas.SetActive(true);
                         LineGuessing = LeftTextbox;
                         LineGuessingText = textObjectLeft;
                     }
                     else
                     {
+                        LineButtonCanvas.SetActive(false);
                         GotoEmotionCanvas.SetActive(false);
                         GotoInteractionCanvas.SetActive(false);
                         SpeakStartButton.SetActive(false);
                         SpeakStopButton.SetActive(false);
-                        LineButtonCanvas.SetActive(false);
                     }
 
-                    if (currentPage / 2 == InteractionPage)
-                    {
-                        GotoInteractionCanvas.SetActive(true);
-                    }
-                    
                 }
                 else
                 {
@@ -527,9 +713,22 @@ public class Book : MonoBehaviour {
 
                     textObjectRight.text = texts[currentPage / 2 - 1];
                     textObjectRight.font = fontAsset;
-                    textObjectRight.alignment = currentPage % 2 == 0 ? TextAlignmentOptions.Center : TextAlignmentOptions.Center;
+                    textObjectRight.alignment = TextAlignmentOptions.Center;
 
-                    if (currentPage / 2 == LineGuessingPage)
+                    // If Scene is Interaction scene                  
+
+                    if (interactionPages.Contains(currentPage / 2))
+                    {
+                        GotoInteractionCanvas.SetActive(true);
+                    }
+                    else
+                    {
+                        GotoInteractionCanvas.SetActive(false);
+                    }
+
+                    // If Scene is Emotion Seletion Scene
+
+                    if (emotionChoicePages.Contains(currentPage / 2))
                     {
                         LineButtonCanvas.SetActive(true);
                         LineGuessing = RightTextbox;
@@ -542,11 +741,6 @@ public class Book : MonoBehaviour {
                         SpeakStartButton.SetActive(false);
                         SpeakStopButton.SetActive(false);
                         LineButtonCanvas.SetActive(false);
-                    }
-
-                    if (currentPage / 2 == InteractionPage)
-                    {
-                        GotoInteractionCanvas.SetActive(true);
                     }
                 }
 
@@ -625,9 +819,34 @@ public class Book : MonoBehaviour {
                 int index = 0;
                 foreach (var entry in splitedNovelDict)
                 {
+                    NovelSceneData scene = new NovelSceneData
+                    {
+                        Id = index,
+                        Text = entry.Value
+                    };
+                    scenes.Add(scene);
+
                     string formattedText = FormatText(entry.Value);
                     texts[index] = formattedText;
                     index++;
+                }
+
+                if (jsonData.ContainsKey("novel_num_dict"))
+                {
+                    var novelNumDict = jsonData["novel_num_dict"];
+                    foreach (var entry in novelNumDict)
+                    {
+                        int novelDictNumber = int.Parse(entry.Key);
+                        string sentence = entry.Value;
+                        for (int i = 0; i < scenes.Count; i++)
+                        {
+                            if (scenes[i].Text.Contains(sentence))
+                            {
+                                novelDictNumberToSceneIndex[novelDictNumber] = i;
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 Debug.Log("Texts loaded successfully.");
@@ -648,30 +867,37 @@ public class Book : MonoBehaviour {
 
     string FormatText(string input)
     {
-        // 온점과 온점 뒤의 띄어쓰기를 고려하여 줄바꿈을 추가합니다.
-        string formattedText = Regex.Replace(input, @"(?<=\.\s)", "\n");
+        // 큰따옴표 안과 밖을 구분하여 처리하기 위한 플래그
+        bool insideQuotes = false;
+        char[] inputArray = input.ToCharArray();
+        List<char> outputList = new List<char>();
 
-        // 큰따옴표의 위치를 찾습니다.
-        var matches = Regex.Matches(formattedText, "\"");
-
-        // 큰따옴표의 위치를 역순으로 처리하여 인덱스가 바뀌지 않도록 합니다.
-        for (int i = matches.Count - 1; i >= 0; i--)
+        for (int i = 0; i < inputArray.Length; i++)
         {
-            if ((i + 1) % 2 == 0) // 짝수번째 큰따옴표 뒤에 줄바꿈 추가
+            if (inputArray[i] == '\"')
             {
-                formattedText = formattedText.Insert(matches[i].Index + 1, "\n");
+                insideQuotes = !insideQuotes;
+                outputList.Add(inputArray[i]);
             }
-            else // 홀수번째 큰따옴표 앞에 온점이 없으면 줄바꿈 추가
+            else if (!insideQuotes && inputArray[i] == '.' && i + 1 < inputArray.Length && inputArray[i + 1] == ' ')
             {
-                if (matches[i].Index > 0 && formattedText[matches[i].Index - 1] != '.')
-                {
-                    formattedText = formattedText.Insert(matches[i].Index, "\n");
-                }
+                outputList.Add(inputArray[i]);
+                outputList.Add('\n');
+            }
+            else
+            {
+                outputList.Add(inputArray[i]);
             }
         }
 
+        // 리스트를 문자열로 변환
+        string formattedText = new string(outputList.ToArray());
+
         // 불필요한 연속 줄바꿈을 제거합니다.
         formattedText = Regex.Replace(formattedText, "\n+", "\n");
+
+        // 마지막 줄바꿈을 제거합니다.
+        formattedText = formattedText.TrimEnd('\n');
 
         return formattedText;
     }
@@ -744,6 +970,8 @@ public class Book : MonoBehaviour {
         {
             UpdateBook();
         }
+        EnsureSingleAudioListener();
+
     }
     public void UpdateBook()
     {
@@ -1053,3 +1281,6 @@ public class Book : MonoBehaviour {
             onFinish();
     }
 }
+
+
+

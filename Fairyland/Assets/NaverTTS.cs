@@ -63,18 +63,43 @@ public class NaverTTSManager : MonoBehaviour
 
     public void GetAndPlaySpeech(string text, string filename)
     {
-        GetSpeech(text, filename);
+        GetSpeech("ndain", "Neutral", text, filename);
     }
 
 
-    private void GetSpeech(string text, string filename)
+    private void GetSpeech(string speaker, string emotion, string text, string filename)
     {
+        if (speaker == null)
+        {
+            speaker = "nara";
+        }
+
+        string emotionInteger = "0";
+
+        if (emotion == "Neutral")
+        {
+            emotionInteger = "0";
+        }
+        else if (emotion == "Sad")
+        {
+            emotionInteger = "1";
+        }
+        else if (emotion == "Happy")
+        {
+            emotionInteger = "2";
+        }
+        else if (emotion == "Angry")
+        {
+            emotionInteger = "3";
+        }
+
+
         string url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts";
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Headers.Add("X-NCP-APIGW-API-KEY-ID", clientId);
         request.Headers.Add("X-NCP-APIGW-API-KEY", clientSecret);
         request.Method = "POST";
-        byte[] byteDataParams = Encoding.UTF8.GetBytes("speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + text);
+        byte[] byteDataParams = Encoding.UTF8.GetBytes("speaker="+speaker+"&volume=0&speed=0&pitch=0&format=mp3&text=" + text+"&emotion="+emotionInteger+"&emotion-strength=1");
         request.ContentType = "application/x-www-form-urlencoded";
         request.ContentLength = byteDataParams.Length;
 
