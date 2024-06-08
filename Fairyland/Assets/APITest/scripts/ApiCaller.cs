@@ -1,41 +1,57 @@
 using UnityEngine;
-using UnityEngine.Networking;
-using TMPro; // TextMeshPro를 사용하기 위해 추가합니다.
-using System.Collections;
+using TMPro;
+using System.Net.Http;
+using System;
+using System.Threading.Tasks;
 
 public class ApiCaller : MonoBehaviour
 {
-    public TextMeshProUGUI responseText; // API 응답을 표시할 텍스트 필드
+    public TMP_Text responseText;
 
-    // 시작할 때 호출됩니다.
     void Start()
     {
-        StartCoroutine(PostRequest("http://43.201.252.166:8000/doyouworking")); // Flask 서버의 주소로 변경해주세요.
+        CheckServerStatus();
     }
 
-    // POST 요청을 보내고 응답을 받는 메소드
-    IEnumerator PostRequest(string uri)
+
+    public async void CheckServerStatus()
     {
-        using (UnityWebRequest webRequest = new UnityWebRequest(uri, "POST"))
+        string url = "http://43.201.252.166:8000/hello";
+        Debug.Log("요청을 보냈");
+
+        try
         {
-            // 빈 데이터를 바디로 설정합니다.
-            webRequest.uploadHandler = new UploadHandlerRaw(new byte[0]);
-            webRequest.downloadHandler = new DownloadHandlerBuffer();
-            webRequest.SetRequestHeader("Content-Type", "application/json");
-
-            // 요청을 보냅니다.
-            yield return webRequest.SendWebRequest();
-
-            // 에러 체크
-            if (webRequest.result != UnityWebRequest.Result.Success)
+            using (HttpClient client = new HttpClient())
             {
-                Debug.LogError(webRequest.error);
+                client.Timeout = TimeSpan.FromSeconds(100); // 타임아웃 시간을 조정할 수 있습니다.
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    Debug.Log("Response from server: " + jsonResponse);
+
+                    // 서버 응답을 TextMeshPro 텍스트 요소에 표시
+                    responseText.text = jsonResponse;
+                }
+                else
+                {
+                    string errorResponse = await response.Content.ReadAsStringAsync();
+                    Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                }
             }
-            else
-            {
-                // 응답 텍스트를 표시합니다.
-                responseText.text = webRequest.downloadHandler.text;
-            }
+        }
+        catch (HttpRequestException e)
+        {
+            Debug.LogError("Request error: " + e.Message);
+        }
+        catch (TaskCanceledException e)
+        {
+            Debug.LogError("Request timeout: " + e.Message);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Unexpected error: " + e.Message);
         }
     }
 }

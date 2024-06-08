@@ -68,7 +68,7 @@ public class ImageLoader : MonoBehaviour
     {
         string title = PlayerPrefs.GetString("title", "default_title");
    
-        title = "펭펭펭펭날아가"; //TEST!!!!!!!
+        title = "날아가는 펭귄"; //TEST!!!!!!!
         current_img_num = buttonNumber - 1;
 
         string path = $"{Application.persistentDataPath}{PATH}{title}/img/{currentScene}-{buttonNumber - 1}.png";
@@ -118,7 +118,7 @@ public class ImageLoader : MonoBehaviour
     private void LoadJson()
     {
         string title = PlayerPrefs.GetString("title", "default_title");
-        title = "펭펭펭펭날아가"; //TEST!!!!!!!
+        title = "날아가는 펭귄"; //TEST!!!!!!!
         string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
 
         if (File.Exists(jsonPath))
@@ -172,14 +172,14 @@ public class ImageLoader : MonoBehaviour
             if (arrayIsFull)
             {
                 goToCreateInteractionButton.gameObject.SetActive(true);
-            }
+            } 
         }
     }
     private async void SendInteractionRequest()
     {
         
         string title = PlayerPrefs.GetString("title", "default_title");
-        title = "펭펭펭펭날아가"; //TEST!!!!!!!
+        title = "날아가는 펭귄"; //TEST!!!!!!!
         string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
         Debug.Log("데이터를 보냅니..");
         loadingScreen.SetActive(true);
