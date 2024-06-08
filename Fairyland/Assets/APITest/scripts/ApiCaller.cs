@@ -71,6 +71,10 @@ public class ApiCaller : MonoBehaviour
 
                     // Display server response in TextMeshPro text element
                     responseText.text = jsonResponse;
+                    string title = responseText.text;
+                    PlayerPrefs.SetString("title", title);
+                    PlayerPrefs.Save();
+                    Debug.Log("Title saved: " + title);
                 }
                 else
                 {
@@ -113,6 +117,11 @@ public class ApiCaller : MonoBehaviour
 
                     // Display server response in TextMeshPro text element
                     responseText.text = jsonResponse;
+                    string title = responseText.text;
+                    title = title + "2";
+                    PlayerPrefs.SetString("title", title);
+                    PlayerPrefs.Save();
+                    Debug.Log("Title saved: " + title);
                 }
                 else
                 {
