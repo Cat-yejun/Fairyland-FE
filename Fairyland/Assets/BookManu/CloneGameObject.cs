@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.IO;
 using System.Collections;
+using System.Text;
 
 public class CloneGameObject : MonoBehaviour
 {
@@ -30,6 +31,9 @@ public class CloneGameObject : MonoBehaviour
             // Clone the original GameObject for each PNG file.
             foreach (string pngFilePath in pngFiles)
             {
+                // Normalize file name to NFC
+                string normalizedFileName = NormalizeFileName(Path.GetFileNameWithoutExtension(pngFilePath));
+
                 // Create a clone of the original GameObject.
                 GameObject clonedGameObject = Instantiate(originalGameObject);
 
@@ -49,14 +53,25 @@ public class CloneGameObject : MonoBehaviour
                 clonedGameObject.transform.localScale = originalGameObject.transform.localScale;
 
                 // Extract the file name without the extension to use as the text.
-                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(pngFilePath);
+                string[] fileNameParts = normalizedFileName.Split('-');
 
-                // Change the text of the nested child object.
-                ChangeNestedChildText(clonedGameObject, "BookCover/BookTitle/Text", fileNameWithoutExtension);
+                // Check if at least two parts exist (to ensure there is a name after the "-").
+                if (fileNameParts.Length >= 2)
+                {
+                    // Get the second part (after the "-") to use as the text.
+                    string nameAfterDash = fileNameParts[1];
+
+                    // Change the text of the nested child object.
+                    ChangeNestedChildText(clonedGameObject, "BookCover/BookTitle/Text", nameAfterDash);
+                }
+                else
+                {
+                    Debug.LogWarning("File name does not contain a dash (-) separator: " + normalizedFileName);
+                }
 
                 // Start coroutine to set the image of the nested child object.
                 StartCoroutine(SetBookCoverImage(clonedGameObject, "BookCover", pngFilePath));
-                Debug.Log("경로 이름: " + pngFilePath);
+                Debug.Log("경로 이름: " + normalizedFileName);
             }
         }
         else
@@ -66,6 +81,12 @@ public class CloneGameObject : MonoBehaviour
         }
         // After all clones are created, hide the original GameObject.
         originalGameObject.SetActive(false);
+    }
+
+    // Normalize file name to NFC
+    private string NormalizeFileName(string fileName)
+    {
+        return fileName.Normalize(NormalizationForm.FormC);
     }
 
     // This method changes the text of a nested child object.
