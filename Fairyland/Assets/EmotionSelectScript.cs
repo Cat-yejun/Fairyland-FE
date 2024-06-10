@@ -66,6 +66,9 @@ public class EmotionSelectScript : MonoBehaviour
 
     public Camera uiCamera;
 
+    private string[] emotionKoreanArray = { "평온함", "기쁨", "슬", "화남", "무서움", "놀라움", "Main" };
+    string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
+
 
     void Start()
     {
@@ -150,14 +153,7 @@ public class EmotionSelectScript : MonoBehaviour
         FearButton.interactable = true;
         CalmButton.interactable = true;
 
-        string guideText = BookClass.guideText;
-
-        if (!string.IsNullOrEmpty(guideText))
-        {
-            TTSManager.GetAndPlaySpeech("ndain", "Neutral", guideText, "Guide");
-            Debug.Log("Guide Text: " + guideText);
-
-        }
+        TTSManager.GetAndPlaySpeech("vdain", "Neutral", "주인공이 어떠한 감정을 느낄까?", "AskLineGuess");
 
     }
 
@@ -261,6 +257,7 @@ public class EmotionSelectScript : MonoBehaviour
             if (expression == prevSelection)
             {
                 StartCoroutine(ShowFeedbackAndHide());
+
             }
             else
             {
@@ -346,6 +343,7 @@ public class EmotionSelectScript : MonoBehaviour
                 changeExpression(0);
 
             }
+
         }
 
     }
@@ -363,9 +361,14 @@ public class EmotionSelectScript : MonoBehaviour
         }
     }
 
+
+
     private IEnumerator ShowFeedbackAndHide()
     {
-        if (prevSelection == answerEmotion)
+        int[] fixedAnswer = { 6, 2, 4, 1, 5, 3 };
+        int Answer = BookClass.emotionInteger;
+
+        if (prevSelection == fixedAnswer[Answer])
         {
             HappyCanvas.SetActive(false);
             AngryCanvas.SetActive(false);
@@ -375,7 +378,6 @@ public class EmotionSelectScript : MonoBehaviour
             CalmCanvas.SetActive(false);
             CorrectCanvas.SetActive(true);
             TTSManager.GetAndPlaySpeech("vdain", "Happy", "맞았어요!", "Correct");
-
 
         }
         else
@@ -387,7 +389,8 @@ public class EmotionSelectScript : MonoBehaviour
             FearCanvas.SetActive(false);
             CalmCanvas.SetActive(false);
             WrongCanvas.SetActive(true);
-            TTSManager.GetAndPlaySpeech("vdain", "Sad", "틀렸어요!", "Wrong");
+
+            TTSManager.GetAndPlaySpeech("vdain", "Sad", "틀렸어요.", "Wrong");
 
         }
 
@@ -397,8 +400,16 @@ public class EmotionSelectScript : MonoBehaviour
 
         SpeakStartCanvas.SetActive(true);
         SpeakStartButton.interactable = true;
+        AskLineGuessCanvas.SetActive(true);
 
+        string guideText = BookClass.guideText;
 
+        if (!string.IsNullOrEmpty(guideText))
+        {
+            TTSManager.GetAndPlaySpeech("ndain", "Neutral", guideText, "Guide");
+            Debug.Log("Guide Text: " + guideText);
+
+        }
     }
 
     public IEnumerator gotoWhaleOriginalPosition()
@@ -469,6 +480,10 @@ public class EmotionSelectScript : MonoBehaviour
         whale.position = targetPosition;
         whale.localScale = targetScale;
         whale.rotation = targetRotation;
+
+       
+
+
     }
 
 }

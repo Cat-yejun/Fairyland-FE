@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
 using UnityEngine.Windows;
+using TMPro;
 
 [Serializable]
 public class TranscriptData
@@ -54,6 +55,14 @@ public class SpeakingScript : MonoBehaviour
     private readonly string groundTruth = "이게 등꽃이야.";
 
     private Book BookClass;
+
+    public TextMeshProUGUI CorrectText;
+
+    private NaverTTSManager TTSManager;
+
+    private string[] emotionKoreanArray = { "평온함", "기쁨", "슬", "화남", "무서움", "놀라움", "Main" };
+    string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
+
 
 
     public void StartUpload()
@@ -155,6 +164,8 @@ public class SpeakingScript : MonoBehaviour
         WrongCanvas.SetActive(false);
 
         BookClass = GetComponent<Book>();
+        TTSManager = GetComponent<NaverTTSManager>();
+
 
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
@@ -209,9 +220,13 @@ public class SpeakingScript : MonoBehaviour
 
         yield return new WaitForSeconds(2.0f);
 
-        bool exists = Array.Exists(EmotionAnswer, element => element == currentEmotion);
+        //bool exists = Array.Exists(EmotionAnswer, element => element == currentEmotion);
+        string emotion = emotionArray[BookClass.emotionInteger];
+
+        bool exists = currentEmotion == emotion ? true : false;
 
         Debug.Log("emotion : " + currentEmotion + ", accuracy : " + currentAccuracy);
+
 
         if (currentAccuracy > AccuracyPass)
         {
@@ -219,9 +234,17 @@ public class SpeakingScript : MonoBehaviour
             {
                 CorrectCanvas.SetActive(true);
                 WrongCanvas.SetActive(false);
+
             }
             else
             {
+                string tryAgain = $"{emotionKoreanArray[BookClass.emotionInteger]} 의 감정에 맞게 다시 말해봐.";
+                CorrectText.text = tryAgain;
+
+                Debug.Log(tryAgain);
+
+                TTSManager.GetAndPlaySpeech("vdain", "Neutral", tryAgain, "WrongExplain");
+
                 WrongCanvas.SetActive(true);
                 CorrectCanvas.SetActive(false);
             }
@@ -244,6 +267,8 @@ public class SpeakingScript : MonoBehaviour
         //NextButtonCanvas.SetActive(true);
         BookClass.StartGotoOriginalPos();
         BookClass.firstButtonPress = false;
+
+        CorrectText.text = "틀렸어요.";
 
     }
 

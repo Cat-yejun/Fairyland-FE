@@ -172,11 +172,15 @@ public class Book : MonoBehaviour {
     public Dictionary<int, int> novelDictNumberToSceneIndex = new Dictionary<int, int>();
     private Dictionary<int, string> guideDictionary = new Dictionary<int, string>();
     private Dictionary<int, string> interactionDictionary = new Dictionary<int, string>();
+    private Dictionary<int, string> emotionDictionary = new Dictionary<int, string>();
+    private Dictionary<int, int> emotionIntDictionary = new Dictionary<int, int>();
 
     private List<int> interactionPages;
     private List<int> emotionChoicePages;
 
     public string guideText;
+    public string emotionIs;
+    public int emotionInteger;
 
 
     public void SwitchScene()
@@ -206,7 +210,7 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
-        title = PlayerPrefs.GetString("title", "defaultTitle");
+        //title = PlayerPrefs.GetString("title", "defaultTitle");
         Debug.Log("book's title is : " + title);
 
         imgPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, "img");
@@ -335,6 +339,8 @@ public class Book : MonoBehaviour {
     {
         string filePath = interactionPath;
 
+        string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
+
         if (File.Exists(filePath))
         {
             string jsonContent = File.ReadAllText(filePath);
@@ -358,11 +364,14 @@ public class Book : MonoBehaviour {
                                 if (!guideDictionary.ContainsKey(sceneIndex))
                                 {
                                     guideDictionary[sceneIndex] = guides[j];
+                                    emotionDictionary[sceneIndex] = emotionArray[i];
+                                    emotionIntDictionary[sceneIndex] = i;
                                 }
                                 //else
                                 //{
                                 //    guideDictionary[sceneIndex] += "\n" + guides[j]; // 여러 가이드를 합칠 때 줄바꿈 추가
                                 //}
+
                             }
                         }
                     }
@@ -415,7 +424,7 @@ public class Book : MonoBehaviour {
     {
         foreach (var kvp in guideDictionary)
         {
-            Debug.Log($"Novel Dict Number: {kvp.Key}, Guide: {kvp.Value}");
+            Debug.Log($"Novel Dict Number: {kvp.Key}, Guide: {kvp.Value}, Emotion: {emotionDictionary[kvp.Key]}");
         }
     }
 
@@ -679,6 +688,23 @@ public class Book : MonoBehaviour {
         return string.Empty;
     }
 
+    public string GetEmotionForPage(int sceneIndex)
+    {
+        if (emotionDictionary.ContainsKey(sceneIndex))
+        {
+            return emotionDictionary[sceneIndex];
+        }
+        return string.Empty;
+    }
+
+    public int GetEmotionIntegerPage(int sceneIndex)
+    {
+        if (emotionIntDictionary.ContainsKey(sceneIndex))
+        {
+            return emotionIntDictionary[sceneIndex];
+        }
+        return 0;
+    }
 
     void UpdateTextVisibility()
     {
@@ -718,6 +744,8 @@ public class Book : MonoBehaviour {
 
 
                     guideText = GetGuideForPage(pageIndex);
+                    emotionIs = GetEmotionForPage(pageIndex);
+                    emotionInteger = GetEmotionIntegerPage(pageIndex);
 
 
                     // If Scene is interaction scene
@@ -763,6 +791,8 @@ public class Book : MonoBehaviour {
 
 
                     guideText = GetGuideForPage(pageIndex);
+                    emotionIs = GetEmotionForPage(pageIndex);
+                    emotionInteger = GetEmotionIntegerPage(pageIndex);
 
 
                     // If Scene is Interaction scene                  
