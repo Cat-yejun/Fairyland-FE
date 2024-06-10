@@ -11,6 +11,8 @@ public class PlayerPrefsMonitor : MonoBehaviour
     private string key = "title";
     private string previousValue;
 
+    public static object Instance { get; internal set; }
+
     // Singleton pattern
     void Awake()
     {
