@@ -4,6 +4,8 @@ using System.Text;
 using System.IO;
 using System.Collections;
 using UnityEngine.Networking;
+using System.Collections.Generic;
+using static Unity.VisualScripting.Member;
 
 public class NaverTTSManager : MonoBehaviour
 {
@@ -16,6 +18,13 @@ public class NaverTTSManager : MonoBehaviour
 
     private string[] texts;
     private string title;
+
+    public Book BookClass;
+
+    private static List<AudioSource> activeAudioSources = new List<AudioSource>();
+
+    private Coroutine currentCoroutine;
+
 
     void LoadTextsToPages()
     {
@@ -41,65 +50,129 @@ public class NaverTTSManager : MonoBehaviour
 
     void Start()
     {
+
         title = PlayerPrefs.GetString("title", "defaultTitle");
+
+        BookClass = GetComponent<Book>();
 
         LoadTextsToPages();
 
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
+            Debug.Log("audioSource added in NaverTTS");
             audioSource = gameObject.AddComponent<AudioSource>();
         }
         //GetAndPlaySpeech("빈칸에 들어갈 대사는 무엇일까?");
-        GetAndPlaySpeech(WhaleTalking, "tts");
+        //GetAndPlaySpeech("ndain", "Angry", WhaleTalking, "tts");
 
-        Debug.Log(texts[0]);
-        Debug.Log(texts[1]);
-        GetAndPlaySpeech(texts[0], "firstLine");
-        GetAndPlaySpeech(texts[1], "secondLine");
+        //Debug.Log(texts[0]);
+        //Debug.Log(texts[1]);
+        //GetAndPlaySpeech("ndain", "Angry", texts[0], "firstLine");
+        //GetAndPlaySpeech("ndain", "Angry", texts[1], "secondLine");
 
 
     }
 
-    public void GetAndPlaySpeech(string text, string filename)
+    public void GetAndPlaySpeech(string speaker, string emotion, string text, string filename)
     {
-        GetSpeech("ndain", "Neutral", text, filename);
+        GetSpeech(speaker, emotion, text, filename);
     }
 
+    public IEnumerator LoadAndPlayAudio(string path)
+    {
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError(www.error);
+            }
+            else
+            {
+                AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+                if (clip != null && BookClass.audioSource != null)
+                {
+                   
+                    BookClass.audioSource.clip = clip;
+                    BookClass.audioSource.Play();
+
+                }
+                else
+                {
+                    if (clip == null)
+                    {
+                        Debug.LogError("AudioClip is null.");
+                    }
+
+                    if (BookClass.audioSource == null)
+                    {
+                        Debug.LogError("AudioSource is not assigned.");
+                    }
+                }
+            }
+        }
+    }
+
+    private void StopAllActiveAudio()
+    {
+        foreach (AudioSource source in activeAudioSources)
+        {
+            if (source.isPlaying)
+            {
+                source.Stop();
+            }
+        }
+        activeAudioSources.Clear();
+    }
+
+    private void RegisterActiveAudioSource(AudioSource source)
+    {
+        activeAudioSources.Add(source);
+    }
 
     private void GetSpeech(string speaker, string emotion, string text, string filename)
     {
         if (speaker == null)
         {
-            speaker = "nara";
+            speaker = "vdain";
         }
 
-        string emotionInteger = "0";
+        int emotionInteger = 0;
 
         if (emotion == "Neutral")
         {
-            emotionInteger = "0";
+            emotionInteger = 0;
         }
         else if (emotion == "Sad")
         {
-            emotionInteger = "1";
+            emotionInteger = 1;
         }
         else if (emotion == "Happy")
         {
-            emotionInteger = "2";
+            emotionInteger = 2;
         }
         else if (emotion == "Angry")
         {
-            emotionInteger = "3";
+            emotionInteger = 3;
         }
 
+        if (currentCoroutine != null)
+        {
+            BookClass.audioSource.Stop();
+            StopCoroutine(currentCoroutine);
+            Debug.Log("current coroutine stopping...");
+
+        }
 
         string url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts";
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Headers.Add("X-NCP-APIGW-API-KEY-ID", clientId);
         request.Headers.Add("X-NCP-APIGW-API-KEY", clientSecret);
         request.Method = "POST";
-        byte[] byteDataParams = Encoding.UTF8.GetBytes("speaker="+speaker+"&volume=0&speed=0&pitch=0&format=mp3&text=" + text+"&emotion="+emotionInteger+"&emotion-strength=1");
+        string postData = $"speaker={speaker}&volume=0&speed=0&pitch=0&format=mp3&text={text}&emotion={emotionInteger}&emotion-strength=2";
+        byte[] byteDataParams = Encoding.UTF8.GetBytes(postData);
         request.ContentType = "application/x-www-form-urlencoded";
         request.ContentLength = byteDataParams.Length;
 
@@ -113,6 +186,10 @@ public class NaverTTSManager : MonoBehaviour
             string status = response.StatusCode.ToString();
             Debug.Log("status=" + status);
             string filePath = Path.Combine(Application.persistentDataPath, filename+".mp3");
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
             using (Stream output = File.OpenWrite(filePath))
             using (Stream input = response.GetResponseStream())
             {
@@ -122,7 +199,8 @@ public class NaverTTSManager : MonoBehaviour
 
             // 파일 저장 후 재생
 
-            //StartCoroutine(LoadAndPlayAudio(filePath));
+
+            currentCoroutine = StartCoroutine(LoadAndPlayAudio(filePath));
         }
     }
 

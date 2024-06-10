@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -59,8 +60,15 @@ public class EmotionSelectScript : MonoBehaviour
 
     private Book BookClass;
     private SpeakingScript speakScript;
+    private NaverTTSManager TTSManager;
 
     private int answerEmotion = 6;
+
+    public Camera uiCamera;
+
+    private string[] emotionKoreanArray = { "평온함", "기쁨", "슬", "화남", "무서움", "놀라움", "Main" };
+    string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
+
 
     void Start()
     {
@@ -80,6 +88,10 @@ public class EmotionSelectScript : MonoBehaviour
 
         BookClass = GetComponent<Book>();
         speakScript = GetComponent<SpeakingScript>();
+        TTSManager = GetComponent<NaverTTSManager>();
+
+        originalPosition = whale.position;
+        originalRotation = whale.rotation;
 
     }
 
@@ -108,8 +120,9 @@ public class EmotionSelectScript : MonoBehaviour
         SpeakStopCanvas.SetActive(false);
         GoToEmotionCanvas.SetActive(false);
 
-        Vector3 targetPosition = new Vector3(0.0f, -1.5f, 0.0f);
-        Vector3 targetScale = new Vector3(450.0f, 450.0f, 450.0f);
+        Vector3 screenPosition = new Vector3(Screen.width / 2, Screen.height / 3 + 50.0f, -100.0f);
+        Vector3 targetPosition = uiCamera.ScreenToWorldPoint(screenPosition);
+        Vector3 targetScale = new Vector3(550.0f, 550.0f, 550.0f);
         //Quaternion originalRotation = whale.rotation;
         originalPosition = whale.position;
         originalRotation = whale.rotation;
@@ -140,6 +153,8 @@ public class EmotionSelectScript : MonoBehaviour
         FearButton.interactable = true;
         CalmButton.interactable = true;
 
+        TTSManager.GetAndPlaySpeech("vdain", "Neutral", "주인공이 어떠한 감정을 느낄까?", "AskLineGuess");
+
     }
 
     private IEnumerator selectionButton(int expression)
@@ -156,7 +171,7 @@ public class EmotionSelectScript : MonoBehaviour
         changeExpression(expression);
         if (!isDescriptionShown)
         {
-            if (expression == 1) // happy
+            if (expression == 1) // angry
             {
                 HappyCanvas.SetActive(false);
                 AngryCanvas.SetActive(true);
@@ -164,9 +179,10 @@ public class EmotionSelectScript : MonoBehaviour
                 SadCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
                 CalmCanvas.SetActive(false);
+                TTSManager.GetAndPlaySpeech("vdain", "Angry", "화났어요.", "Angry");
                 prevSelection = 1;
             }
-            else if (expression == 2) // angry
+            else if (expression == 2) // happy
             {
                 AngryCanvas.SetActive(false);
                 HappyCanvas.SetActive(true);
@@ -174,6 +190,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SadCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
                 CalmCanvas.SetActive(false);
+                TTSManager.GetAndPlaySpeech("vdain", "Happy", "기뻐요.", "Happy");
                 prevSelection = 2;
             }
             else if (expression == 3) // surprised
@@ -184,6 +201,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SadCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
                 CalmCanvas.SetActive(false);
+                TTSManager.GetAndPlaySpeech("vdain", "Sad", "놀랐어요.", "Surprised");
                 prevSelection = 3;
             }
             else if (expression == 4) // Sad
@@ -194,6 +212,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SurpriseCanvas.SetActive(false);
                 FearCanvas.SetActive(false);
                 CalmCanvas.SetActive(false);
+                TTSManager.GetAndPlaySpeech("vdain", "Sad", "슬퍼요.", "Sad");
                 prevSelection = 4;
 
             }
@@ -205,6 +224,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SurpriseCanvas.SetActive(false);
                 SadCanvas.SetActive(false);
                 CalmCanvas.SetActive(false);
+                TTSManager.GetAndPlaySpeech("vdain", "Sad", "무서워요.", "Fear");
                 prevSelection = 5;
             }
             else if (expression == 6) // Calm
@@ -215,6 +235,7 @@ public class EmotionSelectScript : MonoBehaviour
                 SurpriseCanvas.SetActive(false);
                 SadCanvas.SetActive(false);
                 CalmCanvas.SetActive(true);
+                TTSManager.GetAndPlaySpeech("vdain", "Happy", "평온해요.", "Calm");
                 prevSelection = 6;
             }
 
@@ -236,6 +257,7 @@ public class EmotionSelectScript : MonoBehaviour
             if (expression == prevSelection)
             {
                 StartCoroutine(ShowFeedbackAndHide());
+
             }
             else
             {
@@ -249,7 +271,7 @@ public class EmotionSelectScript : MonoBehaviour
                     SadCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
                     CalmCanvas.SetActive(false);
-
+                    TTSManager.GetAndPlaySpeech("vdain", "Angry", "화났어요.", "Angry");
                     prevSelection = 1;
                 }
                 else if (expression == 2)
@@ -260,7 +282,7 @@ public class EmotionSelectScript : MonoBehaviour
                     SadCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
                     CalmCanvas.SetActive(false);
-
+                    TTSManager.GetAndPlaySpeech("vdain", "Happy", "기뻐요.", "Happy");
                     prevSelection = 2;
                 }
                 else if (expression == 3) // Surprised
@@ -271,7 +293,7 @@ public class EmotionSelectScript : MonoBehaviour
                     SadCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
                     CalmCanvas.SetActive(false);
-
+                    TTSManager.GetAndPlaySpeech("vdain", "Sad", "놀랐어요.", "Surprised");
                     prevSelection = 3;
                 }
                 else if (expression == 4) // Sad
@@ -282,7 +304,7 @@ public class EmotionSelectScript : MonoBehaviour
                     SurpriseCanvas.SetActive(false);
                     FearCanvas.SetActive(false);
                     CalmCanvas.SetActive(false);
-
+                    TTSManager.GetAndPlaySpeech("vdain", "Sad", "슬퍼요.", "Sad");
                     prevSelection = 4;
 
                 }
@@ -294,7 +316,7 @@ public class EmotionSelectScript : MonoBehaviour
                     SurpriseCanvas.SetActive(false);
                     SadCanvas.SetActive(false);
                     CalmCanvas.SetActive(false);
-
+                    TTSManager.GetAndPlaySpeech("vdain", "Sad", "무서워요.", "Fear");
                     prevSelection = 5;
                 }
                 else if (expression == 6) // Calm
@@ -305,7 +327,7 @@ public class EmotionSelectScript : MonoBehaviour
                     SurpriseCanvas.SetActive(false);
                     SadCanvas.SetActive(false);
                     CalmCanvas.SetActive(true);
-
+                    TTSManager.GetAndPlaySpeech("vdain", "Happy", "평온해요.", "Calm");
                     prevSelection = 6;
                 }
 
@@ -321,6 +343,7 @@ public class EmotionSelectScript : MonoBehaviour
                 changeExpression(0);
 
             }
+
         }
 
     }
@@ -338,9 +361,14 @@ public class EmotionSelectScript : MonoBehaviour
         }
     }
 
+
+
     private IEnumerator ShowFeedbackAndHide()
     {
-        if (prevSelection == answerEmotion)
+        int[] fixedAnswer = { 6, 2, 4, 1, 5, 3 };
+        int Answer = BookClass.emotionInteger;
+
+        if (prevSelection == fixedAnswer[Answer])
         {
             HappyCanvas.SetActive(false);
             AngryCanvas.SetActive(false);
@@ -349,6 +377,8 @@ public class EmotionSelectScript : MonoBehaviour
             FearCanvas.SetActive(false);
             CalmCanvas.SetActive(false);
             CorrectCanvas.SetActive(true);
+            TTSManager.GetAndPlaySpeech("vdain", "Happy", "맞았어요!", "Correct");
+
         }
         else
         {
@@ -359,10 +389,31 @@ public class EmotionSelectScript : MonoBehaviour
             FearCanvas.SetActive(false);
             CalmCanvas.SetActive(false);
             WrongCanvas.SetActive(true);
+
+            TTSManager.GetAndPlaySpeech("vdain", "Sad", "틀렸어요.", "Wrong");
+
         }
 
         yield return new WaitForSeconds(4);
 
+        StartCoroutine(gotoWhaleOriginalPosition());
+
+        SpeakStartCanvas.SetActive(true);
+        SpeakStartButton.interactable = true;
+        AskLineGuessCanvas.SetActive(true);
+
+        string guideText = BookClass.guideText;
+
+        if (!string.IsNullOrEmpty(guideText))
+        {
+            TTSManager.GetAndPlaySpeech("ndain", "Neutral", guideText, "Guide");
+            Debug.Log("Guide Text: " + guideText);
+
+        }
+    }
+
+    public IEnumerator gotoWhaleOriginalPosition()
+    {
         CorrectCanvas.SetActive(false);
         WrongCanvas.SetActive(false);
         EmotionSelectCanvas.SetActive(false);
@@ -401,11 +452,40 @@ public class EmotionSelectScript : MonoBehaviour
         whale.localScale = targetScale;
         whale.rotation = targetRotation;
 
-        SpeakStartCanvas.SetActive(true);
-        SpeakStartButton.interactable = true;
-
-        BookClass.WhaleSpeak();
+        
+        //BookClass.WhaleSpeak();
 
         //BookClass.StartGotoOriginalPos();
     }
+
+    public void gotoOriginalAtOnce()
+    {
+        CorrectCanvas.SetActive(false);
+        WrongCanvas.SetActive(false);
+        EmotionSelectCanvas.SetActive(false);
+
+        //whaleObject.SetActive(false);
+
+        isDescriptionShown = false;
+
+        Bubble.SetActive(true);
+
+        Vector3 targetPosition = originalPosition;
+        Vector3 targetScale = new Vector3(250.0f, 250.0f, 250.0f);
+        Quaternion targetRotation = originalRotation;
+
+        whaleAnimator.SetInteger("NextInt", 0);
+        changeExpression(0);
+
+        whale.position = targetPosition;
+        whale.localScale = targetScale;
+        whale.rotation = targetRotation;
+
+       
+
+
+    }
+
 }
+
+

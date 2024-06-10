@@ -15,6 +15,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using UnityEngine.SceneManagement;
+using System;
+//using static System.Net.Mime.MediaTypeNames;
 
 public enum FlipMode
 {
@@ -137,6 +139,7 @@ public class Book : MonoBehaviour {
     public GameObject SpeakStartButton;
     public GameObject SpeakStopButton;
     public GameObject AskLineGuessCanvas;
+    public GameObject AskEmotionCanvas;
 
     private int LineGuessingPage = 8;
     private int InteractionPage = 11;
@@ -150,7 +153,7 @@ public class Book : MonoBehaviour {
     private Vector2 originalButtonPosition;
 
 
-    private AudioSource audioSource;
+    public AudioSource audioSource;
 
     public UnityEngine.UI.Button yourButton; // 버튼 참조
     public string sceneToLoad = "Role_Playing_3d"; // 이동할 씬의 이름
@@ -158,6 +161,7 @@ public class Book : MonoBehaviour {
 
 
     private EmotionSelectScript emotionSelection;
+    private NaverTTSManager TTSManager;
 
 
     public string title;
@@ -166,9 +170,17 @@ public class Book : MonoBehaviour {
     public string interactionPath;
     public List<NovelSceneData> scenes = new List<NovelSceneData>();
     public Dictionary<int, int> novelDictNumberToSceneIndex = new Dictionary<int, int>();
+    private Dictionary<int, string> guideDictionary = new Dictionary<int, string>();
+    private Dictionary<int, string> interactionDictionary = new Dictionary<int, string>();
+    private Dictionary<int, string> emotionDictionary = new Dictionary<int, string>();
+    private Dictionary<int, int> emotionIntDictionary = new Dictionary<int, int>();
 
     private List<int> interactionPages;
     private List<int> emotionChoicePages;
+
+    public string guideText;
+    public string emotionIs;
+    public int emotionInteger;
 
 
     public void SwitchScene()
@@ -198,7 +210,7 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
-        title = PlayerPrefs.GetString("title", "defaultTitle");
+        //title = PlayerPrefs.GetString("title", "defaultTitle");
         Debug.Log("book's title is : " + title);
 
         imgPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, "img");
@@ -212,6 +224,7 @@ public class Book : MonoBehaviour {
         LoadCurrentSceneData();
 
         emotionSelection = GetComponent<EmotionSelectScript>();
+        TTSManager = GetComponent<NaverTTSManager>();
 
         if (!canvas) canvas=GetComponentInParent<Canvas>();
         if (!canvas) Debug.LogError("Book should be a child to canvas");
@@ -225,6 +238,16 @@ public class Book : MonoBehaviour {
         //{
         //    Debug.LogError("fullImageSprite not set");
         //}
+
+        LineGuessing = LeftTextbox;
+        LineGuessingText = textObjectLeft;
+        originalSize = LineGuessing.sizeDelta;
+        originalPosition = LineGuessing.anchoredPosition;
+        originalButtonPosition = buttonRectTransform.anchoredPosition;
+        originalFontSize = LineGuessingText.fontSize;
+        originalTextboxSize = LineGuessingText.rectTransform.sizeDelta;
+        originalButtonSize = buttonRectTransform.sizeDelta;
+
 
         bookBigPages = new List<Sprite>();
 
@@ -248,7 +271,7 @@ public class Book : MonoBehaviour {
             Debug.Log("AudioSource component was missing and has been added.");
         }
 
-        EnsureSingleAudioListener();
+        //EnsureSingleAudioListener();
 
 
 
@@ -283,11 +306,13 @@ public class Book : MonoBehaviour {
     public List<int> GetPagesWithInteractions()
     {
         List<int> pages = new List<int>();
-        for (int i = 0; i < scenes.Count; i++)
+        var keys = new List<int>(interactionDictionary.Keys);
+
+        for (int i = 0; i < keys.Count; i++)
         {
-            if (scenes[i].Interactions != null && scenes[i].Interactions.Count > 0)
+            if (interactionDictionary[keys[i]] != null && interactionDictionary.Count > 0)
             {
-                pages.Add(i + 1); // 페이지 번호는 1부터 시작
+                pages.Add(keys[i] + 1); // 페이지 번호는 1부터 시작
             }
         }
         return pages;
@@ -297,11 +322,13 @@ public class Book : MonoBehaviour {
     public List<int> GetPagesWithEmotionChoices()
     {
         List<int> pages = new List<int>();
-        for (int i = 0; i < scenes.Count; i++)
+        var keys = new List<int>(interactionDictionary.Keys);
+
+        for (int i = 0; i < keys.Count; i++)
         {
-            if (scenes[i].Emotions != null && scenes[i].Emotions.Count > 0)
+            if (guideDictionary[keys[i]] != null && guideDictionary.Count > 0)
             {
-                pages.Add(i + 1); // 페이지 번호는 1부터 시작
+                pages.Add(keys[i] + 1); // 페이지 번호는 1부터 시작
             }
         }
         return pages;
@@ -312,28 +339,67 @@ public class Book : MonoBehaviour {
     {
         string filePath = interactionPath;
 
+        string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
+
         if (File.Exists(filePath))
         {
             string jsonContent = File.ReadAllText(filePath);
             var jsonData = JsonConvert.DeserializeObject<InteractionData>(jsonContent);
 
-            for(int i = 0; i < jsonData.emotion.Count; i++)
+            for (int i = 0; i < jsonData.guide.Count; i++)
             {
-                var interactionEmotion = jsonData.emotion[i];
-                var interactionGuide = jsonData.guide[i];
-                var interactionText = jsonData.interaction[i];
+                var guides = jsonData.guide[i];
+                var emotions = jsonData.emotion[i];
 
-                foreach (string emotion in interactionEmotion)
+                for (int j = 0; j < guides.Count; j++)
                 {
-                    int novelDictNumber;
-                    if (int.TryParse(emotion.Trim(), out novelDictNumber))
+                    if (!string.IsNullOrWhiteSpace(guides[j]))
                     {
-                        if (novelDictNumberToSceneIndex.ContainsKey(novelDictNumber))
+                        int novelDictNumber;
+                        if (int.TryParse(emotions[j].Trim(), out novelDictNumber))
                         {
-                            int sceneIndex = novelDictNumberToSceneIndex[novelDictNumber];
-                            scenes[sceneIndex].Emotions.Add(emotion);
-                            scenes[sceneIndex].Guides.AddRange(interactionGuide);
-                            scenes[sceneIndex].Interactions.AddRange(interactionText);
+                            if (novelDictNumberToSceneIndex.ContainsKey(novelDictNumber))
+                            {
+                                int sceneIndex = novelDictNumberToSceneIndex[novelDictNumber];
+                                if (!guideDictionary.ContainsKey(sceneIndex))
+                                {
+                                    guideDictionary[sceneIndex] = guides[j];
+                                    emotionDictionary[sceneIndex] = emotionArray[i];
+                                    emotionIntDictionary[sceneIndex] = i;
+                                }
+                                //else
+                                //{
+                                //    guideDictionary[sceneIndex] += "\n" + guides[j]; // 여러 가이드를 합칠 때 줄바꿈 추가
+                                //}
+
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            for (int i = 0; i < jsonData.interaction.Count; i++)
+            {
+                var interactions = jsonData.interaction[i];
+                var emotions = jsonData.emotion[i];
+
+                for (int j = 0; j < interactions.Count; j++)
+                {
+                    if (!string.IsNullOrWhiteSpace(interactions[j]))
+                    {
+                        int novelDictNumber;
+                        if (int.TryParse(emotions[j].Trim(), out novelDictNumber))
+                        {
+                            if (novelDictNumberToSceneIndex.ContainsKey(novelDictNumber))
+                            {
+                                int sceneIndex = novelDictNumberToSceneIndex[novelDictNumber];
+                                if (!interactionDictionary.ContainsKey(sceneIndex))
+                                {
+                                    interactionDictionary[sceneIndex] = interactions[j];
+                                }
+                                
+                            }
                         }
                     }
                 }
@@ -343,6 +409,8 @@ public class Book : MonoBehaviour {
             Debug.Log("Interactions loaded successfully.");
             Debug.Log("Pages with Interactions: " + string.Join(", ", GetPagesWithInteractions()));
             Debug.Log("Pages with Emotion Choices: " + string.Join(", ", GetPagesWithEmotionChoices()));
+            PrintGuideDictionary();
+
         }
         else
         {
@@ -352,40 +420,13 @@ public class Book : MonoBehaviour {
         yield return null;
     }
 
-
-    int ExtractNovelDictNumber(string text)
+    private void PrintGuideDictionary()
     {
-        const string marker = "novel_dict_number: ";
-        int startIndex = text.IndexOf(marker);
-        if (startIndex == -1)
+        foreach (var kvp in guideDictionary)
         {
-            // Marker not found
-            Debug.LogWarning("novel_dict_number marker not found in text: " + text);
-            return -1; // Return an invalid number to indicate failure
-        }
-
-        startIndex += marker.Length;
-        int endIndex = text.IndexOf(")", startIndex);
-        if (endIndex == -1)
-        {
-            // Closing parenthesis not found
-            Debug.LogWarning("Closing parenthesis not found after novel_dict_number marker in text: " + text);
-            return -1; // Return an invalid number to indicate failure
-        }
-
-        string numberString = text.Substring(startIndex, endIndex - startIndex).Trim();
-        if (int.TryParse(numberString, out int novelDictNumber))
-        {
-            return novelDictNumber;
-        }
-        else
-        {
-            // Parsing failed
-            Debug.LogWarning("Failed to parse novel_dict_number: " + numberString);
-            return -1; // Return an invalid number to indicate failure
+            Debug.Log($"Novel Dict Number: {kvp.Key}, Guide: {kvp.Value}, Emotion: {emotionDictionary[kvp.Key]}");
         }
     }
-
 
     void EnsureSingleAudioListener()
     {
@@ -565,7 +606,6 @@ public class Book : MonoBehaviour {
         originalSize = LineGuessing.sizeDelta;
         Vector2 enlargedSize = new Vector2((float)(LineGuessing.sizeDelta.x * 1.5), (float)(LineGuessing.sizeDelta.y * 2.0));
 
-
         originalPosition = LineGuessing.anchoredPosition;
         originalButtonPosition = buttonRectTransform.anchoredPosition;
         Vector2 targetPosition = new Vector2(0.0f, -100.0f);
@@ -639,6 +679,33 @@ public class Book : MonoBehaviour {
     }
 
 
+    public string GetGuideForPage(int sceneIndex)
+    {
+        if (guideDictionary.ContainsKey(sceneIndex))
+        {
+            return guideDictionary[sceneIndex];
+        }
+        return string.Empty;
+    }
+
+    public string GetEmotionForPage(int sceneIndex)
+    {
+        if (emotionDictionary.ContainsKey(sceneIndex))
+        {
+            return emotionDictionary[sceneIndex];
+        }
+        return string.Empty;
+    }
+
+    public int GetEmotionIntegerPage(int sceneIndex)
+    {
+        if (emotionIntDictionary.ContainsKey(sceneIndex))
+        {
+            return emotionIntDictionary[sceneIndex];
+        }
+        return 0;
+    }
+
     void UpdateTextVisibility()
     {
         Debug.Log("current Page is : " + currentPage);
@@ -665,6 +732,7 @@ public class Book : MonoBehaviour {
             {
                 bool isLeftPage = (currentPage / 2) % 2 == 0;
                 int pageIndex = currentPage / 2 - 1;
+
                 if (isLeftPage)
                 {
                     StoryCanvasLeft.SetActive(true);
@@ -675,9 +743,14 @@ public class Book : MonoBehaviour {
                     textObjectLeft.alignment = TextAlignmentOptions.Center;
 
 
+                    guideText = GetGuideForPage(pageIndex);
+                    emotionIs = GetEmotionForPage(pageIndex);
+                    emotionInteger = GetEmotionIntegerPage(pageIndex);
+
+
                     // If Scene is interaction scene
 
-                    if (interactionPages.Contains(currentPage / 2))
+                    if (interactionDictionary.ContainsKey(currentPage/2 - 1))
                     {
                         GotoInteractionCanvas.SetActive(true);
                         Debug.Log("This is interaction page");
@@ -689,12 +762,13 @@ public class Book : MonoBehaviour {
 
                     // If Scene is emotion selection scene
 
-                    if (emotionChoicePages.Contains(currentPage / 2))
+                    if (guideDictionary.ContainsKey(currentPage/2 - 1))
                     {
                         Debug.Log("This is emotion selection page");
                         LineButtonCanvas.SetActive(true);
                         LineGuessing = LeftTextbox;
                         LineGuessingText = textObjectLeft;
+
                     }
                     else
                     {
@@ -715,9 +789,15 @@ public class Book : MonoBehaviour {
                     textObjectRight.font = fontAsset;
                     textObjectRight.alignment = TextAlignmentOptions.Center;
 
+
+                    guideText = GetGuideForPage(pageIndex);
+                    emotionIs = GetEmotionForPage(pageIndex);
+                    emotionInteger = GetEmotionIntegerPage(pageIndex);
+
+
                     // If Scene is Interaction scene                  
 
-                    if (interactionPages.Contains(currentPage / 2))
+                    if (interactionDictionary.ContainsKey(currentPage / 2 - 1))
                     {
                         GotoInteractionCanvas.SetActive(true);
                     }
@@ -728,11 +808,12 @@ public class Book : MonoBehaviour {
 
                     // If Scene is Emotion Seletion Scene
 
-                    if (emotionChoicePages.Contains(currentPage / 2))
+                    if (guideDictionary.ContainsKey(currentPage/2 - 1))
                     {
                         LineButtonCanvas.SetActive(true);
                         LineGuessing = RightTextbox;
                         LineGuessingText = textObjectRight;
+                       
                     }
                     else
                     {
@@ -811,14 +892,53 @@ public class Book : MonoBehaviour {
             string jsonContent = File.ReadAllText(filePath);
             var jsonData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(jsonContent);
 
-            if (jsonData.ContainsKey("splited_novel_dict"))
+            if (jsonData.ContainsKey("splited_novel_dict") && jsonData.ContainsKey("novel_num_dict"))
             {
                 var splitedNovelDict = jsonData["splited_novel_dict"];
+                var novelNumDict = jsonData["novel_num_dict"];
                 texts = new string[splitedNovelDict.Count];
 
                 int index = 0;
+                int novelIndex = 0;
+                int prevNovelIndex = 0;
+                var novelKeys = new List<string>(novelNumDict.Keys);
+
+
                 foreach (var entry in splitedNovelDict)
                 {
+                    bool foundMatch = false;
+
+                    for (; novelIndex < novelKeys.Count; novelIndex++)
+                    {
+                        var novelEntry = novelNumDict[novelKeys[novelIndex]];
+                        string splitedText = Regex.Replace(entry.Value.Trim(), @"\s+", "");
+                        string novelText = Regex.Replace(novelEntry.Trim(), @"\s+", "");
+
+                        if (splitedText.Contains(novelText))
+                        {
+                            int novelDictNumber;
+                            if (int.TryParse(novelKeys[novelIndex], out novelDictNumber))
+                            {
+                                novelDictNumberToSceneIndex[novelDictNumber] = index;
+                                foundMatch = true;
+                                //Debug.Log($"Matched: {novelDictNumber} -> {entry.Value}");
+
+                                for (int i = prevNovelIndex; i < novelIndex; i++)
+                                {
+                                    int prevDictNumber;
+                                    if (int.TryParse(novelKeys[i], out prevDictNumber))
+                                    {
+                                        novelDictNumberToSceneIndex[prevDictNumber] = index - 1;
+                                    }
+                                }
+                                prevNovelIndex = novelIndex + 1;
+                                novelIndex++;
+                                break;
+                            }
+                        }
+                    }
+
+
                     NovelSceneData scene = new NovelSceneData
                     {
                         Id = index,
@@ -831,31 +951,30 @@ public class Book : MonoBehaviour {
                     index++;
                 }
 
-                if (jsonData.ContainsKey("novel_num_dict"))
+                // Handle remaining novel entries
+                for (int i = prevNovelIndex; i < novelKeys.Count; i++)
                 {
-                    var novelNumDict = jsonData["novel_num_dict"];
-                    foreach (var entry in novelNumDict)
+                    int prevDictNumber;
+                    if (int.TryParse(novelKeys[i], out prevDictNumber))
                     {
-                        int novelDictNumber = int.Parse(entry.Key);
-                        string sentence = entry.Value;
-                        for (int i = 0; i < scenes.Count; i++)
-                        {
-                            if (scenes[i].Text.Contains(sentence))
-                            {
-                                novelDictNumberToSceneIndex[novelDictNumber] = i;
-                                break;
-                            }
-                        }
+                        novelDictNumberToSceneIndex[prevDictNumber] = index - 1;
                     }
                 }
 
+
                 Debug.Log("Texts loaded successfully.");
                 Debug.Log("TextFile Length : " + texts.Length);
+
+                //foreach(var text in novelDictNumberToSceneIndex)
+                //{
+                //    Debug.Log($"Novel Dict Number: {text.Key}, Scene Index: {text.Value}");
+                //}
             }
             else
             {
                 Debug.LogError("splited_novel_dict not found in JSON.");
             }
+           
         }
         else
         {
@@ -863,6 +982,23 @@ public class Book : MonoBehaviour {
         }
 
         yield return null;
+    }
+
+    private int ExtractNovelDictNumber(string text)
+    {
+        // Extract novel_dict_number from text (example implementation)
+        int startIndex = text.IndexOf("[") + 1;
+        int endIndex = text.IndexOf("]");
+        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex)
+        {
+            string numberStr = text.Substring(startIndex, endIndex - startIndex);
+            if (int.TryParse(numberStr, out int result))
+            {
+                return result;
+            }
+        }
+        Debug.LogWarning("novel_dict_number marker not found in text: " + text);
+        return -1;
     }
 
     string FormatText(string input)
@@ -970,7 +1106,7 @@ public class Book : MonoBehaviour {
         {
             UpdateBook();
         }
-        EnsureSingleAudioListener();
+        //EnsureSingleAudioListener();
 
     }
     public void UpdateBook()
@@ -1224,6 +1360,19 @@ public class Book : MonoBehaviour {
         UpdateSprites();
 
         UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
+
+        StartCoroutine(GotoOriginalPosition());
+        audioSource.Stop();
+        firstButtonPress = false;
+        pressAllowed = true;
+        SpeakStartStopButton = true;
+
+        emotionSelection.gotoOriginalAtOnce();
+
+        AskLineGuessCanvas.SetActive(false);
+        AskEmotionCanvas.SetActive(false);
+        SpeakStartButton.SetActive(false);
+        SpeakStopButton.SetActive(false);
 
         Shadow.gameObject.SetActive(false);
         ShadowLTR.gameObject.SetActive(false);
