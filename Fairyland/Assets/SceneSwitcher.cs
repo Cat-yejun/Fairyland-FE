@@ -15,7 +15,7 @@ public static class SceneData
 public class SceneSwitcher : MonoBehaviour
 {
     //public Button yourButton; // 버튼 참조
-    public string sceneToLoad = "newBook"; // 이동할 씬의 이름
+    public string sceneToLoad = "3D_book"; // 이동할 씬의 이름
     public string sceneToUnload = "Role_Playing_3d"; // 현재 씬의 이름
 
     public void SwitchScene()

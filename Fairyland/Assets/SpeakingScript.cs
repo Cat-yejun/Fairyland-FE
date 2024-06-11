@@ -224,7 +224,7 @@ public class SpeakingScript : MonoBehaviour
         //bool exists = Array.Exists(EmotionAnswer, element => element == currentEmotion);
         string emotion = emotionArray[BookClass.emotionInteger];
 
-        bool exists = currentEmotion == emotion ? true : false;
+        bool exists = (currentEmotion == emotion) ? true : false;
 
         Debug.Log("emotion : " + currentEmotion + ", accuracy : " + currentAccuracy);
 
@@ -233,6 +233,8 @@ public class SpeakingScript : MonoBehaviour
         {
             if(exists)
             {
+                TTSManager.GetAndPlaySpeech("vdain", "Happy", "맞았어요!", "CorrectAnswer");
+
                 CorrectCanvas.SetActive(true);
                 WrongCanvas.SetActive(false);
 
@@ -252,7 +254,11 @@ public class SpeakingScript : MonoBehaviour
         }
         else
         {
+            TTSManager.GetAndPlaySpeech("vdain", "Neutral", "상황에 맞는 대사로 대답해봐!", "WrongExplain");
+            CorrectText.text = "상황에 맞는 대사로 대답해봐.";
+
             WrongCanvas.SetActive(true);
+            CorrectCanvas.SetActive(false);
         }
 
         yield return new WaitForSeconds(3.0f);

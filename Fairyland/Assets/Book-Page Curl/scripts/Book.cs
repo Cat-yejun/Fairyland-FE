@@ -157,7 +157,7 @@ public class Book : MonoBehaviour {
 
     public UnityEngine.UI.Button yourButton; // 버튼 참조
     public string sceneToLoad = "Role_Playing_3d"; // 이동할 씬의 이름
-    public string sceneToUnload = "newBook"; // 현재 씬의 이름
+    public string sceneToUnload = "3D_book"; // 현재 씬의 이름
 
 
     private EmotionSelectScript emotionSelection;
@@ -210,6 +210,26 @@ public class Book : MonoBehaviour {
             Debug.Log("Restored value: " + exampleValue);
         }
     }
+
+
+    private void Awake()
+    {
+        // AudioSource가 null이면 새로 생성하고 DontDestroyOnLoad 설정
+        if (audioSource == null)
+        {
+            GameObject audioSourceObject = new GameObject("AudioSource");
+            audioSource = audioSourceObject.AddComponent<AudioSource>();
+            DontDestroyOnLoad(audioSourceObject);
+            Debug.Log("auidioSource added");
+        }
+
+        if (audioSource == null)
+        {
+            //audioSource = gameObject.AddComponent<AudioSource>();
+            Debug.Log("AudioSource component was missing and has been added.");
+        }
+    }
+
 
 
     void Start()
@@ -268,12 +288,12 @@ public class Book : MonoBehaviour {
         SpeakStopButton.SetActive(false);
 
 
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-            Debug.Log("AudioSource component was missing and has been added.");
-        }
+        //audioSource = GetComponent<AudioSource>();
+        //if (audioSource == null)
+        //{
+        //    audioSource = gameObject.AddComponent<AudioSource>();
+        //    Debug.Log("AudioSource component was missing and has been added.");
+        //}
 
         //EnsureSingleAudioListener();
 
