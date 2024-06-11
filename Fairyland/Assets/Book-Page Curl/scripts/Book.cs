@@ -174,6 +174,8 @@ public class Book : MonoBehaviour {
     private Dictionary<int, string> interactionDictionary = new Dictionary<int, string>();
     private Dictionary<int, string> emotionDictionary = new Dictionary<int, string>();
     private Dictionary<int, int> emotionIntDictionary = new Dictionary<int, int>();
+    private Dictionary<int, string> novelDictNumberToText = new Dictionary<int, string>(); // 추가된 데이터 구조
+    private Dictionary<int, string> sceneLineGuessAnswer = new Dictionary<int, string>();
 
     private List<int> interactionPages;
     private List<int> emotionChoicePages;
@@ -181,6 +183,7 @@ public class Book : MonoBehaviour {
     public string guideText;
     public string emotionIs;
     public int emotionInteger;
+    public string LineGuessAnswer;
 
 
     public void SwitchScene()
@@ -193,6 +196,7 @@ public class Book : MonoBehaviour {
     {
         // 예제 데이터 저장
         GlobalSceneData.Data["currentPage"] = currentPage;
+        GlobalSceneData.Data["interactionDictionary"] = interactionDictionary;
         // 필요한 다른 데이터도 저장합니다.
     }
 
@@ -341,10 +345,19 @@ public class Book : MonoBehaviour {
 
         string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
 
-        if (File.Exists(filePath))
+        string filePath1 = textPath;
+
+  
+
+
+        if (File.Exists(filePath) && File.Exists(filePath1))
         {
             string jsonContent = File.ReadAllText(filePath);
             var jsonData = JsonConvert.DeserializeObject<InteractionData>(jsonContent);
+
+            string jsonContent1 = File.ReadAllText(filePath1);
+            var jsonData1 = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(jsonContent1);
+
 
             for (int i = 0; i < jsonData.guide.Count; i++)
             {
@@ -363,6 +376,16 @@ public class Book : MonoBehaviour {
                                 int sceneIndex = novelDictNumberToSceneIndex[novelDictNumber];
                                 if (!guideDictionary.ContainsKey(sceneIndex))
                                 {
+                                        
+                                    if (jsonData1.ContainsKey("novel_num_dict"))
+                                    {
+
+                                        var novelNumDict = jsonData1["novel_num_dict"];
+                                        var novelKeys = new List<string>(novelNumDict.Keys);
+
+                                        sceneLineGuessAnswer[sceneIndex] = novelNumDict[novelKeys[novelDictNumber-1]];
+                                    }
+                                    
                                     guideDictionary[sceneIndex] = guides[j];
                                     emotionDictionary[sceneIndex] = emotionArray[i];
                                     emotionIntDictionary[sceneIndex] = i;
@@ -424,7 +447,7 @@ public class Book : MonoBehaviour {
     {
         foreach (var kvp in guideDictionary)
         {
-            Debug.Log($"Novel Dict Number: {kvp.Key}, Guide: {kvp.Value}, Emotion: {emotionDictionary[kvp.Key]}");
+            Debug.Log($"Novel Dict Number: {kvp.Key}, Guide: {kvp.Value}, Emotion: {emotionDictionary[kvp.Key]}, Answer: {sceneLineGuessAnswer[kvp.Key]}");
         }
     }
 
@@ -706,6 +729,15 @@ public class Book : MonoBehaviour {
         return 0;
     }
 
+    public string GetLineGuessAnswer(int sceneIndex)
+    {
+        if (sceneLineGuessAnswer.ContainsKey(sceneIndex))
+        {
+            return sceneLineGuessAnswer[sceneIndex];
+        }
+        return string.Empty;
+    }
+
     void UpdateTextVisibility()
     {
         Debug.Log("current Page is : " + currentPage);
@@ -746,7 +778,7 @@ public class Book : MonoBehaviour {
                     guideText = GetGuideForPage(pageIndex);
                     emotionIs = GetEmotionForPage(pageIndex);
                     emotionInteger = GetEmotionIntegerPage(pageIndex);
-
+                    LineGuessAnswer = GetLineGuessAnswer(pageIndex);
 
                     // If Scene is interaction scene
 
@@ -793,6 +825,7 @@ public class Book : MonoBehaviour {
                     guideText = GetGuideForPage(pageIndex);
                     emotionIs = GetEmotionForPage(pageIndex);
                     emotionInteger = GetEmotionIntegerPage(pageIndex);
+                    LineGuessAnswer = GetLineGuessAnswer(pageIndex);
 
 
                     // If Scene is Interaction scene                  
@@ -880,7 +913,7 @@ public class Book : MonoBehaviour {
         Debug.Log("Initialized book pages.");
     }
 
-
+    
 
     IEnumerator LoadTexts()
     {

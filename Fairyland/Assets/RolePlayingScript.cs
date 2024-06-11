@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.IO;
 using TMPro;
 using UnityEngine.Networking;
+using System.Text.RegularExpressions;
 
 
 
@@ -24,14 +25,15 @@ public class RolePlayingScript : MonoBehaviour
 
 
     //public Button yourButton; // 버튼 참조
-    public string sceneToLoad = "newBook"; // 이동할 씬의 이름
+    public string sceneToLoad = "3D_book"; // 이동할 씬의 이름
     public string sceneToUnload = "Role_Playing_3d"; // 현재 씬의 이름
 
+    private Dictionary<int, string> interactionDictionary;
 
     public string title;
 
     private Book bookClass;
-    private NaverTTSManager TTSMake;
+    private NaverTTSManager TTSManager;
 
     private string[] texts;
 
@@ -44,22 +46,69 @@ public class RolePlayingScript : MonoBehaviour
         SceneManager.LoadScene(sceneToLoad);
     }
 
+    private int currentPage =0;
+
+    private List<string> youParts;
+    private List<string> myParts;
+
+    private int youPartCount = 0;
+
+    void LoadCurrentSceneData()
+    {
+        if (GlobalSceneData.Data.ContainsKey("currentPage"))
+        {
+            object exampleValue = GlobalSceneData.Data["currentPage"];
+            // 저장된 데이터를 복원합니다.
+            currentPage = ((int)exampleValue)/2 - 1;
+            Debug.Log("Restored value: " + exampleValue);
+        }
+
+        youParts = ExtractYouParts(interactionDictionary[currentPage]);
+        myParts = ExtractMyParts(interactionDictionary[currentPage]);
+
+        foreach (string part in youParts)
+        {
+            Debug.Log("You part: " + part + "\n");
+        }
+
+        foreach (string part in myParts)
+        {
+            Debug.Log("My part: " + part + "\n");
+        }
+
+    }
+
 
     // Start is called before the first frame update
     void Start()
     {
+        youPartCount = 0;
+
         title = PlayerPrefs.GetString("title", "defaultTitle");
-        LoadTextsToPages();
+        //LoadTextsToPages();
+
+
+        if (GlobalSceneData.Data.TryGetValue("interactionDictionary", out object interactionTextObj))
+        {
+            interactionDictionary = interactionTextObj as Dictionary<int, string>;
+            //Debug.Log("This is interaction Scene: " + interactionDictionary[currentPage]);
+            // Parse and display the [너] parts
+            //DisplayYouParts(interactionText);
+        }
+
+        LoadCurrentSceneData();
 
 
         bookClass = GetComponent<Book>();
+        TTSManager = GetComponent<NaverTTSManager>();
 
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-            Debug.Log("AudioSource component was missing and has been added.");
-        }
+
+        //audioSource = GetComponent<AudioSource>();
+        //if (audioSource == null)
+        //{
+        //    audioSource = gameObject.AddComponent<AudioSource>();
+        //    Debug.Log("AudioSource component was missing and has been added.");
+        //}
 
         // 초기 상태 설정
         changeExpression(0);
@@ -70,28 +119,65 @@ public class RolePlayingScript : MonoBehaviour
 
         // 초기 딜레이 후 첫 번째 상태로 전환
         StartCoroutine(InitialSequence());
+
+        
     }
 
 
-    void LoadTextsToPages()
+    public static List<string> ExtractYouParts(string text)
     {
-        string[] filePaths = Directory.GetFiles(Path.Combine(Application.persistentDataPath, "SaveFile", title, "interaction"), "*.txt");
-        Debug.Log("Total files found: " + filePaths.Length);
+        List<string> youParts = new List<string>();
 
-        int fileLength = filePaths.Length;
+        // 정규 표현식을 사용하여 [너]: 로 시작하는 부분을 추출
+        Regex regex = new Regex(@"\[너\]:.*?(?=(\\n|$))");
+        MatchCollection matches = regex.Matches(text);
 
-        texts = new string[fileLength];
-
-        for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
+        foreach (Match match in matches)
         {
-            Debug.Log("Loading text from: " + filePaths[pageIndex]);
-
-            string textContent = File.ReadAllText(filePaths[pageIndex]);
-            texts[pageIndex] = textContent;
+            string youPart = match.Value.Replace("[너]:", "").Trim();
+            youParts.Add(youPart);
         }
 
-        Debug.Log("texts Length : " + texts.Length);
+        return youParts;
     }
+
+    public static List<string> ExtractMyParts(string text)
+    {
+        List<string> youParts = new List<string>();
+
+        // 정규 표현식을 사용하여 [너]: 로 시작하는 부분을 추출
+        Regex regex = new Regex(@"\[나\]:.*?(?=(\\n|$))");
+        MatchCollection matches = regex.Matches(text);
+
+        foreach (Match match in matches)
+        {
+            string youPart = match.Value.Replace("[나]:", "").Trim();
+            youParts.Add(youPart);
+        }
+
+        return youParts;
+    }
+
+
+    //void LoadTextsToPages()
+    //{
+    //    string[] filePaths = Directory.GetFiles(Path.Combine(Application.persistentDataPath, "SaveFile", title, "interaction"), "*.txt");
+    //    Debug.Log("Total files found: " + filePaths.Length);
+
+    //    int fileLength = filePaths.Length;
+
+    //    texts = new string[fileLength];
+
+    //    for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
+    //    {
+    //        Debug.Log("Loading text from: " + filePaths[pageIndex]);
+
+    //        string textContent = File.ReadAllText(filePaths[pageIndex]);
+    //        texts[pageIndex] = textContent;
+    //    }
+
+    //    Debug.Log("texts Length : " + texts.Length);
+    //}
 
     public void PlaySpeech(string path)
     {
@@ -123,16 +209,16 @@ public class RolePlayingScript : MonoBehaviour
         yield return new WaitForSeconds(initialDelay);
 
         // 첫 번째 라인과 speakStop 버튼 활성화
-        changeExpression(1);
+        changeExpression(0);
         whaleAnimator.SetInteger("NextInt", 4);
-        LineText.text = texts[0];
+        LineText.text = youParts[youPartCount];
         canvasLine1.SetActive(true);
         speakStartButton.interactable = false;
         speakStartButton.gameObject.SetActive(true);
 
-        string filePath = Path.Combine(Application.persistentDataPath, "firstLine.mp3");
+        TTSManager.GetAndPlaySpeech("vdain", "Neutral", youParts[youPartCount], "RolePlaying");
 
-        PlaySpeech(filePath);
+        youPartCount++;
 
         yield return new WaitForSeconds(displayDuration);
 
@@ -145,15 +231,8 @@ public class RolePlayingScript : MonoBehaviour
         speakStopButton.gameObject.SetActive(false);
         speakStartButton.gameObject.SetActive(true);
 
-        if (isFirst)
-        {
-            StartCoroutine(SpeakStopSequence());
+        StartCoroutine(SpeakStopSequence());
 
-        }
-        else
-        {
-            StartCoroutine(SecondLineSequence());
-        }
     }
 
     public void OnSpeakStartButtonClick()
@@ -162,6 +241,7 @@ public class RolePlayingScript : MonoBehaviour
         speakStopButton.gameObject.SetActive(true);
         // 음성을 받아오는 로직 추가
         //StartCoroutine(SpeakStopSequence());
+
     }
 
     IEnumerator SpeakStartSequence()
@@ -186,31 +266,28 @@ public class RolePlayingScript : MonoBehaviour
 
         yield return new WaitForSeconds(3f); // 음성 처리 시간
 
-        changeExpression(2);
+        if (youPartCount > youParts.Count)
+        {
+            SwitchScene();
+        }
+
+        changeExpression(0);
         whaleAnimator.SetInteger("NextInt", 4);
-        //canvasLine1.SetActive(false);
-        ////canvasLine2.SetActive(true);
-        LineText.text = texts[1];
+        
+        LineText.text = youParts[youPartCount];
 
         speakStartButton.interactable = false;
         speakStartButton.gameObject.SetActive(true);
 
-        string filePath = Path.Combine(Application.persistentDataPath, "secondLine.mp3");
+        TTSManager.GetAndPlaySpeech("vdain", "Neutral", youParts[youPartCount], "RolePlaying");
 
-        PlaySpeech(filePath);
+        youPartCount++;
 
         yield return new WaitForSeconds(displayDuration);
 
-        whaleAnimator.SetInteger("NextInt", 4);
         whaleAnimator.SetInteger("NextInt", 0);
-
-        //yield return new WaitForSeconds(displayDuration); // 고래가 말하는 시간
-
-        //// speakStart 버튼을 클릭 가능하도록 설정
-        //speakStartButton.interactable = true;
-
-        isFirst = false;
         speakStartButton.interactable = true;
+
     }
 
     IEnumerator SecondLineSequence()
@@ -223,7 +300,6 @@ public class RolePlayingScript : MonoBehaviour
         yield return new WaitForSeconds(displayDuration);
 
 
-        SwitchScene();
 
     }
 
