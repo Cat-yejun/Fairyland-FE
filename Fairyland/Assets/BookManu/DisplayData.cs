@@ -7,8 +7,8 @@ using System.Collections.Generic;
 public class DisplayData : MonoBehaviour
 {
     public TMP_Text displayText; // Assign this in the inspector
+    public TMP_Text displayTitle; // Assign this in the inspector
     private const string PATH = "/SaveFile/";
-    public TMP_InputField titleInputField;
 
     void Start()
     {
@@ -17,6 +17,7 @@ public class DisplayData : MonoBehaviour
         //string title = titleInputField.text;
         string title = PlayerPrefs.GetString("title", "default_title");
         //string path = Application.persistentDataPath + PATH + title + "/" + title + ".json";
+        displayTitle.text = title;
 
         string path = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
 
@@ -43,6 +44,7 @@ public class DisplayData : MonoBehaviour
                     sentences.Add(kvp.Value);
                 }
                 displayText.text = string.Join(" ", sentences);
+
             }
             else
             {
