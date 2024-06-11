@@ -21,6 +21,7 @@ public class NovelMaker : MonoBehaviour
     public GameObject elementaryObject; // New object for elementary
     public GameObject toddlerObject; // New object for toddler
     public GameObject customObject; // New object for custom settings
+    private const string PATH = "/SaveFile/";
 
 
 
@@ -29,6 +30,30 @@ public class NovelMaker : MonoBehaviour
 
     private string novel;
     private string title;
+
+    
+
+    // Singleton instance
+    private static NovelMaker instance;
+    // Awake is called when the script instance is being loaded
+    void Awake()
+    {
+        // Check if the instance already exists
+        if (instance == null)
+        {
+            // If not, set the instance to this object
+            instance = this;
+
+            // Make sure this GameObject persists between scene changes
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            // If an instance already exists, destroy this object
+            Destroy(gameObject);
+        }
+    }
+
 
     private void Start()
     {
@@ -161,6 +186,7 @@ public class NovelMaker : MonoBehaviour
                     Debug.Log("5초 딜레이 되는 ");
 
                     SendImageRequestsToServer(); //  바로 이미지 만드는 요청
+                    SendInteractionRequest(); // 이미지 끝나면 바로 인터렉션 만드는 요
 
 
 
@@ -251,7 +277,7 @@ public class NovelMaker : MonoBehaviour
                         agePrompt = responseData["age_prompt"]?.ToString();
                         string charDesDict = responseData["char_des_dict"]?.ToString();
                         characterDescriptionDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(charDesDict);
-                        Debug.Log("딕셔너리 잘 만들어");
+                        Debug.Log("딕셔너리 잘 만들어");
 
                         if (sceneLinks != null)
                         {
@@ -394,8 +420,89 @@ public class NovelMaker : MonoBehaviour
                 }
             }
         }
+        Debug.Log("이제 이미지 다 만들고 표지 만드는중 " );
+        SendCoverRequestToServer(historyPrompt, agePrompt, characterDescriptionDict);
 
     }
+
+    public async void SendCoverRequestToServer(string historyPrompt,string agePrompt, Dictionary<string, string> characterDescriptionDict)
+    {
+        string url = "http://43.201.252.166:8000/make-cover";
+
+        // 요청 데이터 설정
+        var requestData = new
+        {
+            source = novel,
+            image_try = 1,
+            history_prompt = historyPrompt,
+            age_prompt = agePrompt,
+            char_des_dict = JsonConvert.SerializeObject(characterDescriptionDict)
+        };
+
+        string jsonData = JsonConvert.SerializeObject(requestData);
+
+        using (HttpClient client = new HttpClient())
+        {
+            client.Timeout = TimeSpan.FromSeconds(1000);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            try
+            {
+                HttpResponseMessage response = await client.PostAsync(url, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    Debug.Log("Response from server: " + jsonResponse);
+
+                    var responseData = JsonConvert.DeserializeObject<JObject>(jsonResponse);
+
+                    JArray sceneLinks = responseData["scene_link"] as JArray;
+                    if (sceneLinks != null)
+                    {
+                        // scene_links 배열 처리
+                        foreach (var sceneLink in sceneLinks)
+                        {
+                            string sceneUrl = sceneLink.Value<string>();
+                            Debug.Log("Scene Link: " + sceneUrl);
+                            // 여기서 sceneUrl을 사용하여 필요한 작업 수행
+                            string coverFolderPath = Application.persistentDataPath + "/SaveFile/temp/";
+
+                            // temp 폴더가 존재하지 않으면 생성
+                            if (!System.IO.Directory.Exists(coverFolderPath))
+                            {
+                                System.IO.Directory.CreateDirectory(coverFolderPath);
+                            }
+
+                            StartCoroutine(DownloadAndSaveImage(sceneUrl, coverFolderPath + title + ".png"));
+
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("No scene links found in response.");
+                    }
+                }
+                else
+                {
+                    string errorResponse = await response.Content.ReadAsStringAsync();
+                    Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Debug.LogError("Request error: " + e.Message);
+            }
+            catch (TaskCanceledException e)
+            {
+                Debug.LogError("Request timeout: " + e.Message);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Unexpected error: " + e.Message);
+            }
+        }
+    }
+
 
     private IEnumerator DownloadAndSaveImage(string imageUrl, string imagePath)
     {
@@ -416,4 +523,61 @@ public class NovelMaker : MonoBehaviour
             }
         }
     }
+    private async void SendInteractionRequest()
+    {
+
+        string title = PlayerPrefs.GetString("title", "default_title");
+        
+        string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
+        Debug.Log("인터렉션 데이터를 보냅니..");
+        
+
+        if (File.Exists(jsonPath))
+        {
+            string json = File.ReadAllText(jsonPath);
+
+            using (HttpClient client = new HttpClient())
+            {
+                string url = "http://43.201.252.166:8000/make-interaction";
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                try
+                {
+                    HttpResponseMessage response = await client.PostAsync(url, content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Debug.Log("보내는...");
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        Debug.Log("Response from server: " + jsonResponse);
+
+                        // 받아온 JSON 데이터를 파일로 저장
+                        SaveJsonToFile(jsonResponse, "interaction.json");
+                    }
+                    else
+                    {
+                        string errorResponse = await response.Content.ReadAsStringAsync();
+                        Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                    }
+                }
+                catch (HttpRequestException e)
+                {
+                    Debug.LogError("Request error: " + e.Message);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Unexpected error: " + e.Message);
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("JSON file not found: " + jsonPath);
+        }
+
+        
+       
+    }
+
+
 }
