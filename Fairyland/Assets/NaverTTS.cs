@@ -57,12 +57,14 @@ public class NaverTTSManager : MonoBehaviour
 
         LoadTextsToPages();
 
-        audioSource = GetComponent<AudioSource>();
+        //audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             Debug.Log("audioSource added in NaverTTS");
             audioSource = gameObject.AddComponent<AudioSource>();
         }
+
+
         //GetAndPlaySpeech("빈칸에 들어갈 대사는 무엇일까?");
         //GetAndPlaySpeech("ndain", "Angry", WhaleTalking, "tts");
 
@@ -73,6 +75,7 @@ public class NaverTTSManager : MonoBehaviour
 
 
     }
+
 
     public void GetAndPlaySpeech(string speaker, string emotion, string text, string filename)
     {
@@ -94,10 +97,17 @@ public class NaverTTSManager : MonoBehaviour
                 AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
                 if (clip != null && BookClass.audioSource != null)
                 {
-                   
-                    BookClass.audioSource.clip = clip;
-                    BookClass.audioSource.Play();
+                    if (audioSource == null)
+                    {
+                        BookClass.audioSource.clip = clip;
+                        BookClass.audioSource.Play();
+                    }
 
+                    else
+                    {
+                        audioSource.clip = clip;
+                        audioSource.Play();
+                    }
                 }
                 else
                 {
@@ -160,9 +170,19 @@ public class NaverTTSManager : MonoBehaviour
 
         if (currentCoroutine != null)
         {
-            BookClass.audioSource.Stop();
-            StopCoroutine(currentCoroutine);
-            Debug.Log("current coroutine stopping...");
+            if (audioSource == null)
+            {
+                BookClass.audioSource.Stop();
+                StopCoroutine(currentCoroutine);
+                Debug.Log("current coroutine stopping...");
+            }
+            else
+            {
+                audioSource.Stop();
+                StopCoroutine(currentCoroutine);
+                Debug.Log("current coroutine stopping...");
+
+            }
 
         }
 
