@@ -10,7 +10,7 @@ public class GoToNewBook : MonoBehaviour
 
     public void SceneChange()
     {
-        SceneManager.LoadScene("newBook");
+        SceneManager.LoadScene("3D_book");
     }
     public void SaveTitle()
     {

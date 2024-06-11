@@ -17,6 +17,10 @@ public class RolePlayingScript : MonoBehaviour
     public Material[] whaleExpressions; // 고래 표정 Material 배열
     public GameObject canvasLine1; // 첫 번째 라인
     public TextMeshProUGUI LineText;
+
+    public GameObject MyLineBox;
+    public TextMeshProUGUI MyLineText;
+
     //public GameObject canvasLine2; // 두 번째 라인
     public Button speakStopButton; // speakStop 버튼
     public Button speakStartButton; // speakStart 버튼
@@ -33,17 +37,17 @@ public class RolePlayingScript : MonoBehaviour
     public string title;
 
     private Book bookClass;
-    private NaverTTSManager TTSManager;
+    private NaverTTSforRolePlaying TTSManager;
 
     private string[] texts;
 
-    private AudioSource audioSource;
+    public AudioSource audioSourceRolePlaying;
 
     private bool isFirst = true;
 
     public void SwitchScene()
     {
-        SceneManager.LoadScene(sceneToLoad);
+        SceneManager.LoadScene("3D_book");
     }
 
     private int currentPage =0;
@@ -51,7 +55,7 @@ public class RolePlayingScript : MonoBehaviour
     private List<string> youParts;
     private List<string> myParts;
 
-    private int youPartCount = 0;
+    private int PartCount = 0;
 
     void LoadCurrentSceneData()
     {
@@ -78,11 +82,29 @@ public class RolePlayingScript : MonoBehaviour
 
     }
 
+    private void Awake()
+    {
+        // AudioSource가 null이면 새로 생성하고 DontDestroyOnLoad 설정
+        if (audioSourceRolePlaying == null)
+        {
+            GameObject audioSourceObject = new GameObject("AudioSource");
+            audioSourceRolePlaying = audioSourceObject.AddComponent<AudioSource>();
+            DontDestroyOnLoad(audioSourceObject);
+            Debug.Log("audioSource added");
+        }
+
+        if (audioSourceRolePlaying == null)
+        {
+            //audioSource = gameObject.AddComponent<AudioSource>();
+            Debug.Log("AudioSource component was missing and has been added.");
+        }
+    }
+
 
     // Start is called before the first frame update
     void Start()
     {
-        youPartCount = 0;
+        PartCount = 0;
 
         title = PlayerPrefs.GetString("title", "defaultTitle");
         //LoadTextsToPages();
@@ -100,7 +122,7 @@ public class RolePlayingScript : MonoBehaviour
 
 
         bookClass = GetComponent<Book>();
-        TTSManager = GetComponent<NaverTTSManager>();
+        TTSManager = GetComponent<NaverTTSforRolePlaying>();
 
 
         //audioSource = GetComponent<AudioSource>();
@@ -114,13 +136,18 @@ public class RolePlayingScript : MonoBehaviour
         changeExpression(0);
         canvasLine1.SetActive(false);
         //canvasLine2.SetActive(false);
+       
+        MyLineText.text = myParts[PartCount];
+        MyLineBox.SetActive(true);
+
         speakStopButton.gameObject.SetActive(false);
-        speakStartButton.gameObject.SetActive(false);
+        speakStartButton.gameObject.SetActive(true);
+
 
         // 초기 딜레이 후 첫 번째 상태로 전환
-        StartCoroutine(InitialSequence());
+        //StartCoroutine(InitialSequence());
 
-        
+
     }
 
 
@@ -129,7 +156,7 @@ public class RolePlayingScript : MonoBehaviour
         List<string> youParts = new List<string>();
 
         // 정규 표현식을 사용하여 [너]: 로 시작하는 부분을 추출
-        Regex regex = new Regex(@"\[너\]:.*?(?=(\\n|$))");
+        Regex regex = new Regex(@"\[너\]:.*?(?=\n|\r|$)");
         MatchCollection matches = regex.Matches(text);
 
         foreach (Match match in matches)
@@ -146,7 +173,7 @@ public class RolePlayingScript : MonoBehaviour
         List<string> youParts = new List<string>();
 
         // 정규 표현식을 사용하여 [너]: 로 시작하는 부분을 추출
-        Regex regex = new Regex(@"\[나\]:.*?(?=(\\n|$))");
+        Regex regex = new Regex(@"\[나\]:.*?(?=\n|\r|$)");
         MatchCollection matches = regex.Matches(text);
 
         foreach (Match match in matches)
@@ -179,29 +206,29 @@ public class RolePlayingScript : MonoBehaviour
     //    Debug.Log("texts Length : " + texts.Length);
     //}
 
-    public void PlaySpeech(string path)
-    {
-        StartCoroutine(LoadAndPlayAudio(path));
-    }
+    //public void PlaySpeech(string path)
+    //{
+    //    StartCoroutine(LoadAndPlayAudio(path));
+    //}
 
-    public IEnumerator LoadAndPlayAudio(string path)
-    {
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG))
-        {
-            yield return www.SendWebRequest();
+    //public IEnumerator LoadAndPlayAudio(string path)
+    //{
+    //    using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG))
+    //    {
+    //        yield return www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError(www.error);
-            }
-            else
-            {
-                AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
-                audioSource.clip = audioClip;
-                audioSource.Play();
-            }
-        }
-    }
+    //        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+    //        {
+    //            Debug.LogError(www.error);
+    //        }
+    //        else
+    //        {
+    //            AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
+    //            audioSource.clip = audioClip;
+    //            audioSource.Play();
+    //        }
+    //    }
+    //}
 
 
     IEnumerator InitialSequence()
@@ -211,14 +238,14 @@ public class RolePlayingScript : MonoBehaviour
         // 첫 번째 라인과 speakStop 버튼 활성화
         changeExpression(0);
         whaleAnimator.SetInteger("NextInt", 4);
-        LineText.text = youParts[youPartCount];
+        LineText.text = youParts[PartCount];
         canvasLine1.SetActive(true);
         speakStartButton.interactable = false;
         speakStartButton.gameObject.SetActive(true);
 
-        TTSManager.GetAndPlaySpeech("vdain", "Neutral", youParts[youPartCount], "RolePlaying");
+        TTSManager.GetAndPlaySpeech("vdain", "Neutral", youParts[PartCount], "RolePlaying");
 
-        youPartCount++;
+        PartCount++;
 
         yield return new WaitForSeconds(displayDuration);
 
@@ -259,34 +286,55 @@ public class RolePlayingScript : MonoBehaviour
         speakStopButton.interactable = true;
     }
 
+    IEnumerator WaitForSeconds()
+    {
+        yield return new WaitForSeconds(displayDuration);
+    }
+
     IEnumerator SpeakStopSequence()
     {
         //다음 표정과 라인 전환
         speakStartButton.interactable = false;
 
-        yield return new WaitForSeconds(3f); // 음성 처리 시간
+        yield return new WaitForSeconds(2f); // 음성 처리 시간
 
-        if (youPartCount > youParts.Count)
-        {
-            SwitchScene();
-        }
+        canvasLine1.SetActive(true);
+        MyLineBox.SetActive(false);
+        speakStartButton.gameObject.SetActive(false);
+        speakStopButton.gameObject.SetActive(false);
 
         changeExpression(0);
         whaleAnimator.SetInteger("NextInt", 4);
         
-        LineText.text = youParts[youPartCount];
+        LineText.text = youParts[PartCount];
 
-        speakStartButton.interactable = false;
-        speakStartButton.gameObject.SetActive(true);
+        //speakStartButton.interactable = false;
+        //speakStartButton.gameObject.SetActive(true);
 
-        TTSManager.GetAndPlaySpeech("vdain", "Neutral", youParts[youPartCount], "RolePlaying");
+        TTSManager.GetAndPlaySpeech("vdain", "Neutral", youParts[PartCount], "RolePlaying");
 
-        youPartCount++;
+        PartCount++;
 
-        yield return new WaitForSeconds(displayDuration);
+        yield return new WaitForSeconds(6.0f);
 
         whaleAnimator.SetInteger("NextInt", 0);
+
+        if (PartCount >= youParts.Count)
+        {
+            SwitchScene();
+            yield return null;
+        }
+
+       
         speakStartButton.interactable = true;
+        canvasLine1.SetActive(false);
+
+        MyLineText.text = myParts[PartCount];
+        MyLineBox.SetActive(true);
+
+        speakStartButton.gameObject.SetActive(true);
+        speakStopButton.gameObject.SetActive(false);
+
 
     }
 
