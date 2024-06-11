@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/makeBook/scenes/textlookScene.unity
     guid: e2f40bc0a14334daa94fbd8089c2799a
   - enabled: 1
-    path: Assets/MainScene.unity
+    path: Assets/BookManu/MainScene.unity
     guid: e1f33ab8f0a09488cba58b068f5fa96a
   - enabled: 1
     path: Assets/makeBook/scenes/mktextScene.unity

@@ -1,9 +1,11 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 public class TestButtonController : MonoBehaviour
 {
     public Button buttonToControl;
+    public TextMeshProUGUI buttonText;
 
     void Start()
     {
@@ -27,13 +29,13 @@ public class TestButtonController : MonoBehaviour
         // Check if the title meets a certain condition (for example, if it's not empty)
         if (!string.IsNullOrEmpty(newTitle))
         {
-            // Make the button visible
-            buttonToControl.gameObject.SetActive(true);
+            // Change the button's text
+            buttonText.text = newTitle;
         }
         else
         {
-            // Hide the button
-            buttonToControl.gameObject.SetActive(false);
+            // Set a default text when title is empty
+            buttonText.text = "Default Text";
         }
     }
 }
