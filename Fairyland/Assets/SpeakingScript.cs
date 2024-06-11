@@ -52,7 +52,7 @@ public class SpeakingScript : MonoBehaviour
 
     private readonly string serverUrlEmotion = "http://a249-125-132-126-243.ngrok-free.app/predict-emotion/";
     private readonly string serverUrlSimilarity = "http://a249-125-132-126-243.ngrok-free.app/asr-similarity/";
-    private readonly string groundTruth = "이게 등꽃이야.";
+    private readonly string groundTruth = "";
 
     private Book BookClass;
 
@@ -61,23 +61,23 @@ public class SpeakingScript : MonoBehaviour
     private NaverTTSManager TTSManager;
 
     private string[] emotionKoreanArray = { "평온함", "기쁨", "슬", "화남", "무서움", "놀라움", "Main" };
-    string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
+    string[] emotionArray = { "calm", "happy", "sad", "anger", "fear", "surprise", "main" };
 
 
 
-    public void StartUpload()
+    public void StartUpload(string answer)
     {
-        StartCoroutine(UploadAudioAndAnalyze());
+        StartCoroutine(UploadAudioAndAnalyze(answer));
     }
 
-    private IEnumerator UploadAudioAndAnalyze()
+    private IEnumerator UploadAudioAndAnalyze(string answer)
     {
         string filePath = Path.Combine(Application.persistentDataPath, "MyRecording.wav");
 
         if (System.IO.File.Exists(filePath))
         {
             Debug.Log("File exists, starting upload...");
-            yield return StartCoroutine(UploadFile(filePath));
+            yield return StartCoroutine(UploadFile(filePath, answer));
         }
         else
         {
@@ -85,7 +85,7 @@ public class SpeakingScript : MonoBehaviour
         }
     }
 
-    private IEnumerator UploadFile(string filePath)
+    private IEnumerator UploadFile(string filePath, string answer)
     {
         // Emotion Recognition
         byte[] fileContent = System.IO.File.ReadAllBytes(filePath);
@@ -115,7 +115,7 @@ public class SpeakingScript : MonoBehaviour
         // Similarity Comparison
         form = new WWWForm();
         form.AddBinaryData("audio_file", fileContent, Path.GetFileName(filePath), "audio/wav");
-        form.AddField("groundtruth", groundTruth);
+        form.AddField("groundtruth", answer);
 
         using (UnityWebRequest www = UnityWebRequest.Post(serverUrlSimilarity, form))
         {
@@ -213,10 +213,11 @@ public class SpeakingScript : MonoBehaviour
 
     IEnumerator SpeakStopSequence()
     {
-
+        string answerText = BookClass.LineGuessAnswer;
+        Debug.Log("answer is : " + answerText);
         StopRecording();
         SaveRecording();
-        StartUpload();
+        StartUpload(answerText);
 
         yield return new WaitForSeconds(2.0f);
 

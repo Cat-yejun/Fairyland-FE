@@ -5855,6 +5855,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1075506547}
     - target: {fileID: 11415212, guid: fe9bfb5044c0cc646baba1ad7d354100, type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 2094565684}
+    - target: {fileID: 11415212, guid: fe9bfb5044c0cc646baba1ad7d354100, type: 3}
       propertyPath: RightTextbox
       value: 
       objectReference: {fileID: 114181476}
@@ -5878,6 +5882,10 @@ PrefabInstance:
       propertyPath: textObjectRight
       value: 
       objectReference: {fileID: 1773198542}
+    - target: {fileID: 11415212, guid: fe9bfb5044c0cc646baba1ad7d354100, type: 3}
+      propertyPath: AskEmotionCanvas
+      value: 
+      objectReference: {fileID: 173995196}
     - target: {fileID: 11415212, guid: fe9bfb5044c0cc646baba1ad7d354100, type: 3}
       propertyPath: LineButtonCanvas
       value: 
@@ -6570,7 +6578,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: -1000
   far clip plane: 1000
   field of view: 60
   orthographic: 1
@@ -7354,6 +7362,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bfc988de1df04e94b7ad57582f93049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BookClass: {fileID: 0}
 --- !u!114 &2094565680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7424,6 +7433,7 @@ MonoBehaviour:
   speakStartButton: {fileID: 1710868969}
   CorrectCanvas: {fileID: 1981700335}
   WrongCanvas: {fileID: 1884929189}
+  CorrectText: {fileID: 1887846231}
 --- !u!114 &2094565682 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 11415212, guid: fe9bfb5044c0cc646baba1ad7d354100, type: 3}
