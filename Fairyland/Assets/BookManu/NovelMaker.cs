@@ -184,9 +184,9 @@ public class NovelMaker : MonoBehaviour
                     // 5초 동안 딜레이
                     await Task.Delay(5000);
                     Debug.Log("5초 딜레이 되는 ");
-
+                    
                     SendImageRequestsToServer(); //  바로 이미지 만드는 요청
-                    SendInteractionRequest(); // 이미지 끝나면 바로 인터렉션 만드는 요
+
 
 
 
@@ -422,6 +422,7 @@ public class NovelMaker : MonoBehaviour
         }
         Debug.Log("이제 이미지 다 만들고 표지 만드는중 " );
         SendCoverRequestToServer(historyPrompt, agePrompt, characterDescriptionDict);
+        
 
     }
 
@@ -501,6 +502,8 @@ public class NovelMaker : MonoBehaviour
                 Debug.LogError("Unexpected error: " + e.Message);
             }
         }
+        Debug.Log("표지 만들기 끝 ");
+        SendInteractionRequest(); // 이미지 끝나면 바로 인터렉션 만드는 요청
     }
 
 
@@ -526,7 +529,7 @@ public class NovelMaker : MonoBehaviour
     private async void SendInteractionRequest()
     {
 
-        string title = PlayerPrefs.GetString("title", "default_title");
+        
         
         string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
         Debug.Log("인터렉션 데이터를 보냅니..");
