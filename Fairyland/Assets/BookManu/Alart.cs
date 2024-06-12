@@ -9,7 +9,6 @@ public class Alart : MonoBehaviour
 
     public event Action<int> OnValueChange;
 
-    //private string key = "value";
     private int previousValue;
 
     public static object Instance { get; internal set; }
@@ -34,6 +33,9 @@ public class Alart : MonoBehaviour
         previousValue = PlayerPrefs.GetInt("isNew", 0);
         // Start the coroutine to check the value periodically
         StartCoroutine(CheckPlayerPrefs());
+
+        // Start the coroutine to toggle the value periodically
+        //StartCoroutine(TogglePlayerPrefs());
     }
 
     IEnumerator CheckPlayerPrefs()
@@ -50,7 +52,7 @@ public class Alart : MonoBehaviour
             if (currentValue != previousValue)
             {
                 // The value has changed, perform necessary actions
-                Debug.Log("Value of 'value' has changed from " + previousValue + " to " + currentValue);
+                Debug.Log("Value of 'isNew' has changed from " + previousValue + " to " + currentValue);
 
                 // Trigger the event
                 OnValueChange?.Invoke(currentValue);
@@ -58,6 +60,25 @@ public class Alart : MonoBehaviour
                 // Update the previous value
                 previousValue = currentValue;
             }
+        }
+    }
+
+    IEnumerator TogglePlayerPrefs()
+    {
+        while (true)
+        {
+            // Wait for 5 seconds before toggling the value
+            yield return new WaitForSeconds(5.0f);
+
+            // Get the current value from PlayerPrefs
+            int currentValue = PlayerPrefs.GetInt("isNew", 0);
+
+            // Toggle the value between 0 and 1
+            int newValue = currentValue == 0 ? 1 : 0;
+            PlayerPrefs.SetInt("isNew", newValue);
+            PlayerPrefs.Save(); // Ensure the value is saved
+
+            Debug.Log("Toggled 'isNew' value to " + newValue);
         }
     }
 }

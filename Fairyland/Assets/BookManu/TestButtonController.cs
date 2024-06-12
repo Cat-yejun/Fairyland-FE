@@ -4,10 +4,10 @@ using UnityEngine.UI;
 
 public class TestButtonController : MonoBehaviour
 {
-    public Button buttonToControl;
-    public TextMeshProUGUI buttonText;
-    public Sprite valueOneSprite; // Sprite for when the value is 1
-    public Sprite defaultSprite;  // Default sprite for other values
+    //public Button buttonToControl;
+    public TextMeshProUGUI LaLoText;
+    //public Sprite valueOneSprite; // Sprite for when the value is 1
+    //public Sprite defaultSprite;  // Default sprite for other values
 
     void Start()
     {
@@ -31,17 +31,16 @@ public class TestButtonController : MonoBehaviour
         // Check if the value meets a certain condition (for example, if it's 1)
         if (newValue == 1)
         {
-            // Change the button's text
-            buttonText.text = "Value is 1";
+
+            LaLoText.text = "동화가 도착했어!";
             // Change the button's image
-            buttonToControl.image.sprite = valueOneSprite;
+            //buttonToControl.image.sprite = valueOneSprite;
         }
         else
         {
-            // Set a default text when value is not 1
-            buttonText.text = "Default Text";
+            LaLoText.text = "새로운 동화를 만들어볼까?";
             // Change the button's image to the default sprite
-            buttonToControl.image.sprite = defaultSprite;
+            //buttonToControl.image.sprite = defaultSprite;
         }
     }
 }
