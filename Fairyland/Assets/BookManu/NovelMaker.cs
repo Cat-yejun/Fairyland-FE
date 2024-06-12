@@ -553,6 +553,9 @@ public class NovelMaker : MonoBehaviour
 
                         // 받아온 JSON 데이터를 파일로 저장
                         SaveJsonToSpecificPath(jsonResponse, $"{Application.persistentDataPath}{PATH}{title}", "interaction.json");
+                        PlayerPrefs.SetInt("isNew", 1);
+                        PlayerPrefs.Save();
+                        Debug.Log("new Title saved: " + title);
                     }
                     else
                     {

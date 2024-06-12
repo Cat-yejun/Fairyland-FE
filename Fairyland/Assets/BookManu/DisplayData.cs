@@ -14,9 +14,9 @@ public class DisplayData : MonoBehaviour
     {
         Dictionary<string, object> data = null; // Initialize data to null
 
-        //string title = titleInputField.text;
-        string title = PlayerPrefs.GetString("title", "default_title");
-        //string path = Application.persistentDataPath + PATH + title + "/" + title + ".json";
+        
+        string title = PlayerPrefs.GetString("newTitle", "default_title");
+        
         displayTitle.text = title;
 
         string path = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";

@@ -28,7 +28,7 @@ public class ImgCanvas : MonoBehaviour
     private string[] selectedImages; // 씬마다의 이미지를 저장하는 배열
     private int current_img_num;
 
-    private string title = PlayerPrefs.GetString("newTitle", "default_title");
+    
 
 
     void Start()
@@ -68,7 +68,7 @@ public class ImgCanvas : MonoBehaviour
 
     private void LoadImage(int buttonNumber)
     {
-        //string title = PlayerPrefs.GetString("newTitle", "default_title");
+        string title = PlayerPrefs.GetString("newTitle", "default_title");
 
         //title = "날아가는 펭귄"; //TEST!!!!!!!
         current_img_num = buttonNumber - 1;
@@ -119,7 +119,7 @@ public class ImgCanvas : MonoBehaviour
 
     private void LoadJson()
     {
-        //string title = PlayerPrefs.GetString("newTitle", "default_title");
+        string title = PlayerPrefs.GetString("newTitle", "default_title");
         //title = "날아가는 펭귄"; //TEST!!!!!!!
         string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
 
@@ -182,7 +182,7 @@ public class ImgCanvas : MonoBehaviour
 
     public void DeleteNonSelectedImages()
     {
-        //string title = PlayerPrefs.GetString("newTitle", "default_title");
+        string title = PlayerPrefs.GetString("newTitle", "default_title");
         //title = "펭펭펭펭날아가";///TEST!!!!
         string imgDirectoryPath = $"{Application.persistentDataPath}{PATH}{title}/img/";
 
@@ -211,7 +211,7 @@ public class ImgCanvas : MonoBehaviour
 
     public void MoveFile()
     {
-        //string title = PlayerPrefs.GetString("newTitle", "default_title");
+        string title = PlayerPrefs.GetString("newTitle", "default_title");
         string tempFolderPath = Application.persistentDataPath + "/SaveFile/temp/";
         string destinationFolderPath = Application.persistentDataPath + "/SaveFile/";
 
@@ -227,12 +227,16 @@ public class ImgCanvas : MonoBehaviour
         string sourceFilePath = tempFolderPath + title + ".png";
         string destinationFilePath = destinationFolderPath + destinationFileName;
 
+
+
         // Check if the file exists in the source directory
         if (File.Exists(sourceFilePath))
         {
             // Move the file to the destination directory
             File.Move(sourceFilePath, destinationFilePath);
             Debug.Log($"File moved successfully to {destinationFilePath}");
+            PlayerPrefs.SetInt("isNew", 0);
+            PlayerPrefs.Save();
         }
         else
         {

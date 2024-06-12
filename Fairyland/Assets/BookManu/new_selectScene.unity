@@ -867,10 +867,10 @@ RectTransform:
   - {fileID: 1163493797}
   m_Father: {fileID: 1068931997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960.00006, y: -667.11865}
-  m_SizeDelta: {x: 1920.0001, y: 1334.2373}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &227551328
 MonoBehaviour:
@@ -1526,10 +1526,10 @@ RectTransform:
   - {fileID: 1020366492}
   m_Father: {fileID: 1705720798}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 960.00006, y: -667.11865}
+  m_SizeDelta: {x: 1920.0001, y: 1334.2373}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &692268384
 MonoBehaviour:
@@ -2352,9 +2352,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1020366496}
-        m_TargetAssemblyTypeName: GoToManuScene, Assembly-CSharp
-        m_MethodName: SceneChange
+      - m_Target: {fileID: 1570092713}
+        m_TargetAssemblyTypeName: ImgCanvas, Assembly-CSharp
+        m_MethodName: MoveFile
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2367,6 +2367,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1570092713}
         m_TargetAssemblyTypeName: ImgCanvas, Assembly-CSharp
         m_MethodName: DeleteNonSelectedImages
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1020366496}
+        m_TargetAssemblyTypeName: GoToManuScene, Assembly-CSharp
+        m_MethodName: SceneChange
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2579,7 +2591,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1068931993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3979,7 +3991,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1705720794
 MonoBehaviour:
   m_ObjectHideFlags: 0
