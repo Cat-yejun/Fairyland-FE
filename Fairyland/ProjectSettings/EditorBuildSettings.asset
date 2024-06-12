@@ -20,7 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/BookManu/new_Book_manu.unity
     guid: a966cc33578854772ba26eda2964a348
-  - enabled: 0
+  - enabled: 1
     path: Assets/newBook.unity
     guid: 7d75ba1d37bea154e8de3c3f2129e014
   - enabled: 1
@@ -29,6 +29,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/APITest/scenes/APITestScene.unity
     guid: 05b9f3c396464464eafb10dbd3dedc51
+  - enabled: 1
+    path: Assets/BookManu/new_selectScene.unity
+    guid: 56b229b0f335c486c8b2666de48b1277
+  - enabled: 1
+    path: Assets/BookManu/txtInputScene.unity
+    guid: fcd77d56946204d2f929f296e9f2cdf7
   - enabled: 1
     path: Assets/3D_book.unity
     guid: d3490e6eda915473baf5fbc41b8af016

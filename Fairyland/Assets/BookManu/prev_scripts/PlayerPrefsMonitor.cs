@@ -6,10 +6,10 @@ public class PlayerPrefsMonitor : MonoBehaviour
 {
     private static PlayerPrefsMonitor instance;
 
-    public event Action<string> OnTitleChange;
+    public event Action<int> OnValueChange;
 
-    private string key = "title";
-    private string previousValue;
+    //private string key = "value";
+    private int previousValue;
 
     public static object Instance { get; internal set; }
 
@@ -30,7 +30,7 @@ public class PlayerPrefsMonitor : MonoBehaviour
     void Start()
     {
         // Initialize the previous value from PlayerPrefs
-        previousValue = PlayerPrefs.GetString(key, "default_title");
+        previousValue = PlayerPrefs.GetInt("isNew", 0);
         // Start the coroutine to check the value periodically
         StartCoroutine(CheckPlayerPrefs());
     }
@@ -43,16 +43,16 @@ public class PlayerPrefsMonitor : MonoBehaviour
             yield return new WaitForSeconds(3.0f);
 
             // Get the current value from PlayerPrefs
-            string currentValue = PlayerPrefs.GetString(key, "default_title");
+            int currentValue = PlayerPrefs.GetInt("isNew", 0);
 
             // Check if the value has changed
             if (currentValue != previousValue)
             {
                 // The value has changed, perform necessary actions
-                Debug.Log("Value of 'title' has changed from " + previousValue + " to " + currentValue);
+                Debug.Log("Value of 'value' has changed from " + previousValue + " to " + currentValue);
 
                 // Trigger the event
-                OnTitleChange?.Invoke(currentValue);
+                OnValueChange?.Invoke(currentValue);
 
                 // Update the previous value
                 previousValue = currentValue;

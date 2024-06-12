@@ -239,7 +239,7 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
-        //title = PlayerPrefs.GetString("title", "defaultTitle");
+        title = PlayerPrefs.GetString("title", "defaultTitle");
         Debug.Log("book's title is : " + title);
 
         imgPath = Path.Combine(Application.persistentDataPath, "SaveFile", title, "img");
