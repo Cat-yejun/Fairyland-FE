@@ -2731,7 +2731,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1600, y: 820}
+  m_AnchoredPosition: {x: -1450, y: 820}
   m_SizeDelta: {x: 350, y: 350}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &706901076
@@ -5911,7 +5911,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1600, y: -20}
+  m_AnchoredPosition: {x: -1450, y: -20}
   m_SizeDelta: {x: 350, y: 350}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1627953507
@@ -7467,7 +7467,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1600, y: 400}
+  m_AnchoredPosition: {x: -1450, y: 400}
   m_SizeDelta: {x: 350, y: 350}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1965433120
@@ -7516,7 +7516,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2094565682}
         m_TargetAssemblyTypeName: Book, Assembly-CSharp
-        m_MethodName: SwitchScene
+        m_MethodName: OnPressReadStoryButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
