@@ -437,7 +437,7 @@ public class NovelMaker : MonoBehaviour
             image_try = 1,
             history_prompt = historyPrompt,
             age_prompt = agePrompt,
-            char_des_dict = JsonConvert.SerializeObject(characterDescriptionDict)
+            char_des_dict = characterDescriptionDict
         };
 
         string jsonData = JsonConvert.SerializeObject(requestData);
@@ -526,14 +526,11 @@ public class NovelMaker : MonoBehaviour
             }
         }
     }
+
     private async void SendInteractionRequest()
     {
-
-        
-        
         string jsonPath = $"{Application.persistentDataPath}{PATH}{title}/{title}.json";
-        Debug.Log("인터렉션 데이터를 보냅니..");
-        
+        Debug.Log("인터렉션 데이터를 보냅니다..");
 
         if (File.Exists(jsonPath))
         {
@@ -549,37 +546,49 @@ public class NovelMaker : MonoBehaviour
                     HttpResponseMessage response = await client.PostAsync(url, content);
                     if (response.IsSuccessStatusCode)
                     {
-                        Debug.Log("보내는...");
+                        Debug.Log("보내는 중...");
                         string jsonResponse = await response.Content.ReadAsStringAsync();
 
-                        Debug.Log("Response from server: " + jsonResponse);
+                        Debug.Log("서버로부터의 응답: " + jsonResponse);
 
                         // 받아온 JSON 데이터를 파일로 저장
-                        SaveJsonToFile(jsonResponse, "interaction.json");
+                        SaveJsonToSpecificPath(jsonResponse, $"{Application.persistentDataPath}{PATH}{title}", "interaction.json");
+                        PlayerPrefs.SetInt("isNew", 1);
+                        PlayerPrefs.Save();
+                        Debug.Log("new Title saved: " + title);
                     }
                     else
                     {
                         string errorResponse = await response.Content.ReadAsStringAsync();
-                        Debug.LogError("Request error: " + response.StatusCode + " - " + errorResponse);
+                        Debug.LogError("요청 오류: " + response.StatusCode + " - " + errorResponse);
                     }
                 }
                 catch (HttpRequestException e)
                 {
-                    Debug.LogError("Request error: " + e.Message);
+                    Debug.LogError("요청 오류: " + e.Message);
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Unexpected error: " + e.Message);
+                    Debug.LogError("예상치 못한 오류: " + e.Message);
                 }
             }
         }
         else
         {
-            Debug.LogError("JSON file not found: " + jsonPath);
+            Debug.LogError("JSON 파일을 찾을 수 없습니다: " + jsonPath);
+        }
+    }
+
+    private void SaveJsonToSpecificPath(string jsonResponse, string directoryPath, string fileName)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
         }
 
-        
-       
+        string filePath = Path.Combine(directoryPath, fileName);
+        File.WriteAllText(filePath, jsonResponse);
+        Debug.Log("JSON 파일이 저장되었습니다: " + filePath);
     }
 
 

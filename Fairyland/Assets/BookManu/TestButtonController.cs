@@ -4,38 +4,43 @@ using UnityEngine.UI;
 
 public class TestButtonController : MonoBehaviour
 {
-    public Button buttonToControl;
-    public TextMeshProUGUI buttonText;
+    //public Button buttonToControl;
+    public TextMeshProUGUI LaLoText;
+    //public Sprite valueOneSprite; // Sprite for when the value is 1
+    //public Sprite defaultSprite;  // Default sprite for other values
 
     void Start()
     {
         // Find the PlayerPrefsMonitor instance in the scene
-        PlayerPrefsMonitor monitorInstance = FindObjectOfType<PlayerPrefsMonitor>();
+        Alart monitorInstance = FindObjectOfType<Alart>();
 
         // Check if instance exists before subscribing to the event
         if (monitorInstance != null)
         {
             // Subscribe to the event from PlayerPrefsMonitor
-            monitorInstance.OnTitleChange += HandleTitleChange;
+            monitorInstance.OnValueChange += HandleValueChange;
         }
         else
         {
-            Debug.LogError("PlayerPrefsMonitor instance not found in the scene!");
+            Debug.LogError("Alart instance not found in the scene!");
         }
     }
 
-    void HandleTitleChange(string newTitle)
+    void HandleValueChange(int newValue)
     {
-        // Check if the title meets a certain condition (for example, if it's not empty)
-        if (!string.IsNullOrEmpty(newTitle))
+        // Check if the value meets a certain condition (for example, if it's 1)
+        if (newValue == 1)
         {
-            // Change the button's text
-            buttonText.text = newTitle;
+
+            LaLoText.text = "동화가 도착했어!";
+            // Change the button's image
+            //buttonToControl.image.sprite = valueOneSprite;
         }
         else
         {
-            // Set a default text when title is empty
-            buttonText.text = "Default Text";
+            LaLoText.text = "새로운 동화를 만들어볼까?";
+            // Change the button's image to the default sprite
+            //buttonToControl.image.sprite = defaultSprite;
         }
     }
 }

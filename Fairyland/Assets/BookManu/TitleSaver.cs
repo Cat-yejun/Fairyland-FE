@@ -8,8 +8,8 @@ public class TitleSaver : MonoBehaviour
     public void SaveTitle()
     {
         string title = titleInputField.text;
-        PlayerPrefs.SetString("title", title);
+        PlayerPrefs.SetString("newTitle", title);
         PlayerPrefs.Save();
-        Debug.Log("Title saved: " + title);
+        Debug.Log("new Title saved: " + title);
     }
 }
