@@ -192,6 +192,11 @@ public class Book : MonoBehaviour {
         SceneManager.LoadScene(sceneToLoad);
     }
 
+    public void GoToHomeMenu()
+    {
+        SceneManager.LoadScene("New_Book_manu");
+    }
+
     void SaveCurrentSceneData()
     {
         // 예제 데이터 저장
@@ -307,7 +312,7 @@ public class Book : MonoBehaviour {
         Right.gameObject.SetActive(false);
         UpdateSprites();
         CalcCurlCriticalPoints();
-
+        
         float pageWidth = BookPanel.rect.width / 2.0f;
         float pageHeight = BookPanel.rect.height;
         NextPageClip.rectTransform.sizeDelta = new Vector2(pageWidth, pageHeight + pageHeight * 2);
@@ -325,6 +330,12 @@ public class Book : MonoBehaviour {
         ShadowLTR.rectTransform.sizeDelta = new Vector2(pageWidth, shadowPageHeight);
         ShadowLTR.rectTransform.pivot = new Vector2(0, (pageWidth / 2) / shadowPageHeight);
 
+    }
+
+
+    public void OnPressReadStoryButton()
+    {
+        TTSManager.GetAndPlaySpeech("vdain", "Neutral", texts[currentPage / 2 - 1], "ReadText");
     }
 
     public List<int> GetPagesWithInteractions()
