@@ -207,6 +207,7 @@ public class Book : MonoBehaviour {
 
     public void GoToHomeMenu()
     {
+        BackGroundMusicBook.Instance.StopMusic();
         GlobalSceneData.Data["currentPage"] = 0;
         SceneManager.LoadScene("New_Book_manu");
     }
@@ -253,6 +254,9 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
+        string BGMPath = Path.Combine(Application.persistentDataPath, "BookBGM.mp3");
+        StartCoroutine(BackGroundMusicBook.Instance.LoadBackgroundMusic(BGMPath));
+
         //currentPage = 0;
         title = PlayerPrefs.GetString("title", "defaultTitle");
         Debug.Log("book's title is : " + title);
