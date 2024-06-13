@@ -132,13 +132,15 @@ public class NovelMaker : MonoBehaviour
         Debug.Log("Data sent to server: " + title + "\n" + novel);
 
 
-
+        PlayerPrefs.SetInt("isNew", -1);
+        PlayerPrefs.Save();
         SendNovelToServer();
        
     }
 
     public async void SendNovelToServer()
     {
+        
         novel = userInputField.text;
         title = titleInputField.text;
         string url = "http://43.201.252.166:8000/make-novel";

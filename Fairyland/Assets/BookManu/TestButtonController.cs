@@ -13,7 +13,7 @@ public class TestButtonController : MonoBehaviour
     {
         // Find the PlayerPrefsMonitor instance in the scene
         Alart monitorInstance = FindObjectOfType<Alart>();
-
+        Debug.Log("테스트 버튼 컨트롤러");
         // Check if instance exists before subscribing to the event
         if (monitorInstance != null)
         {
@@ -35,6 +35,10 @@ public class TestButtonController : MonoBehaviour
             LaLoText.text = "동화가 도착했어!";
             // Change the button's image
             //buttonToControl.image.sprite = valueOneSprite;
+        }
+        else if (newValue == -1)
+        {
+            LaLoText.text = "동화 만드는 중...";
         }
         else
         {
