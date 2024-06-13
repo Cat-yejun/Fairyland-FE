@@ -365,12 +365,12 @@ public class EmotionSelectScript : MonoBehaviour
 
     private IEnumerator ShowFeedbackAndHide()
     {
-        int[] fixedAnswer = { 6, 2, 4, 1, 5, 3 };
+        int[] fixedAnswer = { 6, 2, 4, 1, 5, 3, 7};
         int Answer = BookClass.emotionInteger;
 
-        if (Answer == 6)
+        if (Answer == 6 || Answer == null)
         {
-            prevSelection = 6;
+            prevSelection = 7;
         }
 
         if (prevSelection == fixedAnswer[Answer])

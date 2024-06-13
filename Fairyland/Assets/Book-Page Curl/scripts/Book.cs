@@ -197,6 +197,7 @@ public class Book : MonoBehaviour {
 
     public void GoToHomeMenu()
     {
+        GlobalSceneData.Data["currentPage"] = 0;
         SceneManager.LoadScene("New_Book_manu");
     }
 
@@ -242,7 +243,7 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
-        currentPage = 0;
+        //currentPage = 0;
         title = PlayerPrefs.GetString("title", "defaultTitle");
         Debug.Log("book's title is : " + title);
 
@@ -403,8 +404,8 @@ public class Book : MonoBehaviour {
 
         // Calculate the button size and position
         float textWidth = Vector3.Distance(worldStartPosition, worldEndPosition);
-        float buttonHeight = textComponent.fontSize * 1.2f;  // Adjust the button height as needed
-        Vector2 buttonSize = new Vector2(textWidth, buttonHeight);
+        float buttonHeight = textComponent.fontSize * 1.5f;  // Adjust the button height as needed
+        Vector2 buttonSize = new Vector2(textWidth*3, buttonHeight);
         Vector2 buttonPosition = (worldStartPosition + worldEndPosition) / 2;
 
         // Convert the position to screen point
@@ -778,21 +779,20 @@ public class Book : MonoBehaviour {
 
     IEnumerator EnlargeAndCenterImage()
     {
-        originalSize = LineGuessing.sizeDelta;
-        Vector2 enlargedSize = new Vector2((float)(LineGuessing.sizeDelta.x * 1.5), (float)(LineGuessing.sizeDelta.y * 2.0));
+        originalSize = lineButtonRectTransform.sizeDelta;
+        Vector2 enlargedSize = new Vector2((float)(lineButtonRectTransform.sizeDelta.x * 1.5), (float)(lineButtonRectTransform.sizeDelta.y * 2.0));
 
-        originalPosition = LineGuessing.anchoredPosition;
-        originalButtonPosition = buttonRectTransform.anchoredPosition;
-        Vector2 targetPosition = new Vector2(0.0f, -100.0f);
+        originalPosition = lineButtonRectTransform.anchoredPosition;
+        Vector2 targetPosition = Vector2.zero; // 중심으로 이동
 
-        originalFontSize = LineGuessingText.fontSize;
+        originalFontSize = textMeshPro.fontSize;
         float enlargedFontSize = (float)(originalFontSize * 1.5);
 
-        originalTextboxSize = LineGuessingText.rectTransform.sizeDelta;
+        originalTextboxSize = textMeshPro.rectTransform.sizeDelta;
         Vector2 enlargedTextboxSize = new Vector2((float)(originalTextboxSize.x * 1.5), (float)(originalTextboxSize.y * 3.0));
 
-        originalButtonSize = buttonRectTransform.sizeDelta;
-        Vector2 enlargedButtonSize = new Vector2((float)(buttonRectTransform.sizeDelta.x * 1.8), (float)(buttonRectTransform.sizeDelta.y * 1.4));
+        originalButtonSize = lineButtonRectTransform.sizeDelta;
+        Vector2 enlargedButtonSize = new Vector2((float)(lineButtonRectTransform.sizeDelta.x * 1.8), (float)(lineButtonRectTransform.sizeDelta.y * 1.4));
 
         float duration = 0.5f;
         float elapsedTime = 0f;
@@ -802,21 +802,19 @@ public class Book : MonoBehaviour {
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / duration);
 
-            LineGuessing.sizeDelta = Vector2.Lerp(originalSize, enlargedSize, t);
-            LineGuessing.anchoredPosition = Vector2.Lerp(originalPosition, targetPosition, t);
-            LineGuessingText.fontSize = (int)Mathf.Lerp(originalFontSize, enlargedFontSize, t);
-            LineGuessingText.rectTransform.sizeDelta = Vector2.Lerp(originalTextboxSize, enlargedTextboxSize, t);
-            buttonRectTransform.anchoredPosition = Vector2.Lerp(originalButtonPosition, targetPosition, t);
-            buttonRectTransform.sizeDelta = Vector2.Lerp(originalButtonSize, enlargedButtonSize, t);
+            lineButtonRectTransform.sizeDelta = Vector2.Lerp(originalSize, enlargedSize, t);
+            lineButtonRectTransform.anchoredPosition = Vector2.Lerp(originalPosition, targetPosition, t);
+            textMeshPro.fontSize = (int)Mathf.Lerp(originalFontSize, enlargedFontSize, t);
+            textMeshPro.rectTransform.sizeDelta = Vector2.Lerp(originalTextboxSize, enlargedTextboxSize, t);
+            lineButtonRectTransform.sizeDelta = Vector2.Lerp(originalButtonSize, enlargedButtonSize, t);
 
             yield return null;
         }
 
-        LineGuessing.sizeDelta = enlargedSize;
-        LineGuessing.anchoredPosition = targetPosition;
-        LineGuessingText.fontSize = (int)enlargedFontSize;
-        buttonRectTransform.anchoredPosition = targetPosition;
-        buttonRectTransform.sizeDelta = enlargedButtonSize;
+        lineButtonRectTransform.sizeDelta = enlargedSize;
+        lineButtonRectTransform.anchoredPosition = targetPosition;
+        textMeshPro.fontSize = (int)enlargedFontSize;
+        lineButtonRectTransform.sizeDelta = enlargedButtonSize;
 
         yield return new WaitForSeconds(2.0f);
 
@@ -826,7 +824,6 @@ public class Book : MonoBehaviour {
         //string filePath = Path.Combine(Application.persistentDataPath, "tts.mp3");
 
         //PlaySpeech(filePath);
-
     }
 
     public void PlaySpeech(string path)
