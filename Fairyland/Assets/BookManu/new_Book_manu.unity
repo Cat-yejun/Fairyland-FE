@@ -364,6 +364,59 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: 15.6
   m_LayoutPriority: 1
+--- !u!1 &235422967
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 235422969}
+  - component: {fileID: 235422968}
+  m_Layer: 0
+  m_Name: GameObject (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &235422968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 235422967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b6af1863f84b40258500476fb5a60c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LaLoText: {fileID: 1427019812}
+  whale: {fileID: 750646409}
+  WhaleObject: {fileID: 750646407}
+  skinnedMeshRenderer: {fileID: 253818857}
+  whaleAnimator: {fileID: 750646408}
+  expressions:
+  - {fileID: 2100000, guid: 6bf6bcb5b571eab409e14ed221459b06, type: 2}
+  - {fileID: 2100000, guid: 6bf6bcb5b571eab409e14ed221459b06, type: 2}
+  - {fileID: 2100000, guid: 40438269ae2178a418e2e965e7fca109, type: 2}
+--- !u!4 &235422969
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 235422967}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.5457406, y: -3.2592592, z: 90}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!137 &253818857 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 137922234217036242, guid: 94c60322659a75c489677560265c672a, type: 3}
@@ -1390,7 +1443,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 921085240}
-  - component: {fileID: 921085241}
   - component: {fileID: 921085243}
   - component: {fileID: 921085242}
   m_Layer: 0
@@ -1415,27 +1467,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &921085241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 921085239}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b6af1863f84b40258500476fb5a60c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LaLoText: {fileID: 1427019812}
-  whale: {fileID: 750646409}
-  WhaleObject: {fileID: 750646407}
-  skinnedMeshRenderer: {fileID: 253818857}
-  whaleAnimator: {fileID: 750646408}
-  expressions:
-  - {fileID: 2100000, guid: 6bf6bcb5b571eab409e14ed221459b06, type: 2}
-  - {fileID: 2100000, guid: 6bf6bcb5b571eab409e14ed221459b06, type: 2}
-  - {fileID: 2100000, guid: 40438269ae2178a418e2e965e7fca109, type: 2}
 --- !u!82 &921085242
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2317,3 +2348,4 @@ SceneRoots:
   - {fileID: 921085240}
   - {fileID: 1913504389}
   - {fileID: 657087291}
+  - {fileID: 235422969}
