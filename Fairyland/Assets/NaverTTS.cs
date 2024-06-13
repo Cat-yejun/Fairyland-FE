@@ -224,5 +224,25 @@ public class NaverTTSManager : MonoBehaviour
         }
     }
 
+    public void StopPlaying()
+    {
+        if (currentCoroutine != null)
+        {
+            if (audioSource == null)
+            {
+                BookClass.audioSource.Stop();
+                StopCoroutine(currentCoroutine);
+                Debug.Log("current coroutine stopping...");
+            }
+            else
+            {
+                audioSource.Stop();
+                StopCoroutine(currentCoroutine);
+                Debug.Log("current coroutine stopping...");
+
+            }
+
+        }
+    }
    
 }
