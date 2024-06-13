@@ -184,6 +184,7 @@ public class SpeakingScript : MonoBehaviour
         SpeakStopCanvas.SetActive(true);
         speakStopButton.interactable = true;
         SpeakStartCanvas.SetActive(false);
+        TTSManager.StopPlaying();
 
         StartRecording();
         //currentAccuracy = 0.9f;
@@ -197,7 +198,7 @@ public class SpeakingScript : MonoBehaviour
         SpeakStartCanvas.SetActive(true);
         speakStartButton.interactable = false;
 
-        
+
         //string filePath = Path.Combine(Application.persistentDataPath, "MyRecording.wav");
 
         //if (File.Exists(filePath))
