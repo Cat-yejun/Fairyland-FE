@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class NotiForBook : MonoBehaviour
 {
-    public Button buttonToControl;
+    public GameObject buttonToControl;
     
 
     void Start()
@@ -37,12 +37,17 @@ public class NotiForBook : MonoBehaviour
         {
 
             
-            buttonToControl.gameObject.SetActive(true);
+            buttonToControl.SetActive(true);
         }
       
         else
         {
-            buttonToControl.gameObject.SetActive(false);
+            buttonToControl.SetActive(false);
         }
+    }
+
+    public void OnPressExitButton()
+    {
+        buttonToControl.SetActive(false);
     }
 }

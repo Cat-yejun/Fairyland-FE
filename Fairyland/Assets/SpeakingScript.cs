@@ -292,7 +292,7 @@ public class SpeakingScript : MonoBehaviour
         {
             SpeakStartCanvas.SetActive(true);
             speakStartButton.interactable = true;
-            AskLineGuessCanvas.SetActive(true);
+            //AskLineGuessCanvas.SetActive(true);
 
             string guideText = BookClass.guideText;
 
