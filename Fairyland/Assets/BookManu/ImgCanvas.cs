@@ -59,7 +59,7 @@ public class ImgCanvas : MonoBehaviour
 
         // selectedImages 배열 초기화
         int maxScene = PlayerPrefs.GetInt("split", 1) - 1;
-        maxScene = 3; // TEST!!!!!!!
+        //maxScene = 3; // TEST!!!!!!!
         selectedImages = new string[maxScene + 1]; // 씬 번호는 1부터 시작하므로 +1
         goToCreateInteractionButton.gameObject.SetActive(false);
         //goToCreateInteractionButton.onClick.AddListener(SendInteractionRequest);
@@ -148,7 +148,6 @@ public class ImgCanvas : MonoBehaviour
 
     private void SelectImage()
     {
-
         string imageName = $"{currentScene}-{current_img_num}.png";
 
         if (selectedImages[currentScene] == imageName)
@@ -159,25 +158,30 @@ public class ImgCanvas : MonoBehaviour
         {
             selectedImages[currentScene] = imageName;
             Debug.Log($"Image {imageName} selected for scene {currentScene}.");
-            // Check if the array is full
-            bool arrayIsFull = true;
+
+            // Count the number of empty slots
+            int emptySlots = 0;
             for (int i = 1; i < selectedImages.Length; i++)
             {
                 if (string.IsNullOrEmpty(selectedImages[i]))
                 {
-                    arrayIsFull = false;
-                    break;
+                    emptySlots++;
                 }
             }
 
-            // Activate "Go to Create Interaction" button if the array is full
-            if (arrayIsFull)
+            if (emptySlots == 0)
             {
+                // Activate "Go to Create Interaction" button if the array is full
                 goToCreateInteractionButton.gameObject.SetActive(true);
                 LALO.SetActive(true);
             }
+            else
+            {
+                Debug.Log($"There are {emptySlots} more slots to be filled.");
+            }
         }
     }
+
 
 
     public void DeleteNonSelectedImages()
