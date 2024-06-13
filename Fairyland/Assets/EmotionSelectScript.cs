@@ -368,6 +368,11 @@ public class EmotionSelectScript : MonoBehaviour
         int[] fixedAnswer = { 6, 2, 4, 1, 5, 3 };
         int Answer = BookClass.emotionInteger;
 
+        if (Answer == 6)
+        {
+            prevSelection = 6;
+        }
+
         if (prevSelection == fixedAnswer[Answer])
         {
             HappyCanvas.SetActive(false);
