@@ -104,6 +104,7 @@ public class EmotionSelectScript : MonoBehaviour
 
     public void ExpressionSelectButton(int expression)
     {
+        BackGroundMusicBook.Instance.PlayButtonSound();
         StartCoroutine(selectionButton(expression));
     }
 
