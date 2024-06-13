@@ -185,6 +185,9 @@ public class Book : MonoBehaviour {
     public int emotionInteger;
     public string LineGuessAnswer;
 
+    public RectTransform canvasRect; // The RectTransform of the Canvas
+
+
 
     public void SwitchScene()
     {
@@ -239,6 +242,7 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
+        currentPage = 0;
         title = PlayerPrefs.GetString("title", "defaultTitle");
         Debug.Log("book's title is : " + title);
 
@@ -276,7 +280,7 @@ public class Book : MonoBehaviour {
         originalFontSize = LineGuessingText.fontSize;
         originalTextboxSize = LineGuessingText.rectTransform.sizeDelta;
         originalButtonSize = buttonRectTransform.sizeDelta;
-
+        
 
         bookBigPages = new List<Sprite>();
 
@@ -333,6 +337,95 @@ public class Book : MonoBehaviour {
     }
 
 
+
+   
+    private Vector2 GetCharacterPosition(TextGenerator textGen, int charIndex, Text textComponent)
+    {
+        IList<UIVertex> verts = textGen.verts;
+        Vector3 position = verts[charIndex * 4].position;
+        Vector2 localPosition = new Vector2(position.x, position.y);
+        return textComponent.rectTransform.TransformPoint(localPosition);
+    }
+
+
+    private void PositionButtonOverText(TextMeshProUGUI textComponent, string targetWord, RectTransform buttonRectTransform)
+    {
+        string text = textComponent.text;
+        int startIndex = text.IndexOf(targetWord);
+
+        if (startIndex == -1)
+        {
+            Debug.LogError("Target word not found in text.");
+            return;
+        }
+
+        // Get the TMP_TextInfo for the text component
+        TMP_TextInfo textInfo = textComponent.textInfo;
+        textComponent.ForceMeshUpdate();  // Ensure the text mesh is up to date
+
+        Vector3 startPosition = Vector3.zero;
+        Vector3 endPosition = Vector3.zero;
+        bool startFound = false;
+        bool endFound = false;
+
+        for (int i = 0; i < textInfo.characterCount; i++)
+        {
+            TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+
+            if (charInfo.index == startIndex && !startFound)
+            {
+                startPosition = charInfo.bottomLeft;
+                startFound = true;
+            }
+
+            if (charInfo.index == startIndex + targetWord.Length - 1 && !endFound)
+            {
+                endPosition = charInfo.topRight;
+                endFound = true;
+            }
+
+            if (startFound && endFound)
+            {
+                break;
+            }
+        }
+
+        if (!startFound || !endFound)
+        {
+            Debug.LogError("Failed to find the positions for the target word.");
+            return;
+        }
+
+        // Convert the positions to world space
+        RectTransform textRectTransform = textComponent.GetComponent<RectTransform>();
+        Vector3 worldStartPosition = textRectTransform.TransformPoint(startPosition);
+        Vector3 worldEndPosition = textRectTransform.TransformPoint(endPosition);
+
+        // Calculate the button size and position
+        float textWidth = Vector3.Distance(worldStartPosition, worldEndPosition);
+        float buttonHeight = textComponent.fontSize * 1.2f;  // Adjust the button height as needed
+        Vector2 buttonSize = new Vector2(textWidth, buttonHeight);
+        Vector2 buttonPosition = (worldStartPosition + worldEndPosition) / 2;
+
+        // Convert the position to screen point
+        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, buttonPosition);
+
+        // Convert the screen point to local point in the Button's parent RectTransform
+        RectTransform parentRectTransform = buttonRectTransform.parent.GetComponent<RectTransform>();
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRectTransform, screenPoint, null, out Vector2 localPoint);
+
+        // Set the button's position and size
+        buttonRectTransform.sizeDelta = buttonSize;
+        buttonRectTransform.anchoredPosition = localPoint;
+
+        // Adjust the scale
+        buttonRectTransform.localScale = new Vector3(buttonRectTransform.localScale.x, 1, buttonRectTransform.localScale.z);
+
+        Debug.Log("Button Position: " + buttonRectTransform.anchoredPosition);
+        Debug.Log("Button Size: " + buttonRectTransform.sizeDelta);
+    }
+
+
     public void OnPressReadStoryButton()
     {
         TTSManager.GetAndPlaySpeech("vdain", "Neutral", texts[currentPage / 2 - 1], "ReadText");
@@ -374,7 +467,7 @@ public class Book : MonoBehaviour {
     {
         string filePath = interactionPath;
 
-        string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "Main" };
+        string[] emotionArray = { "Calm", "Happy", "Sad", "Angry", "Fear", "Surprised", "main" };
 
         string filePath1 = textPath;
 
@@ -597,6 +690,34 @@ public class Book : MonoBehaviour {
     public void StartGotoOriginalPos()
     {
         StartCoroutine(GotoOriginalPosition());
+    }
+
+    private void GotoOriginalAtOnce()
+    {
+        Vector2 currentSize = LineGuessing.sizeDelta;
+        Vector2 currentPosition = LineGuessing.anchoredPosition;
+        Vector2 currentButtonPosition = buttonRectTransform.anchoredPosition;
+
+        Vector2 targetPosition = originalPosition;
+        //Vector2 targetButtonPosition = originalButtonPosition;
+        Vector2 targetSize = originalSize;
+
+        float currentFontSize = LineGuessingText.fontSize;
+        float targetFontSize = originalFontSize;
+
+        Vector2 currentTextboxSize = LineGuessingText.rectTransform.sizeDelta;
+        Vector2 targetTextboxSize = originalTextboxSize;
+
+        Vector2 currentButtonSize = buttonRectTransform.sizeDelta;
+        //Vector2 targetButtonSize = originalButtonSize;
+
+
+        LineGuessing.sizeDelta = targetSize;
+        LineGuessing.anchoredPosition = targetPosition;
+        LineGuessingText.fontSize = (int)targetFontSize;
+        //buttonRectTransform.anchoredPosition = targetButtonPosition;
+        //buttonRectTransform.sizeDelta = targetButtonSize;
+
     }
 
     private IEnumerator GotoOriginalPosition()
@@ -831,6 +952,9 @@ public class Book : MonoBehaviour {
                         LineButtonCanvas.SetActive(true);
                         LineGuessing = LeftTextbox;
                         LineGuessingText = textObjectLeft;
+                        PositionButtonOverText(LineGuessingText, LineGuessAnswer, buttonRectTransform);
+                        Debug.Log("position is : " + buttonRectTransform.anchoredPosition);
+                        //LineGuessing.anchoredPosition = Vector3.zero;
 
                     }
                     else
@@ -877,7 +1001,10 @@ public class Book : MonoBehaviour {
                         LineButtonCanvas.SetActive(true);
                         LineGuessing = RightTextbox;
                         LineGuessingText = textObjectRight;
-                       
+                        PositionButtonOverText(LineGuessingText, LineGuessAnswer, buttonRectTransform);
+                        Debug.Log("position is : " + buttonRectTransform.anchoredPosition);
+                        //LineGuessing.anchoredPosition = Vector3.zero;
+
                     }
                     else
                     {
@@ -1423,9 +1550,11 @@ public class Book : MonoBehaviour {
         RightNext.transform.SetParent(BookPanel.transform, true);
         UpdateSprites();
 
+        GotoOriginalAtOnce();
+        //StartCoroutine(GotoOriginalPosition());
+
         UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
 
-        StartCoroutine(GotoOriginalPosition());
         audioSource.Stop();
         firstButtonPress = false;
         pressAllowed = true;

@@ -26,25 +26,25 @@ public class NaverTTSManager : MonoBehaviour
     private Coroutine currentCoroutine;
 
 
-    void LoadTextsToPages()
-    {
-        string[] filePaths = Directory.GetFiles(Path.Combine(Application.persistentDataPath, "SaveFile", title, "interaction"), "*.txt");
-        Debug.Log("Total files found: " + filePaths.Length);
+    //void LoadTextsToPages()
+    //{
+    //    string[] filePaths = Directory.GetFiles(Path.Combine(Application.persistentDataPath, "SaveFile", title, "interaction.json"), "*.txt");
+    //    Debug.Log("Total files found: " + filePaths.Length);
 
-        int fileLength = filePaths.Length;
+    //    int fileLength = filePaths.Length;
 
-        texts = new string[fileLength];
+    //    texts = new string[fileLength];
 
-        for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
-        {
-            Debug.Log("Loading text from: " + filePaths[pageIndex]);
+    //    for (int pageIndex = 0; pageIndex < fileLength; pageIndex++)
+    //    {
+    //        Debug.Log("Loading text from: " + filePaths[pageIndex]);
 
-            string textContent = File.ReadAllText(filePaths[pageIndex]);
-            texts[pageIndex] = textContent;
-        }
+    //        string textContent = File.ReadAllText(filePaths[pageIndex]);
+    //        texts[pageIndex] = textContent;
+    //    }
 
-        Debug.Log("texts Length : " + texts.Length);
-    }
+    //    Debug.Log("texts Length : " + texts.Length);
+    //}
 
 
 
@@ -55,7 +55,7 @@ public class NaverTTSManager : MonoBehaviour
 
         BookClass = GetComponent<Book>();
 
-        LoadTextsToPages();
+        //LoadTextsToPages();
 
         //audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
