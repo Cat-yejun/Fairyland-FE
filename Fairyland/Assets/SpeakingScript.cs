@@ -234,7 +234,7 @@ public class SpeakingScript : MonoBehaviour
 
         if (currentAccuracy > AccuracyPass)
         {
-            if(exists)
+            if(exists || currentEmotion == "calm")
             {
                 TTSManager.GetAndPlaySpeech("vdain", "Happy", "맞았어요!", "CorrectAnswer");
 
@@ -280,7 +280,7 @@ public class SpeakingScript : MonoBehaviour
             SpeakStopCanvas.SetActive(false);
             NextButtonCanvas.SetActive(false);
             AskLineGuessCanvas.SetActive(false);
-
+            
             //StartCoroutine(Sequence());
             //NextButtonCanvas.SetActive(true);
             BookClass.StartGotoOriginalPos();

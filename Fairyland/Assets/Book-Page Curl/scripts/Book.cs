@@ -185,7 +185,17 @@ public class Book : MonoBehaviour {
     public int emotionInteger;
     public string LineGuessAnswer;
 
-    public RectTransform canvasRect; // The RectTransform of the Canvas
+    //public RectTransform canvasRect; // The RectTransform of the Canvas
+
+    public GameObject EmotionSelectCanvas;
+    public GameObject CorrectCanvas;
+    public GameObject WrongCanvas;
+    public GameObject HappyCanvas;
+    public GameObject AngryCanvas;
+    public GameObject SadCanvas;
+    public GameObject FearCanvas;
+    public GameObject SurpriseCanvas;
+    public GameObject CalmCanvas;
 
 
 
@@ -690,6 +700,7 @@ public class Book : MonoBehaviour {
 
     public void StartGotoOriginalPos()
     {
+        AskEmotionCanvas.SetActive(false);
         StartCoroutine(GotoOriginalPosition());
     }
 
@@ -793,7 +804,20 @@ public class Book : MonoBehaviour {
         Vector2 enlargedTextboxSize = new Vector2((float)(originalTextboxSize.x * 1.5), (float)(originalTextboxSize.y * 3.0));
 
         originalButtonSize = buttonRectTransform.sizeDelta;
-        Vector2 enlargedButtonSize = new Vector2((float)(buttonRectTransform.sizeDelta.x * 1.8), (float)(buttonRectTransform.sizeDelta.y * 1.4));
+        //Vector2 enlargedButtonSize = new Vector2((float)(buttonRectTransform.sizeDelta.x * 1.8), (float)(buttonRectTransform.sizeDelta.y * 1.4));
+
+        RectTransform tempLineGuessing = LineGuessing;
+        TextMeshProUGUI tempLineGuessingText = LineGuessingText;
+
+        tempLineGuessing.sizeDelta = enlargedSize;
+        tempLineGuessing.anchoredPosition = targetPosition;
+        tempLineGuessingText.fontSize = (int)enlargedFontSize;
+
+        RectTransform temp = buttonRectTransform;
+        PositionButtonOverText(tempLineGuessingText, LineGuessAnswer, temp);
+
+        Vector2 enlargedButtonSize = new Vector2(temp.sizeDelta.x, temp.sizeDelta.y);
+        Vector2 buttonTargetPosition = new Vector2(temp.anchoredPosition.x, temp.anchoredPosition.y);
 
         float duration = 0.5f;
         float elapsedTime = 0f;
@@ -807,7 +831,7 @@ public class Book : MonoBehaviour {
             LineGuessing.anchoredPosition = Vector2.Lerp(originalPosition, targetPosition, t);
             LineGuessingText.fontSize = (int)Mathf.Lerp(originalFontSize, enlargedFontSize, t);
             LineGuessingText.rectTransform.sizeDelta = Vector2.Lerp(originalTextboxSize, enlargedTextboxSize, t);
-            buttonRectTransform.anchoredPosition = Vector2.Lerp(originalButtonPosition, targetPosition, t);
+            buttonRectTransform.anchoredPosition = Vector2.Lerp(originalButtonPosition, buttonTargetPosition, t);
             buttonRectTransform.sizeDelta = Vector2.Lerp(originalButtonSize, enlargedButtonSize, t);
 
             yield return null;
@@ -816,7 +840,7 @@ public class Book : MonoBehaviour {
         LineGuessing.sizeDelta = enlargedSize;
         LineGuessing.anchoredPosition = targetPosition;
         LineGuessingText.fontSize = (int)enlargedFontSize;
-        buttonRectTransform.anchoredPosition = targetPosition;
+        buttonRectTransform.anchoredPosition = buttonTargetPosition;
         buttonRectTransform.sizeDelta = enlargedButtonSize;
 
         yield return new WaitForSeconds(2.0f);
@@ -886,7 +910,17 @@ public class Book : MonoBehaviour {
     {
         if (sceneLineGuessAnswer.ContainsKey(sceneIndex))
         {
-            return sceneLineGuessAnswer[sceneIndex];
+            string answer = sceneLineGuessAnswer[sceneIndex];
+
+            int firstQuoteIndex = answer.IndexOf('"');
+            int secondQuoteIndex = answer.IndexOf('"', firstQuoteIndex + 1);
+
+            if (firstQuoteIndex != -1 && secondQuoteIndex != -1)
+            {
+                return answer.Substring(firstQuoteIndex + 1, secondQuoteIndex - firstQuoteIndex - 1);
+            }
+
+            return answer;
         }
         return string.Empty;
     }
@@ -902,6 +936,17 @@ public class Book : MonoBehaviour {
         LineButtonCanvas.SetActive(false);
         StoryCanvasLeft.SetActive(false);
         StoryCanvasRight.SetActive(false);
+        AskEmotionCanvas.SetActive(false);
+        AskLineGuessCanvas.SetActive(false);
+        EmotionSelectCanvas.SetActive(false);
+        HappyCanvas.SetActive(false);
+        AngryCanvas.SetActive(false);
+        SurpriseCanvas.SetActive(false);
+        SadCanvas.SetActive(false);
+        FearCanvas.SetActive(false);
+        CalmCanvas.SetActive(false);
+        WrongCanvas.SetActive(false);
+        CorrectCanvas.SetActive(false);
 
 
         if (currentPage == 0 || currentPage / 2 > texts.Length)
