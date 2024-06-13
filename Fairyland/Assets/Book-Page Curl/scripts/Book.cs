@@ -1601,6 +1601,8 @@ public class Book : MonoBehaviour {
         UpdateSprites();
 
         GotoOriginalAtOnce();
+
+        TTSManager.StopPlaying();
         //StartCoroutine(GotoOriginalPosition());
 
         UpdateTextVisibility(); // 페이지를 넘길 때마다 텍스트 업데이트
