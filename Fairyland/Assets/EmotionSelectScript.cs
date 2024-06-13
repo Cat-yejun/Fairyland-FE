@@ -63,6 +63,7 @@ public class EmotionSelectScript : MonoBehaviour
     private NaverTTSManager TTSManager;
 
     private int answerEmotion = 6;
+    private bool correct;
 
     public Camera uiCamera;
 
@@ -159,6 +160,7 @@ public class EmotionSelectScript : MonoBehaviour
 
     private IEnumerator selectionButton(int expression)
     {
+
         AngryButton.interactable = false;
         HappyButton.interactable = false;
         SurpriseButton.interactable = false;
@@ -383,6 +385,7 @@ public class EmotionSelectScript : MonoBehaviour
             CalmCanvas.SetActive(false);
             CorrectCanvas.SetActive(true);
             TTSManager.GetAndPlaySpeech("vdain", "Happy", "맞았어요!", "Correct");
+            correct = true;
 
         }
         else
@@ -396,25 +399,46 @@ public class EmotionSelectScript : MonoBehaviour
             WrongCanvas.SetActive(true);
 
             TTSManager.GetAndPlaySpeech("vdain", "Sad", "틀렸어요.", "Wrong");
-
+            correct = false;
         }
 
         yield return new WaitForSeconds(4);
 
-        StartCoroutine(gotoWhaleOriginalPosition());
 
-        SpeakStartCanvas.SetActive(true);
-        SpeakStartButton.interactable = true;
-        AskLineGuessCanvas.SetActive(true);
-
-        string guideText = BookClass.guideText;
-
-        if (!string.IsNullOrEmpty(guideText))
+        if (correct)
         {
-            TTSManager.GetAndPlaySpeech("ndain", "Neutral", guideText, "Guide");
-            Debug.Log("Guide Text: " + guideText);
 
+            StartCoroutine(gotoWhaleOriginalPosition());
+
+            SpeakStartCanvas.SetActive(true);
+            SpeakStartButton.interactable = true;
+            AskLineGuessCanvas.SetActive(true);
+
+            string guideText = BookClass.guideText;
+
+            if (!string.IsNullOrEmpty(guideText))
+            {
+                TTSManager.GetAndPlaySpeech("ndain", "Neutral", guideText, "Guide");
+                Debug.Log("Guide Text: " + guideText);
+
+            }
         }
+
+        CorrectCanvas.SetActive(false);
+        WrongCanvas.SetActive(false);
+        AskEmotionCanvas.SetActive(true);
+
+        whaleAnimator.SetInteger("NextInt", 0);
+        changeExpression(0);
+
+        AngryButton.interactable = true;
+        HappyButton.interactable = true;
+        SurpriseButton.interactable = true;
+        SadButton.interactable = true;
+        FearButton.interactable = true;
+        CalmButton.interactable = true;
+
+        isDescriptionShown = false;
     }
 
     public IEnumerator gotoWhaleOriginalPosition()
