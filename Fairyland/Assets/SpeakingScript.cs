@@ -54,6 +54,9 @@ public class SpeakingScript : MonoBehaviour
     private readonly string serverUrlSimilarity = "http://a249-125-132-126-243.ngrok-free.app/asr-similarity/";
     private readonly string groundTruth = "";
 
+
+    private bool correct;
+
     private Book BookClass;
 
     public TextMeshProUGUI CorrectText;
@@ -238,6 +241,8 @@ public class SpeakingScript : MonoBehaviour
                 CorrectCanvas.SetActive(true);
                 WrongCanvas.SetActive(false);
 
+                correct = true;
+
             }
             else
             {
@@ -250,6 +255,8 @@ public class SpeakingScript : MonoBehaviour
 
                 WrongCanvas.SetActive(true);
                 CorrectCanvas.SetActive(false);
+
+                correct = false;
             }
         }
         else
@@ -259,23 +266,45 @@ public class SpeakingScript : MonoBehaviour
 
             WrongCanvas.SetActive(true);
             CorrectCanvas.SetActive(false);
+
+            correct = false;
         }
 
-        yield return new WaitForSeconds(3.0f);
+        if (correct)
+        {
+            yield return new WaitForSeconds(3.0f);
 
-        CorrectCanvas.SetActive(false);
-        WrongCanvas.SetActive(false);
-        SpeakStartCanvas.SetActive(false);
-        SpeakStopCanvas.SetActive(false);
-        NextButtonCanvas.SetActive(false);
-        AskLineGuessCanvas.SetActive(false);
+            CorrectCanvas.SetActive(false);
+            WrongCanvas.SetActive(false);
+            SpeakStartCanvas.SetActive(false);
+            SpeakStopCanvas.SetActive(false);
+            NextButtonCanvas.SetActive(false);
+            AskLineGuessCanvas.SetActive(false);
 
-        //StartCoroutine(Sequence());
-        //NextButtonCanvas.SetActive(true);
-        BookClass.StartGotoOriginalPos();
-        BookClass.firstButtonPress = false;
+            //StartCoroutine(Sequence());
+            //NextButtonCanvas.SetActive(true);
+            BookClass.StartGotoOriginalPos();
+            BookClass.firstButtonPress = false;
 
-        CorrectText.text = "틀렸어요.";
+            CorrectText.text = "틀렸어요.";
+        }
+        else
+        {
+            SpeakStartCanvas.SetActive(true);
+            speakStartButton.interactable = true;
+            //AskLineGuessCanvas.SetActive(true);
+
+            string guideText = BookClass.guideText;
+
+            if (!string.IsNullOrEmpty(guideText))
+            {
+                TTSManager.GetAndPlaySpeech("ndain", "Neutral", guideText, "Guide");
+                Debug.Log("Guide Text: " + guideText);
+
+            }
+        }
+
+        
 
     }
 

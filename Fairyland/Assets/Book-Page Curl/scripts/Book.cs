@@ -197,6 +197,7 @@ public class Book : MonoBehaviour {
 
     public void GoToHomeMenu()
     {
+        GlobalSceneData.Data["currentPage"] = 0;
         SceneManager.LoadScene("New_Book_manu");
     }
 
@@ -242,7 +243,7 @@ public class Book : MonoBehaviour {
 
     void Start()
     {
-        currentPage = 0;
+        //currentPage = 0;
         title = PlayerPrefs.GetString("title", "defaultTitle");
         Debug.Log("book's title is : " + title);
 
@@ -403,8 +404,8 @@ public class Book : MonoBehaviour {
 
         // Calculate the button size and position
         float textWidth = Vector3.Distance(worldStartPosition, worldEndPosition);
-        float buttonHeight = textComponent.fontSize * 1.2f;  // Adjust the button height as needed
-        Vector2 buttonSize = new Vector2(textWidth, buttonHeight);
+        float buttonHeight = textComponent.fontSize * 1.5f;  // Adjust the button height as needed
+        Vector2 buttonSize = new Vector2(textWidth*3, buttonHeight);
         Vector2 buttonPosition = (worldStartPosition + worldEndPosition) / 2;
 
         // Convert the position to screen point
