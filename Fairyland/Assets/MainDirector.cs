@@ -9,7 +9,7 @@ public class MainDirector : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            SceneManager.LoadScene("Book_manu");
+            SceneManager.LoadScene("new_Book_manu");
         }
 
     }

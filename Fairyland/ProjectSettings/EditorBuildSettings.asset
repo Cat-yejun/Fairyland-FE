@@ -6,15 +6,36 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/makeBook/scenes/textlookScene.unity
+    guid: e2f40bc0a14334daa94fbd8089c2799a
   - enabled: 1
-    path: Assets/MainScene.unity
+    path: Assets/BookManu/MainScene.unity
     guid: e1f33ab8f0a09488cba58b068f5fa96a
-  - enabled: 0
-    path: Assets/sceneee.unity
-    guid: 5cbf09e732fed4cf8b2bd6b2540d12f7
+  - enabled: 1
+    path: Assets/makeBook/scenes/mktextScene.unity
+    guid: a49e70c46567348c5bee90517f91f8f4
   - enabled: 1
     path: Assets/Book_manu.unity
     guid: 16eb096e37b3b41f1872ebf51e7959e3
+  - enabled: 1
+    path: Assets/BookManu/new_Book_manu.unity
+    guid: a966cc33578854772ba26eda2964a348
+  - enabled: 1
+    path: Assets/newBook.unity
+    guid: 7d75ba1d37bea154e8de3c3f2129e014
+  - enabled: 1
+    path: Assets/Role_Playing_3d.unity
+    guid: 3e719a0a93be74f62975dfb9beb5a9ad
+  - enabled: 1
+    path: Assets/APITest/scenes/APITestScene.unity
+    guid: 05b9f3c396464464eafb10dbd3dedc51
+  - enabled: 1
+    path: Assets/BookManu/new_selectScene.unity
+    guid: 56b229b0f335c486c8b2666de48b1277
+  - enabled: 1
+    path: Assets/BookManu/txtInputScene.unity
+    guid: fcd77d56946204d2f929f296e9f2cdf7
+  - enabled: 1
+    path: Assets/3D_book.unity
+    guid: d3490e6eda915473baf5fbc41b8af016
   m_configObjects: {}
